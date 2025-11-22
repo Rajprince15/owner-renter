@@ -2,6 +2,17 @@
 HOMER - PHASED IMPLEMENTATION PLAN
 =================================================================
 
+╔═══════════════════════════════════════════════════════════════╗
+║                    🔐  IMPORTANT NOTE  🔐                     ║
+║                                                               ║
+║  DATABASE: MySQL (Production) / MariaDB (Development)        ║
+║  ────────────────────────────────────────────────────────   ║
+║  • LLM will use MariaDB locally during development          ║
+║  • User will use MySQL in production (credentials private)  ║
+║  • 100% compatible - same SQL syntax                        ║
+║  • See workflow.txt for detailed database strategy          ║
+╚═══════════════════════════════════════════════════════════════╝
+
 This document breaks down the entire Homer platform into 12 small phases.
 Each phase is designed to take approximately 4-5 credits and can be 
 completed independently.
@@ -38,20 +49,27 @@ ESTIMATED CREDITS: 4-5
 
 WHAT WILL BE BUILT:
 -------------------
-1. Backend setup (FastAPI + MongoDB)
+1. Backend setup (FastAPI + MySQL/MariaDB)
 2. Frontend setup (React + Tailwind)
 3. Environment configuration
 4. Landing page with hero section
 5. Basic routing structure
+
+DATABASE SETUP (CRITICAL):
+--------------------------
+- LLM will use: MariaDB (mysql://root@localhost:3306/homer_db)
+- User will use: MySQL (your production credentials - private)
+- Connection configured in .env file
+- 100% compatible - no code changes needed to switch
 
 FILES TO CREATE:
 ----------------
 Backend:
 - /app/backend/server.py (FastAPI main file)
 - /app/backend/requirements.txt
-- /app/backend/.env
+- /app/backend/.env (with MariaDB connection for development)
 - /app/backend/config.py (environment variables)
-- /app/backend/database.py (MongoDB connection)
+- /app/backend/database.py (MySQL/MariaDB connection using SQLAlchemy)
 
 Frontend:
 - /app/frontend/package.json
@@ -78,7 +96,7 @@ FEATURES IN THIS PHASE:
 ✓ Smooth animations and transitions
 ✓ Backend server running on port 8001
 ✓ Frontend running on port 3000
-✓ MongoDB connection established
+✓ MariaDB connection established (development database)
 
 TESTING CHECKLIST:
 ------------------
@@ -86,7 +104,7 @@ TESTING CHECKLIST:
 □ Frontend loads at localhost:3000
 □ Landing page looks good on mobile and desktop
 □ Navigation links work (even if pages don't exist yet)
-□ MongoDB connection successful
+□ MariaDB connection successful (check backend logs)
 
 WHAT WORKS AFTER PHASE 1:
 --------------------------
@@ -107,7 +125,7 @@ WHAT WILL BE BUILT:
 -------------------
 1. User registration (email/phone + password)
 2. Login system with JWT tokens
-3. User profile structure in MongoDB
+3. User profile structure in MySQL/MariaDB (users table)
 4. Protected routes middleware
 5. Login and Signup pages
 
@@ -153,28 +171,27 @@ FEATURES IN THIS PHASE:
 ✓ User info stored in localStorage
 ✓ Automatic login persistence
 
-DATABASE SCHEMA (users collection):
-------------------------------------
-{
-  user_id: UUID,
-  email: String (unique),
-  phone: String (unique),
-  password_hash: String,
-  user_type: "renter" | "owner" | "both",
-  full_name: String,
-  created_at: DateTime,
-  profile: {
-    renter_profile: {
-      subscription_tier: "free",
-      contacts_used: 0,
-      is_verified: false
-    },
-    owner_profile: {
-      properties_listed: [],
-      is_verified: false
-    }
-  }
-}
+DATABASE SCHEMA (users table - MySQL/MariaDB):
+-----------------------------------------------
+NOTE: This table structure works identically on both MariaDB (development) 
+and MySQL (production). See workflow.txt for full schema with CREATE TABLE syntax.
+
+Key fields:
+- user_id: VARCHAR(36) PRIMARY KEY (UUID)
+- email: VARCHAR(255) UNIQUE NOT NULL
+- phone: VARCHAR(20) UNIQUE NOT NULL
+- password_hash: VARCHAR(255) NOT NULL
+- user_type: ENUM('renter', 'owner', 'both') NOT NULL
+- full_name: VARCHAR(255)
+- created_at: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+- subscription_tier: ENUM('free', 'premium') DEFAULT 'free'
+- contacts_used: INT DEFAULT 0
+- is_verified_renter: BOOLEAN DEFAULT FALSE
+- is_verified_owner: BOOLEAN DEFAULT FALSE
+- renter_preferences: JSON (MySQL 5.7+ / MariaDB 10.2+ support)
+- employment_info: JSON
+
+(See workflow.txt Section 2 for complete CREATE TABLE statement)
 
 TESTING CHECKLIST:
 ------------------
@@ -257,36 +274,29 @@ FEATURES IN THIS PHASE:
 ✓ Form validation
 ✓ Success/error messages
 
-DATABASE SCHEMA (properties collection):
------------------------------------------
-{
-  property_id: UUID,
-  owner_id: UUID,
-  title: String,
-  description: String,
-  property_type: String,
-  bhk_type: String,
-  rent: Number,
-  security_deposit: Number,
-  location: {
-    address: String,
-    city: String,
-    locality: String,
-    pincode: String
-  },
-  details: {
-    carpet_area: Number,
-    furnishing: String,
-    parking: {car: Number, bike: Number},
-    amenities: [String],
-    available_from: Date
-  },
-  images: [String],
-  is_verified: false,
-  verification_tier: "free",
-  created_at: DateTime,
-  status: "active"
-}
+DATABASE SCHEMA (properties table - MySQL/MariaDB):
+----------------------------------------------------
+NOTE: This table structure works identically on both MariaDB (development) 
+and MySQL (production). JSON columns used for flexible nested data.
+
+Key fields:
+- property_id: VARCHAR(36) PRIMARY KEY (UUID)
+- owner_id: VARCHAR(36) (foreign key to users)
+- title: VARCHAR(255) NOT NULL
+- description: TEXT
+- property_type: VARCHAR(50)
+- bhk_type: VARCHAR(20)
+- rent: DECIMAL(10,2)
+- security_deposit: DECIMAL(10,2)
+- location: JSON (address, city, locality, pincode, lat, long)
+- details: JSON (carpet_area, furnishing, parking, amenities, etc.)
+- images: JSON (array of image URLs)
+- is_verified: BOOLEAN DEFAULT FALSE
+- verification_tier: ENUM('free', 'verified') DEFAULT 'free'
+- created_at: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+- status: ENUM('active', 'inactive', 'rented', 'deleted') DEFAULT 'active'
+
+(See workflow.txt Section 2 for complete CREATE TABLE statement)
 
 TESTING CHECKLIST:
 ------------------
@@ -386,15 +396,15 @@ FEATURES IN THIS PHASE:
 ✓ Pagination for search results
 ✓ Responsive grid layout
 
-DATABASE SCHEMA (shortlists collection):
------------------------------------------
-{
-  shortlist_id: UUID,
-  user_id: UUID,
-  property_id: UUID,
-  notes: String,
-  created_at: DateTime
-}
+DATABASE SCHEMA (shortlists table - MySQL/MariaDB):
+----------------------------------------------------
+- shortlist_id: VARCHAR(36) PRIMARY KEY (UUID)
+- user_id: VARCHAR(36) (foreign key to users)
+- property_id: VARCHAR(36) (foreign key to properties)
+- notes: TEXT
+- created_at: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+(See workflow.txt Section 2 for complete CREATE TABLE statement)
 
 TESTING CHECKLIST:
 ------------------
@@ -477,26 +487,21 @@ FEATURES IN THIS PHASE:
 ✓ Read/unread status tracking
 ✓ Notification badge with unread count
 
-DATABASE SCHEMA (chats collection):
-------------------------------------
-{
-  chat_id: UUID,
-  property_id: UUID,
-  renter_id: UUID,
-  owner_id: UUID,
-  created_at: DateTime,
-  last_message_at: DateTime,
-  messages: [
-    {
-      message_id: UUID,
-      sender_id: UUID,
-      sender_type: "renter" | "owner",
-      message: String,
-      timestamp: DateTime,
-      is_read: Boolean
-    }
-  ]
-}
+DATABASE SCHEMA (chats table - MySQL/MariaDB):
+-----------------------------------------------
+- chat_id: VARCHAR(36) PRIMARY KEY (UUID)
+- property_id: VARCHAR(36) (foreign key to properties)
+- renter_id: VARCHAR(36) (foreign key to users)
+- owner_id: VARCHAR(36) (foreign key to users)
+- created_at: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+- last_message_at: TIMESTAMP
+- messages: JSON (array of message objects with message_id, sender_id, 
+  sender_type, message, timestamp, is_read)
+
+NOTE: Messages stored as JSON array in chats table for REST API implementation.
+Alternative: Create separate messages table for better scalability.
+
+(See workflow.txt Section 2 for complete schema options)
 
 TESTING CHECKLIST:
 ------------------
@@ -669,7 +674,7 @@ FEATURES IN THIS PHASE:
   - Handles webhooks
 
 ✓ Transaction storage:
-  - All payments stored in transactions collection
+  - All payments stored in transactions table (MySQL/MariaDB)
   - Payment history page
   - Invoice download (PDF future, JSON now)
 
@@ -686,24 +691,21 @@ FEATURES IN THIS PHASE:
     * Status remains "pending" until admin approves
     * Store transaction_id
 
-DATABASE SCHEMA (transactions collection):
--------------------------------------------
-{
-  transaction_id: UUID,
-  user_id: UUID,
-  transaction_type: "renter_subscription" | "property_verification",
-  amount: Number,
-  currency: "INR",
-  payment_id: String,
-  order_id: String,
-  payment_status: "success" | "failed" | "pending",
-  is_mock: Boolean,
-  created_at: DateTime,
-  metadata: {
-    subscription_duration: 90,  // if subscription
-    property_id: UUID  // if verification
-  }
-}
+DATABASE SCHEMA (transactions table - MySQL/MariaDB):
+------------------------------------------------------
+- transaction_id: VARCHAR(36) PRIMARY KEY (UUID)
+- user_id: VARCHAR(36) (foreign key to users)
+- transaction_type: ENUM('renter_subscription', 'property_verification')
+- amount: DECIMAL(10,2)
+- currency: VARCHAR(3) DEFAULT 'INR'
+- payment_id: VARCHAR(255)
+- order_id: VARCHAR(255)
+- payment_status: ENUM('pending', 'success', 'failed', 'refunded')
+- is_mock: BOOLEAN DEFAULT FALSE
+- created_at: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+- metadata: JSON (subscription_duration, property_id, etc.)
+
+(See workflow.txt Section 2 for complete CREATE TABLE statement)
 
 TESTING CHECKLIST:
 ------------------
@@ -1290,21 +1292,25 @@ FEATURES IN THIS PHASE:
   - Setup instructions
   - Environment variables guide
 
-ANALYTICS SCHEMA (in property document):
------------------------------------------
-{
-  analytics: {
+ANALYTICS SCHEMA (in properties table - MySQL/MariaDB):
+--------------------------------------------------------
+Analytics stored as JSON column in properties table:
+
+- analytics: JSON column containing:
+  {
     total_views: 156,
     premium_views: 42,
     total_contacts: 8,
     shortlisted_count: 23,
-    last_viewed: DateTime,
+    last_viewed: "2025-01-02 14:30:00",
     views_history: [
       {date: "2025-01-01", count: 12},
       {date: "2025-01-02", count: 15}
     ]
   }
-}
+
+Alternative: Create separate property_analytics table for better performance
+(See workflow.txt for additional schema options)
 
 TESTING CHECKLIST:
 ------------------
@@ -1333,6 +1339,7 @@ WHAT WORKS AFTER PHASE 12:
 ✅ Mobile responsive
 ✅ Ready for demo/launch
 ✅ Can switch to production APIs anytime
+✅ Database ready to migrate from MariaDB (dev) to MySQL (production)
 
 =================================================================
 FINAL MVP FEATURE LIST (ALL 12 PHASES COMPLETE)
@@ -1447,8 +1454,50 @@ HOW TO USE THIS PLAN
 
 5. SWITCHING TO PRODUCTION:
    - Add API keys to .env file
+   - Update DATABASE_URL with YOUR MySQL credentials (see workflow.txt)
+   - Export schema from MariaDB and import to your MySQL
    - Restart servers
-   - No code changes needed!
+   - No code changes needed - 100% compatible!
+
+=================================================================
+DATABASE MIGRATION: MARIADB (DEV) → MySQL (PRODUCTION)
+=================================================================
+
+After completing all phases, to deploy to YOUR production MySQL:
+
+STEP 1: EXPORT SCHEMA FROM MARIADB (Development)
+-------------------------------------------------
+The LLM will have created all tables in MariaDB during development.
+Export the schema:
+```bash
+mysqldump -u root -d homer_db > homer_schema.sql
+```
+
+STEP 2: IMPORT TO YOUR MYSQL (Production)
+------------------------------------------
+On your production MySQL server:
+```bash
+mysql -u your_user -p your_database < homer_schema.sql
+```
+
+STEP 3: UPDATE .ENV FILE
+-------------------------
+Change in /app/backend/.env:
+FROM: DATABASE_URL=mysql://root@localhost:3306/homer_db
+TO:   DATABASE_URL=mysql://your_user:your_password@your_host:3306/homer_db
+
+STEP 4: RESTART BACKEND
+------------------------
+```bash
+sudo supervisorctl restart backend
+```
+
+STEP 5: VERIFY CONNECTION
+--------------------------
+Check backend logs to confirm MySQL connection successful.
+
+✅ ZERO CODE CHANGES REQUIRED!
+All SQL queries work identically on both MariaDB and MySQL.
 
 =================================================================
 END OF PHASED IMPLEMENTATION PLAN
@@ -1457,5 +1506,11 @@ END OF PHASED IMPLEMENTATION PLAN
 Each phase is self-contained and delivers working features.
 Total time: 12 phases × 1 session = ~12 work sessions
 Total credits: ~50-58 credits
+
+DATABASE COMPATIBILITY:
+- Development: MariaDB (LLM uses this)
+- Production: MySQL (you use this with your credentials)
+- 100% compatible - same SQL syntax
+- See workflow.txt for complete database strategy
 
 Ready to start Phase 1? 🚀
