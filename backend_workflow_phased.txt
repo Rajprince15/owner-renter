@@ -1,0 +1,516 @@
+=================================================================
+HOMER - BACKEND WORKFLOW (PHASED APPROACH)
+=================================================================
+
+This document breaks down the backend implementation into phases.
+Each phase takes approximately 4-5 credits and builds on the previous one.
+
+All phases use MySQL/MariaDB as the database.
+- DEVELOPMENT: MariaDB (LLM uses this locally)
+- PRODUCTION: MySQL (user's production database with private credentials)
+- 100% compatible - same SQL syntax
+
+REFER TO:
+- homer_schema.sql for complete database structure
+- workflow.txt for overall system design
+- phased_implementation_plan.txt for full-stack phases
+
+=================================================================
+PHASE 1: BACKEND SETUP + AUTH APIs (4-5 credits)
+=================================================================
+
+GOAL: Setup FastAPI backend with database connection and authentication
+
+WHAT TO BUILD:
+1. FastAPI project structure
+2. MySQL/MariaDB connection with SQLAlchemy
+3. User model (users table)
+4. Authentication endpoints (register, login, logout)
+5. JWT token generation and validation
+6. Password hashing
+7. Auth middleware
+
+FILES TO CREATE:
+- /app/backend/server.py (main FastAPI app)
+- /app/backend/requirements.txt
+- /app/backend/.env (with DATABASE_URL)
+- /app/backend/config/database.py
+- /app/backend/config/settings.py
+- /app/backend/models/user.py
+- /app/backend/routes/auth.py
+- /app/backend/utils/jwt_helper.py
+- /app/backend/utils/password_helper.py
+- /app/backend/middleware/auth_middleware.py
+
+API ENDPOINTS TO IMPLEMENT:
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/logout
+GET  /api/auth/me
+
+DATABASE:
+- Create 'users' table (see homer_schema.sql)
+- Use SQLAlchemy ORM
+- MariaDB connection: mysql://root@localhost:3306/homer_db
+
+TESTING:
+□ Backend starts on port 8001
+□ Can register new user
+□ Can login and receive JWT token
+□ Token validates correctly
+□ Protected endpoints require authentication
+
+CREDITS: 4-5
+
+=================================================================
+PHASE 2: PROPERTY CRUD APIs (4-5 credits)
+=================================================================
+
+GOAL: Complete property management APIs for owners
+
+WHAT TO BUILD:
+1. Property model (properties table)
+2. Property CRUD endpoints
+3. Image upload service (local storage)
+4. Property ownership validation
+5. Property search API (basic)
+
+FILES TO CREATE:
+- /app/backend/models/property.py
+- /app/backend/routes/properties.py
+- /app/backend/services/property_service.py
+- /app/backend/services/storage_service.py
+- /app/backend/routes/search.py
+
+API ENDPOINTS TO IMPLEMENT:
+POST   /api/properties/create
+GET    /api/properties/my-properties
+GET    /api/properties/:property_id
+PUT    /api/properties/:property_id
+DELETE /api/properties/:property_id
+POST   /api/properties/:property_id/upload-images
+GET    /api/properties/search (basic)
+
+DATABASE:
+- Create 'properties' table (see homer_schema.sql)
+- Foreign key to users table
+- JSON columns for location, details, images
+
+TESTING:
+□ Owner can create property
+□ Images upload successfully
+□ Can retrieve own properties
+□ Can update property details
+□ Can delete property (soft delete)
+□ Basic search returns properties
+
+CREDITS: 4-5
+
+=================================================================
+PHASE 3: ADVANCED SEARCH & FILTERS (4-5 credits)
+=================================================================
+
+GOAL: Implement search with filters and shortlist functionality
+
+WHAT TO BUILD:
+1. Advanced search with filters
+2. Search ranking algorithm
+3. Shortlist endpoints
+4. Property detail endpoint with analytics tracking
+
+FILES TO CREATE:
+- /app/backend/services/search_service.py
+- /app/backend/models/shortlist.py
+- /app/backend/routes/shortlists.py
+
+API ENDPOINTS TO IMPLEMENT:
+GET    /api/properties/search (with filters)
+GET    /api/properties/:property_id/detail
+POST   /api/shortlists/add
+GET    /api/shortlists
+DELETE /api/shortlists/:shortlist_id
+
+SEARCH FEATURES:
+- Filter by city, price range, BHK type, location
+- Sort by price, date, verification status
+- Pagination (page, limit)
+- Verified properties rank higher
+
+DATABASE:
+- Create 'shortlists' table (see homer_schema.sql)
+
+TESTING:
+□ Search with filters works
+□ Pagination works correctly
+□ Verified properties rank higher
+□ Can add property to shortlist
+□ Can view all shortlists
+□ Can remove from shortlist
+
+CREDITS: 4-5
+
+=================================================================
+PHASE 4: CHAT APIs (4-5 credits)
+=================================================================
+
+GOAL: Chat system for renter-owner communication
+
+WHAT TO BUILD:
+1. Chat model (chats table)
+2. Chat initiation with contact limit check
+3. Message sending and retrieval
+4. Unread count tracking
+
+FILES TO CREATE:
+- /app/backend/models/chat.py
+- /app/backend/routes/chats.py
+- /app/backend/services/chat_service.py
+
+API ENDPOINTS TO IMPLEMENT:
+POST /api/chats/initiate
+GET  /api/chats
+GET  /api/chats/:chat_id
+POST /api/chats/:chat_id/messages
+PUT  /api/chats/:chat_id/mark-read
+GET  /api/chats/unread-count
+
+CONTACT LIMIT LOGIC:
+- Check user.subscription_tier
+- If free and contacts_used >= 5: Return 403 error
+- If premium or < 5: Create chat and increment contacts_used
+
+DATABASE:
+- Create 'chats' table (see homer_schema.sql)
+- Messages stored as JSON array
+
+TESTING:
+□ Can initiate chat
+□ Contact limit enforced for free users
+□ Premium users have unlimited contacts
+□ Can send and receive messages
+□ Unread count updates correctly
+□ Messages persist in database
+
+CREDITS: 4-5
+
+=================================================================
+PHASE 5: PAYMENT APIs (MOCK + RAZORPAY) (5 credits)
+=================================================================
+
+GOAL: Payment system with mock mode and Razorpay integration
+
+WHAT TO BUILD:
+1. Transaction model (transactions table)
+2. Payment service (switchable mock/real)
+3. Subscription payment flow
+4. Property verification payment flow
+5. Payment history
+
+FILES TO CREATE:
+- /app/backend/models/transaction.py
+- /app/backend/routes/payments.py
+- /app/backend/services/payment_service.py
+- /app/backend/utils/razorpay_helper.py
+
+API ENDPOINTS TO IMPLEMENT:
+POST /api/payments/create-order
+POST /api/payments/verify
+GET  /api/payments/history
+
+MOCK MODE:
+- If RAZORPAY_KEY_ID is empty → Mock mode
+- Generate mock order_id and payment_id
+- Always return success
+- Store transaction with is_mock=true
+
+REAL MODE:
+- If RAZORPAY_KEY_ID exists → Real Razorpay
+- Create Razorpay order
+- Verify payment signature
+- Store transaction
+
+SUBSCRIPTION UPDATE:
+- After successful payment:
+  * Update user.subscription_tier = 'premium'
+  * Set subscription_start and subscription_end
+  * Reset contacts_used = 0
+
+DATABASE:
+- Create 'transactions' table (see homer_schema.sql)
+
+TESTING:
+□ Mock payment flow works
+□ Order creation returns correct data
+□ Payment verification succeeds
+□ User tier updates after payment
+□ Contacts reset for new premium users
+□ Transaction stored in database
+□ Payment history retrieves correctly
+
+CREDITS: 5
+
+=================================================================
+PHASE 6: VERIFICATION APIs (4-5 credits)
+=================================================================
+
+GOAL: Document upload and verification workflow
+
+WHAT TO BUILD:
+1. Document upload endpoints
+2. Verification status tracking
+3. Admin approval/rejection endpoints
+4. Verification status updates
+
+FILES TO CREATE:
+- /app/backend/routes/verification.py
+- /app/backend/routes/admin.py
+- /app/backend/services/verification_service.py
+- /app/backend/services/document_service.py
+
+API ENDPOINTS TO IMPLEMENT:
+POST /api/verification/renter/upload
+POST /api/verification/property/:id/upload
+GET  /api/verification/status
+GET  /api/admin/verifications/pending
+POST /api/admin/verifications/:id/approve
+POST /api/admin/verifications/:id/reject
+
+VERIFICATION WORKFLOW:
+1. User uploads documents
+2. Status changes to 'pending'
+3. Admin reviews documents
+4. Admin approves/rejects
+5. On approval:
+   - Renter: is_verified_renter = true
+   - Property: is_verified = true, calculate lifestyle_data
+
+FILE STORAGE:
+- Local storage in /uploads/verification/
+- Organized by user_id and document type
+
+TESTING:
+□ Documents upload successfully
+□ Verification status updates
+□ Admin can view pending verifications
+□ Admin can approve verification
+□ Admin can reject with reason
+□ Verified badge reflects correctly
+
+CREDITS: 4-5
+
+=================================================================
+PHASE 7: LIFESTYLE SEARCH APIs (5 credits)
+=================================================================
+
+GOAL: Advanced lifestyle search with mock data generation
+
+WHAT TO BUILD:
+1. Lifestyle data calculation service (mock)
+2. Lifestyle search endpoint
+3. Natural language search with LLM
+4. Mock data generators
+
+FILES TO CREATE:
+- /app/backend/services/lifestyle_service.py
+- /app/backend/services/llm_service.py
+- /app/backend/routes/lifestyle.py
+- /app/backend/utils/mock_data_generator.py
+
+API ENDPOINTS TO IMPLEMENT:
+POST /api/properties/:property_id/calculate-lifestyle
+GET  /api/properties/lifestyle-search
+POST /api/search/natural-language
+
+LIFESTYLE DATA GENERATION (MOCK):
+- AQI score: 30-150 (based on city type)
+- Noise level: 45-75 dB (based on location)
+- Walkability: 20-90 (based on area type)
+- Nearby amenities: Mock with distances
+- Calculate automatically for verified properties
+
+LIFESTYLE SEARCH:
+- Filter by max_aqi, max_noise, min_walkability
+- Filter by near_parks, pet_friendly
+- Only premium users can access
+- Only verified properties with lifestyle_data
+
+NATURAL LANGUAGE SEARCH:
+- Use Emergent LLM Key
+- Parse: "quiet 2bhk near park under 25000"
+- Extract: {max_noise: 60, bhk: "2BHK", near_parks: true, budget: 25000}
+- Fallback to keyword matching if LLM fails
+
+TESTING:
+□ Lifestyle data generates for verified properties
+□ Mock data is realistic and varied
+□ Lifestyle search filters work
+□ Natural language parsing works
+□ Only premium users can access
+□ Results sorted by match score
+
+CREDITS: 5
+
+=================================================================
+PHASE 8: REVERSE MARKETPLACE APIs (4-5 credits)
+=================================================================
+
+GOAL: Reverse marketplace where owners browse renters
+
+WHAT TO BUILD:
+1. Anonymous renter profile generation
+2. Renter browse endpoint for owners
+3. Owner-initiated contact
+4. Privacy controls
+
+FILES TO CREATE:
+- /app/backend/routes/reverse_marketplace.py
+- /app/backend/services/renter_profile_service.py
+
+API ENDPOINTS TO IMPLEMENT:
+GET  /api/reverse-marketplace/renters
+POST /api/reverse-marketplace/contact-renter
+PUT  /api/users/privacy-settings
+
+ANONYMOUS PROFILE:
+- Only premium + verified renters
+- Only if profile_visibility = true
+- Format: "Renter #" + last 4 digits of user_id
+- Show: employment_type, income_range, preferences
+- Hide: name, email, phone, exact salary
+
+ACCESS CONTROL:
+- Only verified owners can browse
+- Only see renters who opted in
+
+OWNER CONTACT:
+- Owner selects renter
+- Owner sends initial message
+- Chat created with initiated_by = 'owner'
+- Renter receives notification
+
+TESTING:
+□ Renter profiles are anonymized
+□ Only verified owners can access
+□ Filters work (budget, location, move-in date)
+□ Owner can initiate contact
+□ Privacy toggle works
+□ Chat created correctly
+
+CREDITS: 4-5
+
+=================================================================
+PHASE 9: ANALYTICS APIs (4-5 credits)
+=================================================================
+
+GOAL: Property analytics and performance tracking
+
+WHAT TO BUILD:
+1. Analytics tracking (views, contacts, shortlists)
+2. Analytics endpoint
+3. Performance comparison
+4. Notifications system
+
+FILES TO CREATE:
+- /app/backend/routes/analytics.py
+- /app/backend/services/analytics_service.py
+- /app/backend/models/notification.py
+- /app/backend/routes/notifications.py
+
+API ENDPOINTS TO IMPLEMENT:
+GET  /api/properties/:id/analytics
+POST /api/properties/:id/track-view
+GET  /api/analytics/comparison
+GET  /api/notifications
+PUT  /api/notifications/:id/read
+
+ANALYTICS TRACKING:
+- Track total_views on property page load
+- Track premium_views if user is premium
+- Track total_contacts when chat initiated
+- Track shortlisted_count when added
+- Store in property.analytics JSON
+
+NOTIFICATIONS:
+- New message
+- Property viewed
+- Verification approved/rejected
+- Subscription expiring
+- Contact limit warning
+
+DATABASE:
+- Create 'notifications' table (see homer_schema.sql)
+
+TESTING:
+□ View count increments
+□ Premium views tracked separately
+□ Contact count updates
+□ Analytics endpoint returns data
+□ Notifications created and retrieved
+□ Can mark notifications as read
+
+CREDITS: 4-5
+
+=================================================================
+PHASE 10: POLISH & OPTIMIZATION (3-4 credits)
+=================================================================
+
+GOAL: Final polish, testing, and optimization
+
+WHAT TO DO:
+1. Add proper error handling
+2. Add input validation
+3. Optimize database queries
+4. Add indexes
+5. Test all endpoints
+6. Fix bugs
+7. Add logging
+8. API documentation
+
+TASKS:
+- Review all endpoints for error handling
+- Add proper HTTP status codes
+- Validate all input data
+- Add database indexes for performance
+- Test with curl/Postman
+- Fix any bugs found
+- Add request/response logging
+- Document API endpoints
+
+TESTING:
+□ All endpoints work correctly
+□ Error messages are clear
+□ Invalid input rejected
+□ Database queries optimized
+□ No console errors
+□ API documentation complete
+
+CREDITS: 3-4
+
+=================================================================
+TOTAL BACKEND CREDITS: ~45-50
+=================================================================
+
+=================================================================
+DEPLOYMENT: MARIADB → MySQL
+=================================================================
+
+After completing all phases:
+
+1. EXPORT SCHEMA FROM MARIADB:
+   mysqldump -u root -d homer_db > homer_schema.sql
+
+2. IMPORT TO YOUR MySQL:
+   mysql -u your_user -p your_database < homer_schema.sql
+
+3. UPDATE .ENV FILE:
+   FROM: DATABASE_URL=mysql://root@localhost:3306/homer_db
+   TO:   DATABASE_URL=mysql://your_user:your_password@your_host:3306/homer_db
+
+4. RESTART BACKEND:
+   sudo supervisorctl restart backend
+
+✅ ZERO CODE CHANGES REQUIRED!
+
+=================================================================
+END OF BACKEND WORKFLOW (PHASED)
+=================================================================

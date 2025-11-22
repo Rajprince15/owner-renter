@@ -1,0 +1,714 @@
+=================================================================
+HOMER - FRONTEND WORKFLOW (PHASED APPROACH)
+=================================================================
+
+This document breaks down the frontend implementation into phases.
+Each phase takes approximately 4-5 credits and builds on the previous one.
+
+All phases use MOCK DATA initially, then switch to real backend APIs.
+
+REFER TO:
+- frontend_workflow.txt for complete mock API service layer
+- workflow.txt for overall system design
+- phased_implementation_plan.txt for full-stack phases
+
+=================================================================
+PHASE 1: FRONTEND SETUP + LANDING PAGE (4-5 credits)
+=================================================================
+
+GOAL: Setup React app with Tailwind and create landing page
+
+WHAT TO BUILD:
+1. React project structure
+2. Tailwind CSS configuration
+3. Landing page with hero section
+4. Basic routing setup
+5. Navbar and Footer components
+
+FILES TO CREATE:
+- /app/frontend/package.json
+- /app/frontend/tailwind.config.js
+- /app/frontend/postcss.config.js
+- /app/frontend/.env
+- /app/frontend/src/index.js
+- /app/frontend/src/App.js
+- /app/frontend/src/App.css
+- /app/frontend/src/index.css
+- /app/frontend/src/pages/LandingPage.js
+- /app/frontend/src/components/layout/Navbar.js
+- /app/frontend/src/components/layout/Footer.js
+- /app/frontend/src/components/common/Button.js
+
+LANDING PAGE FEATURES:
+- Hero section with value proposition
+- "Find a Home" and "List Property" CTAs
+- Feature highlights (Trust, Lifestyle Search, Reverse Marketplace)
+- How it works section
+- Pricing preview
+- Footer with links
+
+ROUTING:
+- / → Landing Page
+- /login → Login Page (placeholder)
+- /signup → Signup Page (placeholder)
+- /search → Search Page (placeholder)
+
+TESTING:
+□ Frontend loads at localhost:3000
+□ Landing page looks good on mobile and desktop
+□ Navigation links work
+□ Tailwind classes apply correctly
+□ Responsive design works
+
+CREDITS: 4-5
+
+=================================================================
+PHASE 2: AUTH PAGES + CONTEXT (4-5 credits)
+=================================================================
+
+GOAL: Complete authentication UI with mock API
+
+WHAT TO BUILD:
+1. Login page
+2. Signup page
+3. Auth context for state management
+4. Mock auth API service
+5. Protected route component
+6. Token management
+
+FILES TO CREATE:
+- /app/frontend/src/pages/Login.js
+- /app/frontend/src/pages/Signup.js
+- /app/frontend/src/context/AuthContext.js
+- /app/frontend/src/services/mockApi.js
+- /app/frontend/src/services/authService.js
+- /app/frontend/src/components/common/ProtectedRoute.js
+- /app/frontend/src/components/common/Input.js
+- /app/frontend/src/components/common/Modal.js
+
+LOGIN PAGE:
+- Email/phone input
+- Password input
+- "Forgot password" link
+- "Sign up" link
+- Form validation
+- Error messages
+
+SIGNUP PAGE:
+- Email and phone inputs
+- Password input
+- User type selection (Renter/Owner/Both)
+- Full name input
+- Form validation
+- "Already have account" link
+
+MOCK API:
+- Mock users array in memory
+- Register creates new user
+- Login validates credentials
+- Returns mock JWT token
+- Token stored in localStorage
+
+AUTH CONTEXT:
+- User state
+- Login function
+- Logout function
+- isAuthenticated flag
+- Token management
+
+TESTING:
+□ Can register new user
+□ Can login with credentials
+□ Token stored in localStorage
+□ User persists after refresh
+□ Protected routes redirect if not authenticated
+□ Logout clears state
+
+CREDITS: 4-5
+
+=================================================================
+PHASE 3: PROPERTY LISTING PAGES (OWNER) (4-5 credits)
+=================================================================
+
+GOAL: Owner can create and manage properties
+
+WHAT TO BUILD:
+1. Owner dashboard
+2. Add property page (multi-step form)
+3. My properties page
+4. Edit property page
+5. Mock property API service
+
+FILES TO CREATE:
+- /app/frontend/src/pages/owner/Dashboard.js
+- /app/frontend/src/pages/owner/AddProperty.js
+- /app/frontend/src/pages/owner/MyProperties.js
+- /app/frontend/src/pages/owner/EditProperty.js
+- /app/frontend/src/components/property/PropertyForm.js
+- /app/frontend/src/services/propertyService.js
+
+ADD PROPERTY FORM (MULTI-STEP):
+- Step 1: Basic info (title, type, BHK, rent, deposit)
+- Step 2: Location (address, city, locality)
+- Step 3: Details (amenities, furnishing, parking)
+- Step 4: Images upload (drag & drop)
+- Step 5: Preview and submit
+
+OWNER DASHBOARD:
+- Total properties count
+- Quick stats
+- "Add Property" button
+- Recent properties list
+- Unverified badge on properties
+
+MY PROPERTIES PAGE:
+- Grid of property cards
+- Edit/Delete actions
+- Status indicators
+- "Add New" button
+
+MOCK API:
+- mockProperties array
+- Create adds to array
+- Update modifies existing
+- Delete removes from array
+- Returns mock data
+
+TESTING:
+□ Multi-step form works
+□ Can create new property
+□ Property appears in list
+□ Can edit existing property
+□ Can delete property
+□ Form validation works
+□ Images upload simulation
+
+CREDITS: 4-5
+
+=================================================================
+PHASE 4: SEARCH & BROWSE PAGES (RENTER) (4-5 credits)
+=================================================================
+
+GOAL: Renters can search and view properties
+
+WHAT TO BUILD:
+1. Search page with filters
+2. Property detail page
+3. Renter dashboard
+4. Shortlist functionality
+5. Property cards component
+
+FILES TO CREATE:
+- /app/frontend/src/pages/Search.js
+- /app/frontend/src/pages/PropertyDetail.js
+- /app/frontend/src/pages/renter/Dashboard.js
+- /app/frontend/src/pages/renter/Shortlists.js
+- /app/frontend/src/components/property/PropertyCard.js
+- /app/frontend/src/components/property/SearchFilters.js
+- /app/frontend/src/components/property/PropertyGallery.js
+- /app/frontend/src/services/searchService.js
+- /app/frontend/src/services/shortlistService.js
+
+SEARCH PAGE:
+- Filters sidebar:
+  * City/Location
+  * Price range slider
+  * BHK type
+  * Property type
+  * Sort options
+- Property cards grid
+- Pagination
+- "Upgrade" banner for free users
+
+PROPERTY DETAIL PAGE:
+- Image gallery with lightbox
+- Property details
+- Amenities list
+- Location info
+- Owner info (masked)
+- "Contact Owner" button
+- "Add to Shortlist" button
+
+RENTER DASHBOARD:
+- Search suggestions
+- Shortlisted properties
+- Recent views
+- Contacts remaining (for free tier)
+
+MOCK API:
+- Filter mockProperties array
+- Apply search criteria
+- Sort results
+- Paginate
+- Mock shortlist storage
+
+TESTING:
+□ Search page loads
+□ Filters work correctly
+□ Property cards display
+□ Can view property details
+□ Image gallery works
+□ Can add to shortlist
+□ Shortlist page shows saved properties
+
+CREDITS: 4-5
+
+=================================================================
+PHASE 5: CHAT INTERFACE (4-5 credits)
+=================================================================
+
+GOAL: Chat functionality for renter-owner communication
+
+WHAT TO BUILD:
+1. Chat list page
+2. Chat window component
+3. Message bubbles
+4. Mock chat API service
+5. Unread count tracking
+
+FILES TO CREATE:
+- /app/frontend/src/pages/renter/Chats.js
+- /app/frontend/src/pages/owner/Chats.js
+- /app/frontend/src/components/chat/ChatList.js
+- /app/frontend/src/components/chat/ChatWindow.js
+- /app/frontend/src/components/chat/MessageBubble.js
+- /app/frontend/src/services/chatService.js
+
+CHAT LIST:
+- All conversations
+- Property thumbnail
+- Last message preview
+- Unread count badge
+- Timestamp
+
+CHAT WINDOW:
+- WhatsApp-style message bubbles
+- Text input field
+- Send button
+- Property info sidebar
+- Scroll to bottom on new message
+- Manual refresh button
+
+"CONTACT OWNER" FLOW:
+- Click button on property detail
+- Creates chat (or opens existing)
+- Redirects to chat window
+
+MOCK API:
+- mockChats array
+- Initiate chat creates new chat
+- Send message adds to messages array
+- Mark as read updates flag
+- Count unread messages
+
+TESTING:
+□ Click "Contact Owner" creates chat
+□ Chat appears in list
+□ Can send messages
+□ Messages persist
+□ Unread count updates
+□ Chat window scrolls correctly
+
+CREDITS: 4-5
+
+=================================================================
+PHASE 6: FREE TIER LIMITS + PAYMENT UI (5 credits)
+=================================================================
+
+GOAL: Enforce contact limits and payment integration
+
+WHAT TO BUILD:
+1. Contact limit enforcement
+2. Upgrade modal
+3. Subscription page
+4. Mock payment modal
+5. Payment service
+6. Transaction history page
+
+FILES TO CREATE:
+- /app/frontend/src/components/upsell/UpgradeModal.js
+- /app/frontend/src/components/upsell/ContactLimitIndicator.js
+- /app/frontend/src/pages/renter/Subscription.js
+- /app/frontend/src/pages/owner/Verification.js
+- /app/frontend/src/pages/PaymentSuccess.js
+- /app/frontend/src/pages/PaymentFailure.js
+- /app/frontend/src/components/payment/MockPaymentModal.js
+- /app/frontend/src/components/payment/PricingCard.js
+- /app/frontend/src/services/paymentService.js
+
+CONTACT LIMIT:
+- Check contacts_used before initiating chat
+- If free tier and >= 5: Show upgrade modal
+- If premium: Allow unlimited
+- Update counter after each contact
+
+UPGRADE MODAL:
+- "You've reached your contact limit"
+- Feature comparison (Free vs Premium)
+- Benefits list
+- "Upgrade Now" button (₹750)
+- "Cancel" option
+
+SUBSCRIPTION PAGE:
+- Current plan display
+- Premium features list
+- Pricing card
+- "Upgrade Now" button
+
+MOCK PAYMENT MODAL:
+- "TEST MODE" banner
+- Payment details
+- Amount display
+- "Pay Now" button
+- 2-second loading
+- Auto-success
+
+MOCK API:
+- Create order returns mock order_id
+- Verify payment always succeeds
+- Update user tier to premium
+- Reset contacts_used
+- Store mock transaction
+
+TESTING:
+□ Free renter can contact 5 properties
+□ 6th contact shows upgrade modal
+□ Mock payment completes
+□ User tier updates to premium
+□ Contacts reset
+□ Can now contact unlimited
+□ Transaction in history
+
+CREDITS: 5
+
+=================================================================
+PHASE 7: PREMIUM FEATURES + LIFESTYLE SEARCH (5 credits)
+=================================================================
+
+GOAL: Unlock premium features and lifestyle search UI
+
+WHAT TO BUILD:
+1. Premium/verified badges
+2. Advanced filters panel
+3. Lifestyle search page
+4. Natural language search
+5. Lifestyle score badges
+
+FILES TO CREATE:
+- /app/frontend/src/components/common/PremiumBadge.js
+- /app/frontend/src/components/common/VerifiedBadge.js
+- /app/frontend/src/components/property/AdvancedFiltersPanel.js
+- /app/frontend/src/pages/LifestyleSearch.js
+- /app/frontend/src/components/property/LifestyleScoreBadge.js
+- /app/frontend/src/components/search/NaturalLanguageSearch.js
+
+PREMIUM BADGE:
+- Blue star badge
+- Shows on renter profile
+- Visible in chats
+
+VERIFIED BADGE:
+- Green checkmark
+- Shows on properties
+- Shows in search results
+
+UNVERIFIED WARNING:
+- Yellow warning badge
+- "Not Verified" text
+
+ADVANCED FILTERS:
+- AQI slider (0-200)
+- Noise level slider (0-100 dB)
+- Walkability slider (0-100)
+- "Near parks" checkbox
+- "Pet friendly" checkbox
+- Locked for free users
+
+LIFESTYLE SEARCH:
+- Advanced filters panel
+- Natural language search input
+- Only verified properties with lifestyle_data
+- Results with lifestyle scores
+
+LIFESTYLE SCORE BADGES:
+- AQI: Color-coded (Green/Yellow/Red)
+- Noise: Color-coded
+- Walkability: Progress bar
+- Tooltips with explanations
+
+NATURAL LANGUAGE:
+- Text input: "quiet 2bhk near park under 25000"
+- Shows extracted filters
+- Search button
+
+MOCK API:
+- Filter by lifestyle criteria
+- Only premium users
+- Only verified properties
+- Sort by match score
+
+TESTING:
+□ Badges display correctly
+□ Free users see locked filters
+□ Premium users see full filters
+□ Lifestyle search works
+□ Natural language parsing works
+□ Results show lifestyle scores
+□ Color coding correct
+
+CREDITS: 5
+
+=================================================================
+PHASE 8: VERIFICATION UI (4-5 credits)
+=================================================================
+
+GOAL: Document upload and verification workflow UI
+
+WHAT TO BUILD:
+1. Renter verification page
+2. Property verification page
+3. Document upload component
+4. Verification status tracker
+5. Admin review page (simple)
+
+FILES TO CREATE:
+- /app/frontend/src/pages/renter/VerificationUpload.js
+- /app/frontend/src/pages/owner/PropertyVerification.js
+- /app/frontend/src/pages/admin/VerificationReview.js
+- /app/frontend/src/components/verification/DocumentUpload.js
+- /app/frontend/src/components/verification/VerificationStatusTracker.js
+- /app/frontend/src/services/verificationService.js
+
+RENTER VERIFICATION:
+- Document checklist
+- ID proof upload
+- Income proof upload
+- Employment details form
+- Submit button
+
+PROPERTY VERIFICATION:
+- Document checklist
+- Owner ID proof
+- Ownership proof
+- Property selection
+- Payment confirmation
+- Submit button
+
+STATUS TRACKER:
+- Progress indicator
+- Current status display
+- Estimated review time
+- Rejection reason (if rejected)
+
+DOCUMENT UPLOAD:
+- Drag & drop
+- File type validation
+- Preview
+- Remove button
+
+ADMIN REVIEW:
+- List of pending verifications
+- View documents
+- Approve/Reject buttons
+- Rejection reason input
+
+MOCK API:
+- Upload stores file info
+- Status changes to 'pending'
+- Admin can approve/reject
+- On approval: Update verified status
+
+TESTING:
+□ Documents upload
+□ Status changes to pending
+□ Admin sees pending list
+□ Admin can approve
+□ Verified badge appears
+□ Admin can reject with reason
+□ User sees rejection reason
+
+CREDITS: 4-5
+
+=================================================================
+PHASE 9: REVERSE MARKETPLACE UI (4-5 credits)
+=================================================================
+
+GOAL: Reverse marketplace where owners browse renters
+
+WHAT TO BUILD:
+1. Reverse marketplace page
+2. Anonymous renter cards
+3. Renter filters
+4. Owner contact flow
+5. Privacy settings page
+
+FILES TO CREATE:
+- /app/frontend/src/pages/owner/ReverseMarketplace.js
+- /app/frontend/src/components/marketplace/AnonymousRenterCard.js
+- /app/frontend/src/components/marketplace/RenterFilters.js
+- /app/frontend/src/pages/renter/PrivacySettings.js
+- /app/frontend/src/services/reverseMarketplaceService.js
+
+REVERSE MARKETPLACE PAGE:
+- Grid of anonymous renter cards
+- Filters sidebar
+- Sort options
+- "Verified Owner Only" message if not verified
+
+ANONYMOUS RENTER CARD:
+- Renter ID (e.g., "Renter #1024")
+- Employment type
+- Income range
+- Looking for (BHK)
+- Budget range
+- Preferred locations
+- Move-in date
+- Verified badge
+- "Contact Renter" button
+
+RENTER FILTERS:
+- Budget range
+- BHK type
+- Location
+- Move-in date range
+- Employment type
+
+OWNER CONTACT:
+- Click "Contact Renter"
+- Modal: Select property to pitch
+- Write initial message
+- Submit
+- Chat created
+
+PRIVACY SETTINGS:
+- Toggle: "Make my profile visible to verified owners"
+- Info about what's shared/hidden
+- Save button
+
+MOCK API:
+- Generate anonymous profiles
+- Only premium + verified renters
+- Only if opted in
+- Filter and sort
+- Create chat with owner as initiator
+
+TESTING:
+□ Renter profiles anonymized
+□ Only verified owners can access
+□ Filters work
+□ Owner can contact renter
+□ Chat created correctly
+□ Privacy toggle works
+□ Opted-out renters hidden
+
+CREDITS: 4-5
+
+=================================================================
+PHASE 10: ANALYTICS DASHBOARD + POLISH (4-5 credits)
+=================================================================
+
+GOAL: Analytics dashboard and final UI polish
+
+WHAT TO BUILD:
+1. Property analytics page
+2. Analytics charts
+3. Performance comparison
+4. Notifications panel
+5. Loading states
+6. Animations
+7. Final testing
+
+FILES TO CREATE:
+- /app/frontend/src/pages/owner/PropertyAnalytics.js
+- /app/frontend/src/components/analytics/AnalyticsChart.js
+- /app/frontend/src/components/analytics/PerformanceCard.js
+- /app/frontend/src/components/notifications/NotificationPanel.js
+- /app/frontend/src/components/common/LoadingSpinner.js
+- /app/frontend/src/components/common/Skeleton.js
+- /app/frontend/src/components/common/Toast.js
+
+ANALYTICS PAGE:
+- Total views chart (line chart)
+- Total contacts
+- Shortlist count
+- Premium viewer percentage
+- View-to-contact conversion
+- Time on market
+
+PERFORMANCE COMPARISON:
+- Verified vs Unverified stats
+- "Verified properties get 5X more views"
+- Your property ranking
+- Upsell banner for free owners
+
+NOTIFICATIONS:
+- Notification bell with count
+- Dropdown panel
+- List of notifications
+- Mark as read
+- Different colors by type
+
+LOADING STATES:
+- Skeleton screens
+- Loading spinners
+- Progress bars
+- Shimmer effect
+
+ANIMATIONS:
+- Page transitions (fade)
+- Hover effects
+- Success animations
+- Modal entrance/exit
+- Scroll animations
+
+UI POLISH:
+- Consistent spacing
+- Typography hierarchy
+- Color palette consistency
+- Mobile responsiveness
+- Touch-friendly buttons
+- Error handling improvements
+
+FINAL TESTING:
+- Test all user flows
+- Test on mobile devices
+- Fix layout issues
+- Cross-browser testing
+- Performance optimization
+
+TESTING:
+□ Analytics page displays correctly
+□ Charts render
+□ All pages responsive
+□ Loading states smooth
+□ Animations work
+□ No console errors
+□ All features tested end-to-end
+
+CREDITS: 4-5
+
+=================================================================
+TOTAL FRONTEND CREDITS: ~45-50
+=================================================================
+
+=================================================================
+SWITCHING TO REAL BACKEND
+=================================================================
+
+When backend is ready:
+
+1. UPDATE .ENV FILE:
+   REACT_APP_USE_MOCK_DATA=false
+
+2. RESTART FRONTEND:
+   yarn start
+
+✅ ALL API CALLS NOW GO TO REAL BACKEND!
+✅ ZERO CODE CHANGES REQUIRED!
+
+The mock API service layer automatically switches based on the
+REACT_APP_USE_MOCK_DATA flag.
+
+=================================================================
+END OF FRONTEND WORKFLOW (PHASED)
+=================================================================
