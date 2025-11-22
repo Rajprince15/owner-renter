@@ -1,0 +1,1706 @@
+=================================================================
+HOMER - BACKEND WORKFLOW
+COMPLETE BACKEND API IMPLEMENTATION
+=================================================================
+
+╔═══════════════════════════════════════════════════════════════╗
+║                    🔧 BACKEND WORKFLOW 🔧                     ║
+║                                                               ║
+║  PURPOSE: Complete backend API matching frontend contracts   ║
+║  DATABASE: MySQL/MariaDB (see homer_schema.sql)             ║
+║  INTEGRATION: Designed to work seamlessly with frontend      ║
+║               (frontend expects exact these API responses)    ║
+╚═══════════════════════════════════════════════════════════════╝
+
+=================================================================
+TABLE OF CONTENTS
+=================================================================
+1. Tech Stack & Setup
+2. Project Structure
+3. Database Setup & Models
+4. Complete API Endpoints (Matching Frontend)
+5. Authentication & Authorization
+6. Business Logic Services
+7. Mock Data Generators (For Testing)
+8. Environment Configuration
+9. Testing & Deployment
+
+=================================================================
+1. TECH STACK & SETUP
+=================================================================
+
+BACKEND STACK:
+- FastAPI (Python 3.9+)
+- MySQL/MariaDB (Database)
+- SQLAlchemy (ORM)
+- PyMySQL (MySQL driver)
+- Pydantic (Data validation)
+- JWT (Authentication)
+- Bcrypt (Password hashing)
+- Python-multipart (File uploads)
+- CORS middleware
+
+SETUP COMMANDS:
+```bash
+cd /app/backend
+
+# Install dependencies
+pip install fastapi uvicorn sqlalchemy pymysql bcrypt python-jose[cryptography] \
+    python-multipart passlib pydantic-settings python-dotenv
+
+# Create requirements.txt
+pip freeze > requirements.txt
+```
+
+ENVIRONMENT VARIABLES (.env):
+```
+# Application
+APP_NAME=Homer
+APP_ENV=development
+DEBUG=true
+SECRET_KEY=your-secret-key-here-change-in-production
+PORT=8001
+
+# Database (MariaDB for development)
+DATABASE_URL=mysql+pymysql://root@localhost:3306/homer_db
+# For production MySQL: mysql+pymysql://user:password@host:3306/homer_db
+
+# JWT Configuration
+JWT_SECRET=your-jwt-secret-here-change-in-production
+JWT_ALGORITHM=HS256
+JWT_EXPIRY_HOURS=24
+
+# Payment Gateway (Mock by default)
+RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=
+RAZORPAY_WEBHOOK_SECRET=
+
+# File Storage (Local by default)
+UPLOAD_DIR=/app/uploads
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_S3_BUCKET_NAME=
+
+# Email Service (Mock by default)
+SENDGRID_API_KEY=
+EMAIL_FROM=noreply@homer.com
+
+# LLM Integration (For natural language search)
+EMERGENT_LLM_KEY=
+
+# External APIs (Mock by default)
+AQI_API_KEY=
+GOOGLE_MAPS_API_KEY=
+WALKABILITY_API_KEY=
+
+# CORS
+CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+```
+
+=================================================================
+2. PROJECT STRUCTURE
+=================================================================
+
+/app/backend/
+├── server.py                       # Main FastAPI application
+├── requirements.txt                # Python dependencies
+├── .env                           # Environment variables
+│
+├── config/
+│   ├── __init__.py
+│   ├── settings.py                # Configuration management
+│   └── database.py                # Database connection
+│
+├── models/                         # SQLAlchemy models (database tables)
+│   ├── __init__.py
+│   ├── user.py                    # User model
+│   ├── property.py                # Property model
+│   ├── chat.py                    # Chat model
+│   ├── transaction.py             # Transaction model
+│   ├── shortlist.py               # Shortlist model
+│   └── notification.py            # Notification model
+│
+├── schemas/                        # Pydantic schemas (request/response)
+│   ├── __init__.py
+│   ├── user_schema.py
+│   ├── property_schema.py
+│   ├── chat_schema.py
+│   ├── payment_schema.py
+│   └── common_schema.py
+│
+├── routes/                         # API endpoints
+│   ├── __init__.py
+│   ├── auth.py                    # Authentication routes
+│   ├── users.py                   # User profile routes
+│   ├── properties.py              # Property CRUD routes
+│   ├── search.py                  # Search routes
+│   ├── chats.py                   # Chat routes
+│   ├── payments.py                # Payment routes
+│   ├── shortlists.py              # Shortlist routes
+│   ├── verification.py            # Verification routes
+│   ├── reverse_marketplace.py     # Reverse marketplace routes
+│   ├── analytics.py               # Analytics routes
+│   ├── lifestyle.py               # Lifestyle data routes
+│   └── notifications.py           # Notification routes
+│
+├── services/                       # Business logic
+│   ├── __init__.py
+│   ├── auth_service.py            # Authentication logic
+│   ├── property_service.py        # Property operations
+│   ├── search_service.py          # Search algorithms
+│   ├── chat_service.py            # Chat operations
+│   ├── payment_service.py         # Payment processing
+│   ├── lifestyle_service.py       # Lifestyle data calculation
+│   ├── verification_service.py    # Verification logic
+│   ├── storage_service.py         # File upload handling
+│   ├── email_service.py           # Email sending
+│   ├── notification_service.py    # Notifications
+│   └── mock_data_service.py       # Mock data generators
+│
+├── middleware/                     # Custom middleware
+│   ├── __init__.py
+│   ├── auth_middleware.py         # JWT verification
+│   ├── error_handler.py           # Global error handling
+│   └── cors_middleware.py         # CORS configuration
+│
+├── utils/                          # Utility functions
+│   ├── __init__.py
+│   ├── jwt_helper.py              # JWT token functions
+│   ├── password_helper.py         # Password hashing
+│   ├── validators.py              # Input validation
+│   ├── decorators.py              # Custom decorators
+│   └── constants.py               # Constants
+│
+└── uploads/                        # Local file storage
+    ├── verification/
+    ├── properties/
+    └── documents/
+
+=================================================================
+3. DATABASE SETUP & MODELS
+=================================================================
+
+The database schema is defined in /app/homer_schema.sql
+All models must match this schema exactly.
+
+FILE: /app/backend/config/database.py
+--------------------------------------
+
+```python
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from config.settings import settings
+
+# Create database engine
+# Supports both MariaDB (dev) and MySQL (prod)
+engine = create_engine(
+    settings.DATABASE_URL,
+    pool_pre_ping=True,
+    pool_size=10,
+    max_overflow=20,
+    echo=settings.DEBUG  # SQL logging in debug mode
+)
+
+# Create session factory
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Base class for models
+Base = declarative_base()
+
+# Dependency to get database session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+```
+
+FILE: /app/backend/models/user.py
+----------------------------------
+
+```python
+from sqlalchemy import Column, String, Boolean, Integer, Enum, Date, TIMESTAMP, Text, JSON
+from sqlalchemy.sql import func
+from config.database import Base
+import enum
+
+class UserType(str, enum.Enum):
+    RENTER = "renter"
+    OWNER = "owner"
+    BOTH = "both"
+
+class SubscriptionTier(str, enum.Enum):
+    FREE = "free"
+    PREMIUM = "premium"
+
+class VerificationStatus(str, enum.Enum):
+    NONE = "none"
+    PENDING = "pending"
+    VERIFIED = "verified"
+    REJECTED = "rejected"
+
+class User(Base):
+    __tablename__ = "users"
+    
+    # Primary identification
+    user_id = Column(String(36), primary_key=True, index=True)
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    phone = Column(String(20), unique=True, nullable=False, index=True)
+    password_hash = Column(String(255), nullable=False)
+    
+    # User type and basic info
+    user_type = Column(Enum(UserType), nullable=False, default=UserType.RENTER)
+    full_name = Column(String(255))
+    profile_photo_url = Column(Text)
+    date_of_birth = Column(Date)
+    gender = Column(String(20))
+    
+    # Account status
+    is_active = Column(Boolean, default=True)
+    created_at = Column(TIMESTAMP, server_default=func.now())
+    last_login = Column(TIMESTAMP)
+    
+    # Renter-specific fields
+    subscription_tier = Column(Enum(SubscriptionTier), default=SubscriptionTier.FREE)
+    subscription_start = Column(TIMESTAMP)
+    subscription_end = Column(TIMESTAMP)
+    is_verified_renter = Column(Boolean, default=False)
+    renter_verification_status = Column(Enum(VerificationStatus), default=VerificationStatus.NONE)
+    renter_verification_documents = Column(JSON)  # Stores document info as JSON
+    renter_preferences = Column(JSON)  # Stores preferences as JSON
+    employment_info = Column(JSON)  # Stores employment info as JSON
+    contacts_used = Column(Integer, default=0)
+    profile_visibility = Column(Boolean, default=True)
+    
+    # Owner-specific fields
+    is_verified_owner = Column(Boolean, default=False)
+    owner_verification_status = Column(Enum(VerificationStatus), default=VerificationStatus.NONE)
+```
+
+FILE: /app/backend/models/property.py
+--------------------------------------
+
+```python
+from sqlalchemy import Column, String, Text, Enum, DECIMAL, TIMESTAMP, Boolean, JSON, ForeignKey
+from sqlalchemy.sql import func
+from config.database import Base
+import enum
+
+class PropertyType(str, enum.Enum):
+    APARTMENT = "apartment"
+    VILLA = "villa"
+    INDEPENDENT_HOUSE = "independent_house"
+    PG = "pg"
+
+class BHKType(str, enum.Enum):
+    ONE_BHK = "1BHK"
+    TWO_BHK = "2BHK"
+    THREE_BHK = "3BHK"
+    FOUR_PLUS_BHK = "4BHK+"
+
+class PropertyStatus(str, enum.Enum):
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    RENTED = "rented"
+    DELETED = "deleted"
+
+class VerificationTier(str, enum.Enum):
+    FREE = "free"
+    VERIFIED = "verified"
+
+class Property(Base):
+    __tablename__ = "properties"
+    
+    # Primary identification
+    property_id = Column(String(36), primary_key=True, index=True)
+    owner_id = Column(String(36), ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False, index=True)
+    
+    # Basic information
+    title = Column(String(255), nullable=False)
+    description = Column(Text)
+    property_type = Column(String(50))
+    bhk_type = Column(String(20))
+    
+    # Pricing
+    rent = Column(DECIMAL(10, 2), nullable=False, index=True)
+    security_deposit = Column(DECIMAL(10, 2))
+    maintenance_charges = Column(DECIMAL(10, 2), default=0)
+    
+    # Location (JSON column)
+    location = Column(JSON, nullable=False)
+    # Structure: {address, city, state, pincode, latitude, longitude, locality, landmarks}
+    
+    # Property details (JSON column)
+    details = Column(JSON)
+    # Structure: {carpet_area, total_floors, floor_number, furnishing, parking, amenities, 
+    #            bathrooms, balconies, facing, age_of_property, available_from, 
+    #            preferred_tenants, pets_allowed, vegetarian_only}
+    
+    # Media
+    images = Column(JSON)  # Array of image URLs
+    video_url = Column(String(500))
+    virtual_tour_url = Column(String(500))
+    
+    # Verification and trust
+    is_verified = Column(Boolean, default=False, index=True)
+    verification_tier = Column(Enum(VerificationTier), default=VerificationTier.FREE)
+    verification_date = Column(TIMESTAMP)
+    verification_documents = Column(JSON)
+    verification_fee_paid = Column(Boolean, default=False)
+    payment_id = Column(String(255))
+    
+    # Lifestyle data (Premium feature)
+    lifestyle_data = Column(JSON)
+    # Structure: {aqi_score, noise_level, walkability_score, nearby_parks, nearby_hospitals,
+    #            nearby_schools, nearby_malls, public_transport_score, safety_score, 
+    #            calculated_at, is_mock}
+    
+    # Analytics
+    analytics = Column(JSON)
+    # Structure: {total_views, premium_views, total_contacts, shortlisted_count, 
+    #            last_viewed, views_history}
+    
+    # Status and timestamps
+    status = Column(Enum(PropertyStatus), default=PropertyStatus.ACTIVE, index=True)
+    created_at = Column(TIMESTAMP, server_default=func.now(), index=True)
+    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+```
+
+FILE: /app/backend/models/chat.py
+----------------------------------
+
+```python
+from sqlalchemy import Column, String, Enum, TIMESTAMP, JSON, ForeignKey
+from sqlalchemy.sql import func
+from config.database import Base
+import enum
+
+class ChatInitiator(str, enum.Enum):
+    RENTER = "renter"
+    OWNER = "owner"
+
+class ChatStatus(str, enum.Enum):
+    ACTIVE = "active"
+    ARCHIVED = "archived"
+    BLOCKED = "blocked"
+
+class Chat(Base):
+    __tablename__ = "chats"
+    
+    # Primary identification
+    chat_id = Column(String(36), primary_key=True, index=True)
+    
+    # Participants
+    property_id = Column(String(36), ForeignKey('properties.property_id', ondelete='CASCADE'), nullable=False, index=True)
+    renter_id = Column(String(36), ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False, index=True)
+    owner_id = Column(String(36), ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False, index=True)
+    
+    # Chat metadata
+    initiated_by = Column(Enum(ChatInitiator), nullable=False)
+    created_at = Column(TIMESTAMP, server_default=func.now())
+    last_message_at = Column(TIMESTAMP, index=True)
+    status = Column(Enum(ChatStatus), default=ChatStatus.ACTIVE, index=True)
+    
+    # Messages (stored as JSON array)
+    messages = Column(JSON)
+    # Structure: [{message_id, sender_id, sender_type, message, timestamp, is_read, attachments}]
+```
+
+FILE: /app/backend/models/transaction.py
+-----------------------------------------
+
+```python
+from sqlalchemy import Column, String, Enum, DECIMAL, TIMESTAMP, Boolean, JSON, ForeignKey
+from sqlalchemy.sql import func
+from config.database import Base
+import enum
+
+class TransactionType(str, enum.Enum):
+    RENTER_SUBSCRIPTION = "renter_subscription"
+    PROPERTY_VERIFICATION = "property_verification"
+
+class PaymentStatus(str, enum.Enum):
+    PENDING = "pending"
+    SUCCESS = "success"
+    FAILED = "failed"
+    REFUNDED = "refunded"
+
+class Transaction(Base):
+    __tablename__ = "transactions"
+    
+    # Primary identification
+    transaction_id = Column(String(36), primary_key=True, index=True)
+    user_id = Column(String(36), ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False, index=True)
+    
+    # Transaction details
+    transaction_type = Column(Enum(TransactionType), nullable=False, index=True)
+    amount = Column(DECIMAL(10, 2), nullable=False)
+    currency = Column(String(3), default='INR')
+    
+    # Payment gateway details
+    payment_gateway = Column(String(50), default='razorpay')
+    payment_id = Column(String(255))
+    order_id = Column(String(255))
+    payment_status = Column(Enum(PaymentStatus), default=PaymentStatus.PENDING, index=True)
+    
+    # Mock payment indicator
+    is_mock = Column(Boolean, default=False)
+    
+    # Timestamps
+    created_at = Column(TIMESTAMP, server_default=func.now(), index=True)
+    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+    
+    # Additional metadata
+    metadata = Column(JSON)
+    # Structure: {subscription_duration, property_id, invoice_url, etc.}
+```
+
+FILE: /app/backend/models/shortlist.py
+---------------------------------------
+
+```python
+from sqlalchemy import Column, String, Text, TIMESTAMP, ForeignKey
+from sqlalchemy.sql import func
+from config.database import Base
+
+class Shortlist(Base):
+    __tablename__ = "shortlists"
+    
+    # Primary identification
+    shortlist_id = Column(String(36), primary_key=True, index=True)
+    user_id = Column(String(36), ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False, index=True)
+    property_id = Column(String(36), ForeignKey('properties.property_id', ondelete='CASCADE'), nullable=False, index=True)
+    
+    # Shortlist details
+    notes = Column(Text)
+    created_at = Column(TIMESTAMP, server_default=func.now(), index=True)
+```
+
+FILE: /app/backend/models/notification.py
+------------------------------------------
+
+```python
+from sqlalchemy import Column, String, Text, Boolean, TIMESTAMP, ForeignKey
+from sqlalchemy.sql import func
+from config.database import Base
+
+class Notification(Base):
+    __tablename__ = "notifications"
+    
+    # Primary identification
+    notification_id = Column(String(36), primary_key=True, index=True)
+    user_id = Column(String(36), ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False, index=True)
+    
+    # Notification details
+    type = Column(String(50), nullable=False, index=True)
+    title = Column(String(255), nullable=False)
+    message = Column(Text, nullable=False)
+    action_url = Column(String(500))
+    
+    # Status
+    is_read = Column(Boolean, default=False, index=True)
+    created_at = Column(TIMESTAMP, server_default=func.now(), index=True)
+```
+
+=================================================================
+4. COMPLETE API ENDPOINTS (Matching Frontend Contracts)
+=================================================================
+
+All endpoints must match exactly what frontend expects (see frontend_workflow.txt Section 3)
+
+FILE: /app/backend/routes/auth.py
+----------------------------------
+
+```python
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from typing import Dict
+import uuid
+from datetime import datetime
+
+from config.database import get_db
+from models.user import User
+from schemas.user_schema import UserRegister, UserLogin, UserResponse
+from utils.password_helper import hash_password, verify_password
+from utils.jwt_helper import create_access_token
+
+router = APIRouter(prefix="/api/auth", tags=["Authentication"])
+
+# POST /api/auth/register
+@router.post("/register", response_model=Dict)
+async def register(user_data: UserRegister, db: Session = Depends(get_db)):
+    """
+    Register new user
+    Expected by frontend: { user_id, token, user_type, user }
+    """
+    # Check if email or phone already exists
+    existing_user = db.query(User).filter(
+        (User.email == user_data.email) | (User.phone == user_data.phone)
+    ).first()
+    
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email or phone already registered"
+        )
+    
+    # Create new user
+    user_id = str(uuid.uuid4())
+    hashed_password = hash_password(user_data.password)
+    
+    new_user = User(
+        user_id=user_id,
+        email=user_data.email,
+        phone=user_data.phone,
+        password_hash=hashed_password,
+        user_type=user_data.user_type,
+        full_name=user_data.full_name,
+        subscription_tier='free' if user_data.user_type == 'renter' else None,
+        contacts_used=0,
+        is_verified_renter=False,
+        is_verified_owner=False,
+        created_at=datetime.utcnow()
+    )
+    
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    # Generate JWT token
+    token = create_access_token({"user_id": user_id, "user_type": user_data.user_type})
+    
+    # Prepare user response (exclude password_hash)
+    user_dict = {
+        "user_id": new_user.user_id,
+        "email": new_user.email,
+        "phone": new_user.phone,
+        "user_type": new_user.user_type,
+        "full_name": new_user.full_name,
+        "subscription_tier": new_user.subscription_tier,
+        "contacts_used": new_user.contacts_used,
+        "is_verified_renter": new_user.is_verified_renter,
+        "is_verified_owner": new_user.is_verified_owner,
+        "created_at": new_user.created_at.isoformat()
+    }
+    
+    return {
+        "user_id": user_id,
+        "token": token,
+        "user_type": user_data.user_type,
+        "user": user_dict
+    }
+
+# POST /api/auth/login
+@router.post("/login", response_model=Dict)
+async def login(credentials: UserLogin, db: Session = Depends(get_db)):
+    """
+    Login user
+    Expected by frontend: { user_id, token, user_type, user }
+    """
+    # Find user by email or phone
+    user = db.query(User).filter(
+        (User.email == credentials.email) | (User.phone == credentials.email)
+    ).first()
+    
+    if not user or not verify_password(credentials.password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials"
+        )
+    
+    # Update last login
+    user.last_login = datetime.utcnow()
+    db.commit()
+    
+    # Generate JWT token
+    token = create_access_token({"user_id": user.user_id, "user_type": user.user_type})
+    
+    # Prepare user response
+    user_dict = {
+        "user_id": user.user_id,
+        "email": user.email,
+        "phone": user.phone,
+        "user_type": user.user_type,
+        "full_name": user.full_name,
+        "subscription_tier": user.subscription_tier,
+        "subscription_start": user.subscription_start.isoformat() if user.subscription_start else None,
+        "subscription_end": user.subscription_end.isoformat() if user.subscription_end else None,
+        "contacts_used": user.contacts_used,
+        "is_verified_renter": user.is_verified_renter,
+        "is_verified_owner": user.is_verified_owner,
+        "renter_preferences": user.renter_preferences,
+        "employment_info": user.employment_info,
+        "created_at": user.created_at.isoformat()
+    }
+    
+    return {
+        "user_id": user.user_id,
+        "token": token,
+        "user_type": user.user_type,
+        "user": user_dict
+    }
+
+# POST /api/auth/logout
+@router.post("/logout")
+async def logout():
+    """
+    Logout user (frontend handles token removal)
+    Expected by frontend: { message }
+    """
+    return {"message": "Logged out successfully"}
+
+# GET /api/auth/me
+@router.get("/me")
+async def get_current_user(current_user: User = Depends(get_current_user_dependency)):
+    """
+    Get current user details
+    Expected by frontend: User object
+    """
+    # Return user without password_hash
+    return {
+        "user_id": current_user.user_id,
+        "email": current_user.email,
+        "phone": current_user.phone,
+        "user_type": current_user.user_type,
+        "full_name": current_user.full_name,
+        "subscription_tier": current_user.subscription_tier,
+        # ... include all other fields
+    }
+```
+
+FILE: /app/backend/routes/properties.py
+----------------------------------------
+
+```python
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from sqlalchemy.orm import Session
+from typing import Dict, List
+import uuid
+from datetime import datetime
+
+from config.database import get_db
+from models.property import Property
+from models.user import User
+from schemas.property_schema import PropertyCreate, PropertyUpdate, PropertyResponse
+from middleware.auth_middleware import get_current_user
+from services.storage_service import upload_files
+
+router = APIRouter(prefix="/api/properties", tags=["Properties"])
+
+# POST /api/properties/create
+@router.post("/create")
+async def create_property(
+    property_data: PropertyCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Create new property
+    Expected by frontend: { property_id, property }
+    """
+    # Check user is owner
+    if current_user.user_type not in ['owner', 'both']:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only owners can create properties"
+        )
+    
+    property_id = str(uuid.uuid4())
+    
+    new_property = Property(
+        property_id=property_id,
+        owner_id=current_user.user_id,
+        title=property_data.title,
+        description=property_data.description,
+        property_type=property_data.property_type,
+        bhk_type=property_data.bhk_type,
+        rent=property_data.rent,
+        security_deposit=property_data.security_deposit,
+        maintenance_charges=property_data.maintenance_charges,
+        location=property_data.location,
+        details=property_data.details,
+        images=property_data.images or [],
+        is_verified=False,
+        verification_tier='free',
+        status='active',
+        analytics={
+            "total_views": 0,
+            "premium_views": 0,
+            "total_contacts": 0,
+            "shortlisted_count": 0,
+            "last_viewed": None
+        },
+        created_at=datetime.utcnow()
+    )
+    
+    db.add(new_property)
+    db.commit()
+    db.refresh(new_property)
+    
+    return {
+        "property_id": property_id,
+        "property": convert_property_to_dict(new_property)
+    }
+
+# GET /api/properties/search
+@router.get("/search")
+async def search_properties(
+    city: str = None,
+    min_price: float = None,
+    max_price: float = None,
+    bhk_type: str = None,
+    location: str = None,
+    sort_by: str = None,
+    page: int = 1,
+    limit: int = 20,
+    db: Session = Depends(get_db)
+):
+    """
+    Search properties with filters
+    Expected by frontend: { properties: [], total_count, page, has_more }
+    """
+    query = db.query(Property).filter(Property.status == 'active')
+    
+    # Apply filters
+    if city:
+        query = query.filter(Property.location['city'].astext.ilike(f'%{city}%'))
+    
+    if min_price:
+        query = query.filter(Property.rent >= min_price)
+    
+    if max_price:
+        query = query.filter(Property.rent <= max_price)
+    
+    if bhk_type:
+        query = query.filter(Property.bhk_type == bhk_type)
+    
+    if location:
+        query = query.filter(Property.location['locality'].astext.ilike(f'%{location}%'))
+    
+    # Sort
+    if sort_by == 'price_low':
+        query = query.order_by(Property.rent.asc())
+    elif sort_by == 'price_high':
+        query = query.order_by(Property.rent.desc())
+    elif sort_by == 'recent':
+        query = query.order_by(Property.created_at.desc())
+    else:
+        # Default: verified first, then by date
+        query = query.order_by(Property.is_verified.desc(), Property.created_at.desc())
+    
+    # Get total count
+    total_count = query.count()
+    
+    # Pagination
+    offset = (page - 1) * limit
+    properties = query.offset(offset).limit(limit).all()
+    
+    # Convert to dict
+    properties_list = [convert_property_to_dict(p) for p in properties]
+    
+    return {
+        "properties": properties_list,
+        "total_count": total_count,
+        "page": page,
+        "has_more": offset + limit < total_count
+    }
+
+# GET /api/properties/lifestyle-search
+@router.get("/lifestyle-search")
+async def lifestyle_search(
+    max_aqi: int = None,
+    max_noise: int = None,
+    min_walkability: int = None,
+    near_parks: bool = None,
+    budget: float = None,
+    bhk: str = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Lifestyle search (premium only)
+    Expected by frontend: { properties: [], total_count }
+    """
+    # Check if premium
+    if current_user.subscription_tier != 'premium':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Lifestyle search is only available for premium users"
+        )
+    
+    # Only verified properties with lifestyle data
+    query = db.query(Property).filter(
+        Property.status == 'active',
+        Property.is_verified == True,
+        Property.lifestyle_data.isnot(None)
+    )
+    
+    # Apply lifestyle filters
+    if max_aqi:
+        query = query.filter(Property.lifestyle_data['aqi_score'].astext.cast(Integer) <= max_aqi)
+    
+    if max_noise:
+        query = query.filter(Property.lifestyle_data['noise_level'].astext.cast(Integer) <= max_noise)
+    
+    if min_walkability:
+        query = query.filter(Property.lifestyle_data['walkability_score'].astext.cast(Integer) >= min_walkability)
+    
+    # Apply standard filters
+    if budget:
+        query = query.filter(Property.rent <= budget)
+    
+    if bhk:
+        query = query.filter(Property.bhk_type == bhk)
+    
+    properties = query.all()
+    properties_list = [convert_property_to_dict(p) for p in properties]
+    
+    return {
+        "properties": properties_list,
+        "total_count": len(properties_list)
+    }
+
+# GET /api/properties/:property_id
+@router.get("/{property_id}")
+async def get_property_detail(
+    property_id: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Get property details
+    Expected by frontend: Property object
+    """
+    property = db.query(Property).filter(Property.property_id == property_id).first()
+    
+    if not property:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Property not found"
+        )
+    
+    # Increment view count
+    analytics = property.analytics or {}
+    analytics['total_views'] = analytics.get('total_views', 0) + 1
+    analytics['last_viewed'] = datetime.utcnow().isoformat()
+    property.analytics = analytics
+    
+    db.commit()
+    
+    return convert_property_to_dict(property)
+
+# PUT /api/properties/:property_id
+@router.put("/{property_id}")
+async def update_property(
+    property_id: str,
+    property_data: PropertyUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Update property
+    Expected by frontend: Updated property object
+    """
+    property = db.query(Property).filter(Property.property_id == property_id).first()
+    
+    if not property:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Property not found")
+    
+    # Check ownership
+    if property.owner_id != current_user.user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+    
+    # Update fields
+    for field, value in property_data.dict(exclude_unset=True).items():
+        setattr(property, field, value)
+    
+    property.updated_at = datetime.utcnow()
+    
+    db.commit()
+    db.refresh(property)
+    
+    return convert_property_to_dict(property)
+
+# DELETE /api/properties/:property_id
+@router.delete("/{property_id}")
+async def delete_property(
+    property_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Delete property
+    Expected by frontend: { message }
+    """
+    property = db.query(Property).filter(Property.property_id == property_id).first()
+    
+    if not property:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Property not found")
+    
+    # Check ownership
+    if property.owner_id != current_user.user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+    
+    # Soft delete (update status)
+    property.status = 'deleted'
+    db.commit()
+    
+    return {"message": "Property deleted successfully"}
+
+# GET /api/properties/my-properties
+@router.get("/my-properties")
+async def get_my_properties(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get owner's properties
+    Expected by frontend: List of properties
+    """
+    properties = db.query(Property).filter(
+        Property.owner_id == current_user.user_id,
+        Property.status != 'deleted'
+    ).all()
+    
+    properties_list = [convert_property_to_dict(p) for p in properties]
+    
+    return properties_list
+
+# POST /api/properties/:property_id/upload-images
+@router.post("/{property_id}/upload-images")
+async def upload_property_images(
+    property_id: str,
+    files: List[UploadFile] = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Upload property images
+    Expected by frontend: { image_urls: [] }
+    """
+    property = db.query(Property).filter(Property.property_id == property_id).first()
+    
+    if not property:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Property not found")
+    
+    # Check ownership
+    if property.owner_id != current_user.user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+    
+    # Upload files
+    image_urls = await upload_files(files, f"properties/{property_id}")
+    
+    # Add to property images
+    current_images = property.images or []
+    property.images = current_images + image_urls
+    
+    db.commit()
+    
+    return {"image_urls": image_urls}
+
+# GET /api/properties/:property_id/analytics
+@router.get("/{property_id}/analytics")
+async def get_property_analytics(
+    property_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get property analytics
+    Expected by frontend: Analytics object
+    """
+    property = db.query(Property).filter(Property.property_id == property_id).first()
+    
+    if not property:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Property not found")
+    
+    # Check ownership
+    if property.owner_id != current_user.user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+    
+    return property.analytics or {}
+
+# Helper function
+def convert_property_to_dict(property: Property) -> dict:
+    """Convert Property model to dict for JSON response"""
+    return {
+        "property_id": property.property_id,
+        "owner_id": property.owner_id,
+        "title": property.title,
+        "description": property.description,
+        "property_type": property.property_type,
+        "bhk_type": property.bhk_type,
+        "rent": float(property.rent),
+        "security_deposit": float(property.security_deposit) if property.security_deposit else None,
+        "maintenance_charges": float(property.maintenance_charges) if property.maintenance_charges else None,
+        "location": property.location,
+        "details": property.details,
+        "images": property.images,
+        "video_url": property.video_url,
+        "virtual_tour_url": property.virtual_tour_url,
+        "is_verified": property.is_verified,
+        "verification_tier": property.verification_tier,
+        "verification_date": property.verification_date.isoformat() if property.verification_date else None,
+        "lifestyle_data": property.lifestyle_data,
+        "analytics": property.analytics,
+        "status": property.status,
+        "created_at": property.created_at.isoformat(),
+        "updated_at": property.updated_at.isoformat() if property.updated_at else None
+    }
+```
+
+FILE: /app/backend/routes/chats.py
+-----------------------------------
+
+```python
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from typing import Dict, List
+import uuid
+from datetime import datetime
+
+from config.database import get_db
+from models.chat import Chat
+from models.user import User
+from models.property import Property
+from middleware.auth_middleware import get_current_user
+
+router = APIRouter(prefix="/api/chats", tags=["Chats"])
+
+# POST /api/chats/initiate
+@router.post("/initiate")
+async def initiate_chat(
+    property_id: str,
+    initial_message: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Initiate chat with property owner
+    Expected by frontend: { chat_id }
+    """
+    # Check if user is renter
+    if current_user.user_type not in ['renter', 'both']:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only renters can initiate chats"
+        )
+    
+    # Check contact limit for free tier
+    if current_user.subscription_tier == 'free' and current_user.contacts_used >= 5:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Contact limit reached. Upgrade to premium."
+        )
+    
+    # Get property to find owner
+    property = db.query(Property).filter(Property.property_id == property_id).first()
+    if not property:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Property not found")
+    
+    # Check if chat already exists
+    existing_chat = db.query(Chat).filter(
+        Chat.property_id == property_id,
+        Chat.renter_id == current_user.user_id
+    ).first()
+    
+    if existing_chat:
+        return {"chat_id": existing_chat.chat_id}
+    
+    # Create new chat
+    chat_id = str(uuid.uuid4())
+    message_id = str(uuid.uuid4())
+    
+    new_chat = Chat(
+        chat_id=chat_id,
+        property_id=property_id,
+        renter_id=current_user.user_id,
+        owner_id=property.owner_id,
+        initiated_by='renter',
+        created_at=datetime.utcnow(),
+        last_message_at=datetime.utcnow(),
+        status='active',
+        messages=[{
+            "message_id": message_id,
+            "sender_id": current_user.user_id,
+            "sender_type": "renter",
+            "message": initial_message,
+            "timestamp": datetime.utcnow().isoformat(),
+            "is_read": False,
+            "attachments": []
+        }]
+    )
+    
+    db.add(new_chat)
+    
+    # Increment contacts_used for free tier
+    if current_user.subscription_tier == 'free':
+        current_user.contacts_used += 1
+    
+    # Increment property analytics
+    analytics = property.analytics or {}
+    analytics['total_contacts'] = analytics.get('total_contacts', 0) + 1
+    property.analytics = analytics
+    
+    db.commit()
+    
+    return {"chat_id": chat_id}
+
+# GET /api/chats
+@router.get("")
+async def get_chats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get all chats for user
+    Expected by frontend: List of chats
+    """
+    chats = db.query(Chat).filter(
+        ((Chat.renter_id == current_user.user_id) | (Chat.owner_id == current_user.user_id)),
+        Chat.status == 'active'
+    ).order_by(Chat.last_message_at.desc()).all()
+    
+    chats_list = [convert_chat_to_dict(chat) for chat in chats]
+    
+    return chats_list
+
+# GET /api/chats/:chat_id
+@router.get("/{chat_id}")
+async def get_chat_detail(
+    chat_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get chat details
+    Expected by frontend: Chat object with messages
+    """
+    chat = db.query(Chat).filter(Chat.chat_id == chat_id).first()
+    
+    if not chat:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chat not found")
+    
+    # Check access
+    if chat.renter_id != current_user.user_id and chat.owner_id != current_user.user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+    
+    # Mark messages as read
+    messages = chat.messages or []
+    for msg in messages:
+        if msg['sender_id'] != current_user.user_id:
+            msg['is_read'] = True
+    chat.messages = messages
+    
+    db.commit()
+    
+    return convert_chat_to_dict(chat)
+
+# POST /api/chats/:chat_id/messages
+@router.post("/{chat_id}/messages")
+async def send_message(
+    chat_id: str,
+    message: str,
+    attachments: List[str] = [],
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Send message in chat
+    Expected by frontend: { message_id }
+    """
+    chat = db.query(Chat).filter(Chat.chat_id == chat_id).first()
+    
+    if not chat:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chat not found")
+    
+    # Check access
+    if chat.renter_id != current_user.user_id and chat.owner_id != current_user.user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+    
+    # Determine sender type
+    sender_type = 'renter' if chat.renter_id == current_user.user_id else 'owner'
+    
+    # Create new message
+    message_id = str(uuid.uuid4())
+    new_message = {
+        "message_id": message_id,
+        "sender_id": current_user.user_id,
+        "sender_type": sender_type,
+        "message": message,
+        "timestamp": datetime.utcnow().isoformat(),
+        "is_read": False,
+        "attachments": attachments
+    }
+    
+    # Add to messages
+    messages = chat.messages or []
+    messages.append(new_message)
+    chat.messages = messages
+    chat.last_message_at = datetime.utcnow()
+    
+    db.commit()
+    
+    return {"message_id": message_id}
+
+# GET /api/chats/unread-count
+@router.get("/unread-count")
+async def get_unread_count(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get unread messages count
+    Expected by frontend: { unread_count }
+    """
+    chats = db.query(Chat).filter(
+        ((Chat.renter_id == current_user.user_id) | (Chat.owner_id == current_user.user_id)),
+        Chat.status == 'active'
+    ).all()
+    
+    unread_count = 0
+    for chat in chats:
+        messages = chat.messages or []
+        for msg in messages:
+            if msg['sender_id'] != current_user.user_id and not msg.get('is_read', False):
+                unread_count += 1
+    
+    return {"unread_count": unread_count}
+
+def convert_chat_to_dict(chat: Chat) -> dict:
+    """Convert Chat model to dict"""
+    return {
+        "chat_id": chat.chat_id,
+        "property_id": chat.property_id,
+        "renter_id": chat.renter_id,
+        "owner_id": chat.owner_id,
+        "initiated_by": chat.initiated_by,
+        "created_at": chat.created_at.isoformat(),
+        "last_message_at": chat.last_message_at.isoformat() if chat.last_message_at else None,
+        "status": chat.status,
+        "messages": chat.messages or []
+    }
+```
+
+FILE: /app/backend/routes/payments.py
+--------------------------------------
+
+```python
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from typing import Dict
+import uuid
+from datetime import datetime, timedelta
+import os
+
+from config.database import get_db
+from models.transaction import Transaction
+from models.user import User
+from models.property import Property
+from middleware.auth_middleware import get_current_user
+
+router = APIRouter(prefix="/api/payments", tags=["Payments"])
+
+# POST /api/payments/create-order
+@router.post("/create-order")
+async def create_payment_order(
+    type: str,
+    metadata: dict = {},
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Create payment order
+    Expected by frontend: { order_id, amount, currency, is_mock, payment_gateway_data }
+    """
+    # Check if mock mode
+    razorpay_key = os.getenv('RAZORPAY_KEY_ID', '')
+    is_mock = not razorpay_key or razorpay_key == ''
+    
+    # Determine amount
+    amount = 750 if type == 'renter_subscription' else 2000
+    order_id = f"{'mock_order' if is_mock else 'rzp_order'}_{uuid.uuid4().hex[:12]}"
+    
+    if is_mock:
+        # Mock payment
+        return {
+            "order_id": order_id,
+            "amount": amount,
+            "currency": "INR",
+            "is_mock": True,
+            "payment_gateway_data": {
+                "key_id": "mock_razorpay_key",
+                "name": "Homer",
+                "description": "Premium Subscription" if type == 'renter_subscription' else "Property Verification"
+            }
+        }
+    else:
+        # Real Razorpay integration
+        import razorpay
+        client = razorpay.Client(auth=(os.getenv('RAZORPAY_KEY_ID'), os.getenv('RAZORPAY_KEY_SECRET')))
+        
+        order = client.order.create({
+            "amount": int(amount * 100),  # Razorpay amount in paise
+            "currency": "INR",
+            "receipt": order_id
+        })
+        
+        return {
+            "order_id": order['id'],
+            "amount": amount,
+            "currency": "INR",
+            "is_mock": False,
+            "payment_gateway_data": {
+                "key_id": os.getenv('RAZORPAY_KEY_ID'),
+                "name": "Homer",
+                "description": "Premium Subscription" if type == 'renter_subscription' else "Property Verification"
+            }
+        }
+
+# POST /api/payments/verify
+@router.post("/verify")
+async def verify_payment(
+    payment_id: str,
+    order_id: str,
+    signature: str = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Verify payment
+    Expected by frontend: { success, transaction_id }
+    """
+    is_mock = order_id.startswith('mock_order')
+    
+    if is_mock:
+        # Mock payment verification (always succeeds)
+        transaction_id = str(uuid.uuid4())
+        transaction_type = 'renter_subscription' if 'subscription' in order_id else 'property_verification'
+        amount = 750 if transaction_type == 'renter_subscription' else 2000
+        
+        # Create transaction record
+        transaction = Transaction(
+            transaction_id=transaction_id,
+            user_id=current_user.user_id,
+            transaction_type=transaction_type,
+            amount=amount,
+            currency='INR',
+            payment_gateway='razorpay',
+            payment_id=payment_id,
+            order_id=order_id,
+            payment_status='success',
+            is_mock=True,
+            created_at=datetime.utcnow(),
+            metadata={}
+        )
+        
+        db.add(transaction)
+        
+        # Update user if subscription
+        if transaction_type == 'renter_subscription':
+            current_user.subscription_tier = 'premium'
+            current_user.subscription_start = datetime.utcnow()
+            current_user.subscription_end = datetime.utcnow() + timedelta(days=90)
+            current_user.contacts_used = 0
+        
+        db.commit()
+        
+        return {
+            "success": True,
+            "transaction_id": transaction_id
+        }
+    else:
+        # Real Razorpay verification
+        import razorpay
+        client = razorpay.Client(auth=(os.getenv('RAZORPAY_KEY_ID'), os.getenv('RAZORPAY_KEY_SECRET')))
+        
+        try:
+            client.utility.verify_payment_signature({
+                'razorpay_order_id': order_id,
+                'razorpay_payment_id': payment_id,
+                'razorpay_signature': signature
+            })
+            
+            # Payment verified, create transaction and update user
+            # ... similar to mock flow
+            
+            return {
+                "success": True,
+                "transaction_id": transaction_id
+            }
+        except:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Payment verification failed"
+            )
+
+# GET /api/payments/history
+@router.get("/history")
+async def get_payment_history(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get payment history
+    Expected by frontend: List of transactions
+    """
+    transactions = db.query(Transaction).filter(
+        Transaction.user_id == current_user.user_id
+    ).order_by(Transaction.created_at.desc()).all()
+    
+    transactions_list = [convert_transaction_to_dict(t) for t in transactions]
+    
+    return transactions_list
+
+def convert_transaction_to_dict(transaction: Transaction) -> dict:
+    """Convert Transaction model to dict"""
+    return {
+        "transaction_id": transaction.transaction_id,
+        "user_id": transaction.user_id,
+        "transaction_type": transaction.transaction_type,
+        "amount": float(transaction.amount),
+        "currency": transaction.currency,
+        "payment_gateway": transaction.payment_gateway,
+        "payment_id": transaction.payment_id,
+        "order_id": transaction.order_id,
+        "payment_status": transaction.payment_status,
+        "is_mock": transaction.is_mock,
+        "created_at": transaction.created_at.isoformat(),
+        "metadata": transaction.metadata
+    }
+```
+
+=================================================================
+5. UTILITY FUNCTIONS
+=================================================================
+
+FILE: /app/backend/utils/jwt_helper.py
+---------------------------------------
+
+```python
+from jose import JWTError, jwt
+from datetime import datetime, timedelta
+from typing import Optional, Dict
+import os
+
+SECRET_KEY = os.getenv('JWT_SECRET', 'your-secret-key-change-in-production')
+ALGORITHM = os.getenv('JWT_ALGORITHM', 'HS256')
+ACCESS_TOKEN_EXPIRE_HOURS = int(os.getenv('JWT_EXPIRY_HOURS', '24'))
+
+def create_access_token(data: Dict) -> str:
+    """Create JWT access token"""
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
+    to_encode.update({"exp": expire})
+    
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+def decode_access_token(token: str) -> Optional[Dict]:
+    """Decode JWT access token"""
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except JWTError:
+        return None
+```
+
+FILE: /app/backend/utils/password_helper.py
+--------------------------------------------
+
+```python
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def hash_password(password: str) -> str:
+    """Hash password using bcrypt"""
+    return pwd_context.hash(password)
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify password against hash"""
+    return pwd_context.verify(plain_password, hashed_password)
+```
+
+FILE: /app/backend/middleware/auth_middleware.py
+-------------------------------------------------
+
+```python
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy.orm import Session
+
+from config.database import get_db
+from models.user import User
+from utils.jwt_helper import decode_access_token
+
+security = HTTPBearer()
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db)
+) -> User:
+    """Dependency to get current user from JWT token"""
+    token = credentials.credentials
+    
+    # Decode token
+    payload = decode_access_token(token)
+    if not payload:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials"
+        )
+    
+    user_id = payload.get('user_id')
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token payload"
+        )
+    
+    # Get user from database
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User account is inactive"
+        )
+    
+    return user
+```
+
+=================================================================
+6. MAIN SERVER FILE
+=================================================================
+
+FILE: /app/backend/server.py
+-----------------------------
+
+```python
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import os
+
+from config.database import Base, engine
+from routes import auth, properties, chats, payments, shortlists
+
+# Create tables
+Base.metadata.create_all(bind=engine)
+
+# Initialize FastAPI app
+app = FastAPI(
+    title="Homer API",
+    description="Trust-First Hybrid Rental Marketplace API",
+    version="1.0.0"
+)
+
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=os.getenv('CORS_ORIGINS', 'http://localhost:3000').split(','),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Mount static files (uploads)
+app.mount("/uploads", StaticFiles(directory="/app/uploads"), name="uploads")
+
+# Include routers
+app.include_router(auth.router)
+app.include_router(properties.router)
+app.include_router(chats.router)
+app.include_router(payments.router)
+app.include_router(shortlists.router)
+# ... include other routers
+
+# Health check
+@app.get("/")
+async def root():
+    return {"message": "Homer API is running", "status": "healthy"}
+
+@app.get("/api/health")
+async def health_check():
+    return {"status": "ok"}
+
+# Run with: uvicorn server:app --host 0.0.0.0 --port 8001 --reload
+```
+
+=================================================================
+7. TESTING BACKEND
+=================================================================
+
+TEST WITH CURL:
+
+1. Register User:
+```bash
+curl -X POST http://localhost:8001/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "phone": "+919876543210",
+    "password": "password123",
+    "user_type": "renter",
+    "full_name": "Test User"
+  }'
+```
+
+2. Login:
+```bash
+curl -X POST http://localhost:8001/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "password123"
+  }'
+```
+
+3. Get Properties (with token):
+```bash
+curl -X GET http://localhost:8001/api/properties/search \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE"
+```
+
+=================================================================
+8. INTEGRATION WITH FRONTEND
+=================================================================
+
+Frontend must:
+1. Set REACT_APP_USE_MOCK_DATA=false in .env
+2. Ensure REACT_APP_BACKEND_URL=http://localhost:8001/api
+3. All API calls will now go to real backend
+
+Backend must:
+1. Ensure DATABASE_URL points to MySQL/MariaDB
+2. Run: uvicorn server:app --host 0.0.0.0 --port 8001
+3. All endpoints must return exact response format frontend expects
+
+=================================================================
+9. DEPLOYMENT CHECKLIST
+=================================================================
+
+Before deployment:
+□ Update SECRET_KEY and JWT_SECRET
+□ Update DATABASE_URL with production MySQL credentials
+□ Configure CORS_ORIGINS for production domain
+□ Add real Razorpay keys if needed
+□ Set DEBUG=false
+□ Test all endpoints
+□ Run database migrations
+□ Set up SSL/HTTPS
+
+=================================================================
+END OF BACKEND WORKFLOW
+=================================================================
+
+This backend is designed to integrate seamlessly with frontend
+defined in frontend_workflow.txt. All API contracts match exactly.
+```
