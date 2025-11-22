@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Home, Search, User } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, Home, Search, User, LogOut } from 'lucide-react';
 import Button from '../common/Button';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { isAuthenticated, user, logout } = useAuth();
 
   const navLinks = [
     { name: 'Home', path: '/', icon: Home },
@@ -15,6 +18,19 @@ const Navbar = () => {
   ];
 
   const isActive = (path) => location.pathname === path;
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+    setIsMenuOpen(false);
+  };
+
+  const getDashboardLink = () => {
+    if (!user) return '/';
+    if (user.user_type === 'renter') return '/renter/dashboard';
+    if (user.user_type === 'owner') return '/owner/dashboard';
+    return '/';
+  };
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -47,13 +63,37 @@ const Navbar = () => {
 
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" to="/login" size="sm" data-testid="navbar-login-btn">
-              <User className="w-4 h-4 mr-2" />
-              Login
-            </Button>
-            <Button variant="primary" to="/signup" size="sm" data-testid="navbar-signup-btn">
-              Sign Up
-            </Button>
+            {isAuthenticated ? (
+              <>
+                <Link 
+                  to={getDashboardLink()}
+                  className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100 transition"
+                  data-testid="navbar-dashboard-link"
+                >
+                  <User className="w-4 h-4" />
+                  <span>{user?.full_name || 'Dashboard'}</span>
+                </Link>
+                <Button 
+                  variant="ghost" 
+                  onClick={handleLogout} 
+                  size="sm"
+                  data-testid="navbar-logout-btn"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" to="/login" size="sm" data-testid="navbar-login-btn">
+                  <User className="w-4 h-4 mr-2" />
+                  Login
+                </Button>
+                <Button variant="primary" to="/signup" size="sm" data-testid="navbar-signup-btn">
+                  Sign Up
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -85,12 +125,36 @@ const Navbar = () => {
                 </Link>
               ))}
               <div className="border-t border-slate-200 pt-4 px-4 space-y-3">
-                <Button variant="outline" to="/login" size="sm" className="w-full">
-                  Login
-                </Button>
-                <Button variant="primary" to="/signup" size="sm" className="w-full">
-                  Sign Up
-                </Button>
+                {isAuthenticated ? (
+                  <>
+                    <Link
+                      to={getDashboardLink()}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="flex items-center justify-center space-x-2 w-full px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 text-slate-700"
+                    >
+                      <User className="w-4 h-4" />
+                      <span>{user?.full_name || 'Dashboard'}</span>
+                    </Link>
+                    <Button 
+                      variant="outline" 
+                      onClick={handleLogout} 
+                      size="sm" 
+                      className="w-full"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="outline" to="/login" size="sm" className="w-full">
+                      Login
+                    </Button>
+                    <Button variant="primary" to="/signup" size="sm" className="w-full">
+                      Sign Up
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>
