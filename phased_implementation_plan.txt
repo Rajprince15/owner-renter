@@ -1,0 +1,1461 @@
+=================================================================
+HOMER - PHASED IMPLEMENTATION PLAN
+=================================================================
+
+This document breaks down the entire Homer platform into 12 small phases.
+Each phase is designed to take approximately 4-5 credits and can be 
+completed independently.
+
+Each phase builds on the previous one and delivers working features that
+can be tested immediately.
+
+=================================================================
+OVERVIEW OF ALL PHASES
+=================================================================
+
+PHASE 1: Project Setup + Landing Page
+PHASE 2: Authentication System (Login/Signup)
+PHASE 3: Basic Property Listing (Owner Side)
+PHASE 4: Property Search & Display (Renter Side)
+PHASE 5: Basic Chat System (REST API)
+PHASE 6: Free Tier Limits & Upsell Modals
+PHASE 7: Payment Integration (Mock + Razorpay)
+PHASE 8: Premium Features Unlock
+PHASE 9: Lifestyle Search Engine (Mock Data)
+PHASE 10: Document Verification Workflow
+PHASE 11: Reverse Marketplace
+PHASE 12: Analytics Dashboard & Polish
+
+After completing all 12 phases, you'll have a fully functional MVP!
+
+=================================================================
+PHASE 1: PROJECT SETUP + LANDING PAGE
+=================================================================
+
+GOAL: Setup project structure and create a beautiful landing page
+
+ESTIMATED CREDITS: 4-5
+
+WHAT WILL BE BUILT:
+-------------------
+1. Backend setup (FastAPI + MongoDB)
+2. Frontend setup (React + Tailwind)
+3. Environment configuration
+4. Landing page with hero section
+5. Basic routing structure
+
+FILES TO CREATE:
+----------------
+Backend:
+- /app/backend/server.py (FastAPI main file)
+- /app/backend/requirements.txt
+- /app/backend/.env
+- /app/backend/config.py (environment variables)
+- /app/backend/database.py (MongoDB connection)
+
+Frontend:
+- /app/frontend/package.json
+- /app/frontend/tailwind.config.js
+- /app/frontend/src/App.js
+- /app/frontend/src/pages/LandingPage.js
+- /app/frontend/src/components/Hero.js
+- /app/frontend/src/components/Navbar.js
+- /app/frontend/src/components/Footer.js
+- /app/frontend/src/index.css
+- /app/frontend/.env
+
+FEATURES IN THIS PHASE:
+-----------------------
+✓ Beautiful landing page with:
+  - Hero section with value proposition
+  - "Find a Home" and "List Property" CTAs
+  - Feature highlights (Trust, Lifestyle Search, Reverse Marketplace)
+  - How it works section
+  - Pricing preview
+  - Footer with links
+
+✓ Responsive design (mobile + desktop)
+✓ Smooth animations and transitions
+✓ Backend server running on port 8001
+✓ Frontend running on port 3000
+✓ MongoDB connection established
+
+TESTING CHECKLIST:
+------------------
+□ Backend server starts without errors
+□ Frontend loads at localhost:3000
+□ Landing page looks good on mobile and desktop
+□ Navigation links work (even if pages don't exist yet)
+□ MongoDB connection successful
+
+WHAT WORKS AFTER PHASE 1:
+--------------------------
+✅ Professional landing page
+✅ Backend API ready for endpoints
+✅ Database connection ready
+✅ Project structure in place
+
+=================================================================
+PHASE 2: AUTHENTICATION SYSTEM (LOGIN/SIGNUP)
+=================================================================
+
+GOAL: Complete user authentication with JWT tokens
+
+ESTIMATED CREDITS: 4-5
+
+WHAT WILL BE BUILT:
+-------------------
+1. User registration (email/phone + password)
+2. Login system with JWT tokens
+3. User profile structure in MongoDB
+4. Protected routes middleware
+5. Login and Signup pages
+
+FILES TO CREATE:
+----------------
+Backend:
+- /app/backend/models/user.py (User schema)
+- /app/backend/routes/auth.py (Auth endpoints)
+- /app/backend/utils/jwt_helper.py (JWT functions)
+- /app/backend/utils/password_helper.py (Hashing)
+- /app/backend/middleware/auth_middleware.py
+
+Frontend:
+- /app/frontend/src/pages/Login.js
+- /app/frontend/src/pages/Signup.js
+- /app/frontend/src/context/AuthContext.js
+- /app/frontend/src/services/authService.js
+- /app/frontend/src/components/ProtectedRoute.js
+
+API ENDPOINTS:
+--------------
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/logout
+GET  /api/auth/me (get current user)
+
+FEATURES IN THIS PHASE:
+-----------------------
+✓ Signup form with:
+  - Email and phone
+  - Password (hashed with bcrypt)
+  - User type selection (Renter/Owner/Both)
+  - Full name
+
+✓ Login form with:
+  - Email/phone login
+  - Password verification
+  - JWT token generation
+
+✓ Auth context for global state
+✓ Protected routes (redirect to login if not authenticated)
+✓ "Logout" functionality
+✓ User info stored in localStorage
+✓ Automatic login persistence
+
+DATABASE SCHEMA (users collection):
+------------------------------------
+{
+  user_id: UUID,
+  email: String (unique),
+  phone: String (unique),
+  password_hash: String,
+  user_type: "renter" | "owner" | "both",
+  full_name: String,
+  created_at: DateTime,
+  profile: {
+    renter_profile: {
+      subscription_tier: "free",
+      contacts_used: 0,
+      is_verified: false
+    },
+    owner_profile: {
+      properties_listed: [],
+      is_verified: false
+    }
+  }
+}
+
+TESTING CHECKLIST:
+------------------
+□ Can create new user account
+□ Login with correct credentials works
+□ Login with wrong credentials fails
+□ JWT token is stored in localStorage
+□ Protected routes redirect to login if not authenticated
+□ User info persists after page refresh
+□ Logout clears token and redirects to home
+
+WHAT WORKS AFTER PHASE 2:
+--------------------------
+✅ Complete authentication system
+✅ Users can register and login
+✅ JWT-based authorization
+✅ Protected routes ready for dashboards
+
+=================================================================
+PHASE 3: BASIC PROPERTY LISTING (OWNER SIDE)
+=================================================================
+
+GOAL: Owners can create and manage property listings
+
+ESTIMATED CREDITS: 4-5
+
+WHAT WILL BE BUILT:
+-------------------
+1. Property creation form (multi-step)
+2. Image upload functionality
+3. Property listing management
+4. Owner dashboard (basic)
+
+FILES TO CREATE:
+----------------
+Backend:
+- /app/backend/models/property.py (Property schema)
+- /app/backend/routes/properties.py
+- /app/backend/services/storage_service.py (file upload - local)
+
+Frontend:
+- /app/frontend/src/pages/owner/Dashboard.js
+- /app/frontend/src/pages/owner/AddProperty.js
+- /app/frontend/src/pages/owner/MyProperties.js
+- /app/frontend/src/pages/owner/EditProperty.js
+- /app/frontend/src/components/PropertyForm.js
+- /app/frontend/src/services/propertyService.js
+
+API ENDPOINTS:
+--------------
+POST   /api/properties/create
+GET    /api/properties/my-properties
+GET    /api/properties/:property_id
+PUT    /api/properties/:property_id
+DELETE /api/properties/:property_id
+POST   /api/properties/:property_id/upload-images
+
+FEATURES IN THIS PHASE:
+-----------------------
+✓ Multi-step property form:
+  - Step 1: Basic info (title, type, BHK, rent, deposit)
+  - Step 2: Location (address, city, locality)
+  - Step 3: Details (amenities, furnishing, parking)
+  - Step 4: Images upload (drag & drop)
+  - Step 5: Preview and submit
+
+✓ Owner dashboard showing:
+  - Total properties listed
+  - Quick stats
+  - "Add Property" button
+  - List of properties
+
+✓ My Properties page:
+  - Grid of property cards
+  - Edit/Delete actions
+  - Status indicators (active/inactive)
+  - "Unverified" badge on all properties
+
+✓ Local image storage (uploads folder)
+✓ Form validation
+✓ Success/error messages
+
+DATABASE SCHEMA (properties collection):
+-----------------------------------------
+{
+  property_id: UUID,
+  owner_id: UUID,
+  title: String,
+  description: String,
+  property_type: String,
+  bhk_type: String,
+  rent: Number,
+  security_deposit: Number,
+  location: {
+    address: String,
+    city: String,
+    locality: String,
+    pincode: String
+  },
+  details: {
+    carpet_area: Number,
+    furnishing: String,
+    parking: {car: Number, bike: Number},
+    amenities: [String],
+    available_from: Date
+  },
+  images: [String],
+  is_verified: false,
+  verification_tier: "free",
+  created_at: DateTime,
+  status: "active"
+}
+
+TESTING CHECKLIST:
+------------------
+□ Owner can create new property listing
+□ Multi-step form works smoothly
+□ Images upload successfully
+□ Property appears in "My Properties"
+□ Can edit existing property
+□ Can delete property
+□ Form validation works (required fields)
+□ Owner dashboard shows correct property count
+
+WHAT WORKS AFTER PHASE 3:
+--------------------------
+✅ Owners can list properties
+✅ Property CRUD operations complete
+✅ Image upload functional
+✅ Owner dashboard operational
+✅ Database has property listings
+
+=================================================================
+PHASE 4: PROPERTY SEARCH & DISPLAY (RENTER SIDE)
+=================================================================
+
+GOAL: Renters can search and view properties
+
+ESTIMATED CREDITS: 4-5
+
+WHAT WILL BE BUILT:
+-------------------
+1. Property search page with filters
+2. Property listing grid
+3. Property detail page
+4. Renter dashboard (basic)
+5. Shortlist functionality
+
+FILES TO CREATE:
+----------------
+Backend:
+- /app/backend/routes/search.py
+- /app/backend/services/search_service.py
+
+Frontend:
+- /app/frontend/src/pages/Search.js
+- /app/frontend/src/pages/PropertyDetail.js
+- /app/frontend/src/pages/renter/Dashboard.js
+- /app/frontend/src/pages/renter/Shortlists.js
+- /app/frontend/src/components/PropertyCard.js
+- /app/frontend/src/components/SearchFilters.js
+- /app/frontend/src/components/PropertyGallery.js
+- /app/frontend/src/services/searchService.js
+
+API ENDPOINTS:
+--------------
+GET  /api/properties/search
+GET  /api/properties/:property_id/detail
+POST /api/shortlists/add
+GET  /api/shortlists
+DELETE /api/shortlists/:shortlist_id
+
+FEATURES IN THIS PHASE:
+-----------------------
+✓ Search page with filters:
+  - City/Location autocomplete (mock data)
+  - Price range slider
+  - BHK type selection
+  - Property type filter
+  - Sort options (price, date)
+
+✓ Property cards grid:
+  - Property image
+  - Title, location, rent
+  - BHK type and amenities
+  - "Unverified" badge
+  - Shortlist heart icon
+  - Click to view details
+
+✓ Property detail page:
+  - Image gallery with lightbox
+  - Complete property details
+  - Amenities list
+  - Location info
+  - Owner info (masked)
+  - "Contact Owner" button
+  - "Add to Shortlist" button
+
+✓ Renter dashboard:
+  - Search suggestions
+  - Shortlisted properties
+  - Recent views
+
+✓ Shortlist functionality:
+  - Add/remove properties
+  - View all shortlisted properties
+  - Notes for each property
+
+✓ Pagination for search results
+✓ Responsive grid layout
+
+DATABASE SCHEMA (shortlists collection):
+-----------------------------------------
+{
+  shortlist_id: UUID,
+  user_id: UUID,
+  property_id: UUID,
+  notes: String,
+  created_at: DateTime
+}
+
+TESTING CHECKLIST:
+------------------
+□ Search page loads with all properties
+□ Filters work correctly (price, BHK, location)
+□ Can click property card to view details
+□ Property detail page shows all information
+□ Image gallery works with lightbox
+□ Can add property to shortlist
+□ Shortlist page shows all saved properties
+□ Can remove from shortlist
+□ Pagination works (if >20 properties)
+
+WHAT WORKS AFTER PHASE 4:
+--------------------------
+✅ Renters can search properties
+✅ Complete property viewing experience
+✅ Shortlist functionality
+✅ Both dashboards operational
+✅ Basic marketplace working (browse only)
+
+=================================================================
+PHASE 5: BASIC CHAT SYSTEM (REST API)
+=================================================================
+
+GOAL: Renters can contact owners via chat
+
+ESTIMATED CREDITS: 4-5
+
+WHAT WILL BE BUILT:
+-------------------
+1. Chat initiation
+2. Messaging interface
+3. Chat list view
+4. Message persistence
+
+FILES TO CREATE:
+----------------
+Backend:
+- /app/backend/models/chat.py (Chat schema)
+- /app/backend/routes/chats.py
+
+Frontend:
+- /app/frontend/src/pages/renter/Chats.js
+- /app/frontend/src/pages/owner/Chats.js
+- /app/frontend/src/components/ChatList.js
+- /app/frontend/src/components/ChatWindow.js
+- /app/frontend/src/components/MessageBubble.js
+- /app/frontend/src/services/chatService.js
+
+API ENDPOINTS:
+--------------
+POST /api/chats/initiate
+GET  /api/chats
+GET  /api/chats/:chat_id
+POST /api/chats/:chat_id/messages
+PUT  /api/chats/:chat_id/mark-read
+GET  /api/chats/unread-count
+
+FEATURES IN THIS PHASE:
+-----------------------
+✓ "Contact Owner" button on property detail page
+✓ Creates chat on first contact
+✓ Chat list page showing:
+  - All conversations
+  - Property thumbnail
+  - Last message preview
+  - Unread count badge
+  - Timestamp
+
+✓ Chat window with:
+  - WhatsApp-style message bubbles
+  - Text input field
+  - Send button
+  - Property info sidebar
+  - Scroll to bottom on new message
+  - Manual refresh button
+
+✓ Messages stored in database
+✓ Read/unread status tracking
+✓ Notification badge with unread count
+
+DATABASE SCHEMA (chats collection):
+------------------------------------
+{
+  chat_id: UUID,
+  property_id: UUID,
+  renter_id: UUID,
+  owner_id: UUID,
+  created_at: DateTime,
+  last_message_at: DateTime,
+  messages: [
+    {
+      message_id: UUID,
+      sender_id: UUID,
+      sender_type: "renter" | "owner",
+      message: String,
+      timestamp: DateTime,
+      is_read: Boolean
+    }
+  ]
+}
+
+TESTING CHECKLIST:
+------------------
+□ Click "Contact Owner" creates chat
+□ Chat appears in both renter and owner chat lists
+□ Can send messages back and forth
+□ Messages persist after refresh
+□ Unread count updates correctly
+□ Chat list sorted by last message time
+□ Property info visible in chat window
+□ Timestamps show correctly
+
+WHAT WORKS AFTER PHASE 5:
+--------------------------
+✅ Full chat functionality (REST-based)
+✅ Renters can contact owners
+✅ Owners can reply to renters
+✅ Message persistence
+✅ Basic communication working
+
+NOTE: Contact limits NOT enforced yet - that's Phase 6!
+
+=================================================================
+PHASE 6: FREE TIER LIMITS & UPSELL MODALS
+=================================================================
+
+GOAL: Enforce 5-contact limit for free renters and show upgrade prompts
+
+ESTIMATED CREDITS: 3-4
+
+WHAT WILL BE BUILT:
+-------------------
+1. Contact limit enforcement
+2. Upsell modals for free users
+3. Subscription tier display
+4. Limit counter UI
+
+FILES TO CREATE/MODIFY:
+-----------------------
+Backend:
+- Update /app/backend/routes/chats.py (add limit check)
+- /app/backend/middleware/subscription_check.py
+
+Frontend:
+- /app/frontend/src/components/UpgradeModal.js
+- /app/frontend/src/components/SubscriptionBanner.js
+- /app/frontend/src/components/ContactLimitIndicator.js
+- Update ChatService to check limits
+
+API ENDPOINTS (modify):
+-----------------------
+POST /api/chats/initiate (add limit enforcement)
+GET  /api/users/contacts-remaining
+
+FEATURES IN THIS PHASE:
+-----------------------
+✓ Contact limit check before chat creation:
+  - If free tier and contacts_used >= 5 → Show upgrade modal
+  - If premium tier → Allow unlimited contacts
+
+✓ Upgrade modal with:
+  - "You've reached your contact limit"
+  - Feature comparison (Free vs Premium)
+  - Benefits of upgrading
+  - "Upgrade Now" CTA button
+  - "Cancel" option
+
+✓ Contact limit indicator:
+  - Shows "3/5 contacts used" on renter dashboard
+  - Color changes as limit approaches (green → yellow → red)
+  - Visible on search page
+
+✓ Subscription banner:
+  - Shows current tier (Free/Premium)
+  - Days remaining (if premium)
+  - Upgrade button (if free)
+
+✓ Backend logic:
+  - Check subscription_tier before allowing contact
+  - Increment contacts_used on successful chat creation
+  - Return 403 error if limit reached
+
+TESTING CHECKLIST:
+------------------
+□ Free renter can contact 5 properties
+□ 6th contact attempt shows upgrade modal
+□ Premium renters have no contact limit
+□ Contact counter updates after each contact
+□ Dashboard shows correct contacts remaining
+□ Upgrade modal has proper styling and CTAs
+□ Can close modal and continue browsing
+
+WHAT WORKS AFTER PHASE 6:
+--------------------------
+✅ Free tier limitations enforced
+✅ Upsell mechanism in place
+✅ Contact limit tracking working
+✅ Clear value proposition for premium
+✅ Freemium model operational
+
+=================================================================
+PHASE 7: PAYMENT INTEGRATION (MOCK + RAZORPAY READY)
+=================================================================
+
+GOAL: Payment system with mock flow and Razorpay integration ready
+
+ESTIMATED CREDITS: 5
+
+WHAT WILL BE BUILT:
+-------------------
+1. Payment service (switchable mock/real)
+2. Subscription purchase flow
+3. Property verification payment
+4. Transaction history
+5. Mock payment UI
+
+FILES TO CREATE:
+----------------
+Backend:
+- /app/backend/models/transaction.py
+- /app/backend/services/payment_service.py
+- /app/backend/routes/payments.py
+- /app/backend/utils/razorpay_helper.py
+
+Frontend:
+- /app/frontend/src/pages/renter/Subscription.js
+- /app/frontend/src/pages/owner/Verification.js
+- /app/frontend/src/pages/PaymentSuccess.js
+- /app/frontend/src/pages/PaymentFailure.js
+- /app/frontend/src/components/MockPaymentModal.js
+- /app/frontend/src/components/PricingCard.js
+- /app/frontend/src/services/paymentService.js
+
+API ENDPOINTS:
+--------------
+POST /api/payments/create-order
+POST /api/payments/verify
+GET  /api/payments/history
+
+FEATURES IN THIS PHASE:
+-----------------------
+✓ Renter subscription page:
+  - Current plan display
+  - Premium features list
+  - Pricing: ₹750 for 90 days
+  - "Upgrade Now" button
+
+✓ Owner verification page:
+  - Verification benefits
+  - Pricing: ₹2,000 per property
+  - Property selection dropdown
+  - "Pay & Verify" button
+
+✓ Payment service with mock detection:
+  - If RAZORPAY_KEY_ID empty → Mock mode
+  - If RAZORPAY_KEY_ID exists → Real Razorpay
+
+✓ Mock payment flow:
+  - Custom payment modal
+  - "TEST MODE" banner (yellow)
+  - Shows amount and invoice details
+  - "Pay Now" button → 2-second loading
+  - Auto-generates mock payment_id
+  - Always succeeds
+
+✓ Real Razorpay flow (ready but inactive):
+  - Creates Razorpay order
+  - Opens Razorpay checkout modal
+  - Verifies signature on success
+  - Handles webhooks
+
+✓ Transaction storage:
+  - All payments stored in transactions collection
+  - Payment history page
+  - Invoice download (PDF future, JSON now)
+
+✓ Subscription update:
+  - After successful payment:
+    * Update user.subscription_tier = "premium"
+    * Set subscription_start and subscription_end
+    * Reset contacts_used to 0
+  - Immediate feature unlock
+
+✓ Property verification update:
+  - After successful payment:
+    * Update property.verification_fee_paid = true
+    * Status remains "pending" until admin approves
+    * Store transaction_id
+
+DATABASE SCHEMA (transactions collection):
+-------------------------------------------
+{
+  transaction_id: UUID,
+  user_id: UUID,
+  transaction_type: "renter_subscription" | "property_verification",
+  amount: Number,
+  currency: "INR",
+  payment_id: String,
+  order_id: String,
+  payment_status: "success" | "failed" | "pending",
+  is_mock: Boolean,
+  created_at: DateTime,
+  metadata: {
+    subscription_duration: 90,  // if subscription
+    property_id: UUID  // if verification
+  }
+}
+
+TESTING CHECKLIST:
+------------------
+□ Click upgrade shows subscription page
+□ Click "Pay Now" shows mock payment modal
+□ "TEST MODE" banner is visible
+□ Mock payment completes after 2 seconds
+□ User tier updates to "premium"
+□ Contacts_used resets to 0
+□ Can now contact unlimited properties
+□ Property verification payment works
+□ Transaction appears in history
+□ Payment success page shows confirmation
+
+WHAT WORKS AFTER PHASE 7:
+--------------------------
+✅ Complete payment system (mock mode)
+✅ Renter subscription working
+✅ Property verification payment working
+✅ Transaction tracking
+✅ Ready to switch to real Razorpay (just add keys)
+
+=================================================================
+PHASE 8: PREMIUM FEATURES UNLOCK
+=================================================================
+
+GOAL: Unlock premium features after subscription
+
+ESTIMATED CREDITS: 3-4
+
+WHAT WILL BE BUILT:
+-------------------
+1. Premium badge display
+2. Feature gating
+3. Advanced filters UI (non-functional yet)
+4. Verification status display
+
+FILES TO CREATE/MODIFY:
+-----------------------
+Frontend:
+- /app/frontend/src/components/PremiumBadge.js
+- /app/frontend/src/components/VerifiedBadge.js
+- /app/frontend/src/components/AdvancedFiltersPanel.js
+- Update PropertyCard.js to show badges
+- Update UserProfile.js to show subscription
+
+Backend:
+- Update search endpoint to check premium status
+
+FEATURES IN THIS PHASE:
+-----------------------
+✓ Premium renter badge:
+  - Blue star badge on profile
+  - Visible in chat to owners
+  - Shows on dashboard
+
+✓ Verified property badge:
+  - Green checkmark on property cards
+  - Visible in search results
+  - Shows on property detail page
+
+✓ Unverified warning:
+  - Yellow warning badge
+  - "Not Verified" text
+  - Visible on free listings
+
+✓ Feature gating:
+  - Free users see "Premium Only" lock on advanced filters
+  - Clicking shows upgrade modal
+  - Premium users see full advanced filter panel
+
+✓ Advanced filters panel (UI only):
+  - Lifestyle search section (grayed out for free users)
+  - AQI slider (non-functional yet)
+  - Noise level slider (non-functional yet)
+  - Walkability slider (non-functional yet)
+  - "Near parks" checkbox (non-functional yet)
+  - Will be made functional in Phase 9
+
+✓ Subscription status display:
+  - Shows "Premium" or "Free" on dashboard
+  - Days remaining for premium users
+  - Expiry date
+
+✓ Search ranking update:
+  - Verified properties appear first
+  - Unverified properties at bottom
+  - Sort by verification status
+
+TESTING CHECKLIST:
+------------------
+□ Premium renters have blue badge
+□ Verified properties have green badge
+□ Unverified properties have yellow warning
+□ Advanced filters panel visible but locked for free users
+□ Premium users can see advanced filters (non-functional)
+□ Search results show verified properties first
+□ Dashboard displays correct subscription status
+□ Days remaining countdown works
+
+WHAT WORKS AFTER PHASE 8:
+--------------------------
+✅ Premium/Free tier visually distinct
+✅ Badges working everywhere
+✅ Feature gating operational
+✅ Search ranking by verification
+✅ UI ready for lifestyle search
+
+=================================================================
+PHASE 9: LIFESTYLE SEARCH ENGINE (MOCK DATA)
+=================================================================
+
+GOAL: Implement lifestyle search with mock data generation
+
+ESTIMATED CREDITS: 5
+
+WHAT WILL BE BUILT:
+-------------------
+1. Mock lifestyle data generation
+2. Lifestyle data calculation service
+3. Advanced search filters (functional)
+4. Natural language search (with Emergent LLM)
+5. Lifestyle data display on properties
+
+FILES TO CREATE:
+----------------
+Backend:
+- /app/backend/services/lifestyle_service.py
+- /app/backend/services/llm_service.py
+- /app/backend/routes/lifestyle.py
+- /app/backend/utils/mock_data_generator.py
+
+Frontend:
+- /app/frontend/src/pages/LifestyleSearch.js
+- /app/frontend/src/components/LifestyleScoreBadge.js
+- /app/frontend/src/components/NaturalLanguageSearch.js
+- /app/frontend/src/components/AmenityMap.js
+- Update AdvancedFiltersPanel.js (make functional)
+
+API ENDPOINTS:
+--------------
+POST /api/properties/:property_id/calculate-lifestyle
+GET  /api/properties/lifestyle-search
+POST /api/search/natural-language
+
+FEATURES IN THIS PHASE:
+-----------------------
+✓ Lifestyle data generation for verified properties:
+  - AQI score (mock: 30-150 based on city type)
+  - Noise level (mock: 45-75 dB based on location)
+  - Walkability score (mock: 20-90 based on area)
+  - Nearby parks (mock: 1-3 parks with distances)
+  - Nearby hospitals (mock: 1-2 with distances)
+  - Nearby schools (mock: 1-2 with distances)
+  - Public transport score (mock: 50-90)
+  - Safety score (mock: 60-85)
+
+✓ Auto-calculate on property verification:
+  - When property.is_verified = true
+  - Generate and store lifestyle_data
+  - Cache for consistency
+
+✓ Advanced filters (now functional):
+  - AQI slider: 0-200
+  - Noise level slider: 0-100 dB
+  - Walkability slider: 0-100
+  - "Near parks" toggle
+  - "Pet friendly" toggle
+  - All filters working
+
+✓ Lifestyle search API:
+  - Only premium renters can access
+  - Only returns verified properties
+  - Filters by lifestyle criteria
+  - Calculates match score
+  - Sorts by relevance
+
+✓ Natural language search:
+  - Text input: "quiet 2bhk near park under 25000"
+  - Uses Emergent LLM to parse
+  - Converts to structured filters
+  - Falls back to keyword matching if LLM fails
+  - Shows extracted filters to user
+
+✓ Lifestyle data display:
+  - Color-coded badges:
+    * AQI: Green (<50), Yellow (50-100), Red (>100)
+    * Noise: Green (<55), Yellow (55-70), Red (>70)
+    * Walkability: Green (>70), Yellow (40-70), Red (<40)
+  - Progress bars for scores
+  - Amenity list with distances
+  - Tooltips explaining metrics
+
+✓ Mock data indicator:
+  - Small "(Mock Data)" label
+  - Will disappear when real APIs are added
+
+LIFESTYLE DATA SCHEMA (in property document):
+----------------------------------------------
+{
+  lifestyle_data: {
+    aqi_score: 65,
+    noise_level: 58,
+    walkability_score: 72,
+    nearby_parks: [
+      {name: "Central Park", distance: 0.8},
+      {name: "Green Garden", distance: 1.5}
+    ],
+    nearby_hospitals: [{name: "Apollo", distance: 2.1}],
+    nearby_schools: [{name: "DPS", distance: 1.0}],
+    public_transport_score: 75,
+    safety_score: 68,
+    calculated_at: DateTime,
+    is_mock: true
+  }
+}
+
+TESTING CHECKLIST:
+------------------
+□ Verified properties have lifestyle data generated
+□ Free properties don't have lifestyle data
+□ Advanced filters work (premium users only)
+□ Can filter by AQI, noise, walkability
+□ Natural language search extracts filters correctly
+□ Lifestyle search returns relevant properties
+□ Property cards show lifestyle badges
+□ Property detail page shows full lifestyle report
+□ Color coding is correct
+□ Mock data is realistic and varied
+
+WHAT WORKS AFTER PHASE 9:
+--------------------------
+✅ Complete lifestyle search engine
+✅ Natural language search with AI
+✅ Mock data generation working
+✅ Advanced filters functional
+✅ Our main USP/moat is operational!
+✅ Ready to switch to real APIs
+
+=================================================================
+PHASE 10: DOCUMENT VERIFICATION WORKFLOW
+=================================================================
+
+GOAL: Document upload and verification system
+
+ESTIMATED CREDITS: 4-5
+
+WHAT WILL BE BUILT:
+-------------------
+1. Document upload interface
+2. Verification status tracking
+3. Admin review page (simple)
+4. Verification approval/rejection
+
+FILES TO CREATE:
+----------------
+Backend:
+- /app/backend/routes/verification.py
+- /app/backend/services/document_service.py
+- /app/backend/routes/admin.py
+
+Frontend:
+- /app/frontend/src/pages/renter/VerificationUpload.js
+- /app/frontend/src/pages/owner/PropertyVerification.js
+- /app/frontend/src/pages/admin/VerificationReview.js
+- /app/frontend/src/components/DocumentUpload.js
+- /app/frontend/src/components/VerificationStatusTracker.js
+- /app/frontend/src/services/verificationService.js
+
+API ENDPOINTS:
+--------------
+POST /api/verification/renter/upload
+POST /api/verification/property/:id/upload
+GET  /api/verification/status
+GET  /api/admin/verifications/pending
+POST /api/admin/verifications/:id/approve
+POST /api/admin/verifications/:id/reject
+
+FEATURES IN THIS PHASE:
+-----------------------
+✓ Renter verification upload:
+  - Document checklist
+  - ID proof upload (Aadhaar/PAN)
+  - Income proof upload (salary slips/bank statements/ITR)
+  - Employment details form
+  - Submit for review
+
+✓ Property verification upload:
+  - Document checklist
+  - Owner ID proof
+  - Ownership proof (electricity bill/property tax/deed)
+  - Property selection
+  - Payment confirmation check
+  - Submit for review
+
+✓ Verification status tracker:
+  - Shows current status: "Not Started", "Pending", "Approved", "Rejected"
+  - Step-by-step progress indicator
+  - Estimated review time (24-48 hours)
+  - Rejection reason (if rejected)
+
+✓ Document storage:
+  - Local file storage in /uploads/verification/
+  - Organized by user_id and document type
+  - Secure access (only user and admin)
+
+✓ Admin review page:
+  - List of pending verifications
+  - Filter by type (renter/property)
+  - View uploaded documents
+  - Approve/Reject buttons
+  - Rejection reason text field
+
+✓ Approval process:
+  - Admin clicks "Approve"
+  - For renter:
+    * user.renter_profile.is_verified = true
+    * Gets verified badge
+    * Added to reverse marketplace
+  - For property:
+    * property.is_verified = true
+    * property.verification_tier = "verified"
+    * Lifestyle data calculated
+    * Moves to top of search
+
+✓ Rejection process:
+  - Admin clicks "Reject" with reason
+  - User receives rejection notification
+  - Can resubmit documents
+  - Reason displayed to user
+
+✓ Email notifications (logged to console if no email service):
+  - Verification received
+  - Verification approved
+  - Verification rejected
+
+TESTING CHECKLIST:
+------------------
+□ Renter can upload verification documents
+□ Property owner can upload verification documents
+□ Files upload and store correctly
+□ Status changes to "Pending" after submission
+□ Admin can see pending verifications
+□ Admin can view uploaded documents
+□ Admin can approve verification
+□ Verified badge appears after approval
+□ Lifestyle data generates for verified property
+□ Admin can reject with reason
+□ User sees rejection reason
+□ Can resubmit after rejection
+
+WHAT WORKS AFTER PHASE 10:
+---------------------------
+✅ Complete verification workflow
+✅ Document upload working
+✅ Admin review system operational
+✅ Verification badges functional
+✅ Trust system fully implemented
+
+=================================================================
+PHASE 11: REVERSE MARKETPLACE
+=================================================================
+
+GOAL: Owners can browse and contact verified renters
+
+ESTIMATED CREDITS: 4-5
+
+WHAT WILL BE BUILT:
+-------------------
+1. Anonymous renter profile generation
+2. Reverse marketplace browse page
+3. Owner-initiated contact
+4. Privacy controls for renters
+
+FILES TO CREATE:
+----------------
+Backend:
+- /app/backend/routes/reverse_marketplace.py
+- /app/backend/services/renter_profile_service.py
+
+Frontend:
+- /app/frontend/src/pages/owner/ReverseMarketplace.js
+- /app/frontend/src/components/AnonymousRenterCard.js
+- /app/frontend/src/components/RenterFilters.js
+- /app/frontend/src/pages/renter/PrivacySettings.js
+- /app/frontend/src/services/reverseMarketplaceService.js
+
+API ENDPOINTS:
+--------------
+GET  /api/reverse-marketplace/renters
+POST /api/reverse-marketplace/contact-renter
+PUT  /api/users/privacy-settings
+
+FEATURES IN THIS PHASE:
+-----------------------
+✓ Anonymous renter profile generation:
+  - Only premium + verified renters
+  - Format: "Renter #" + last 4 digits of user_id
+  - Shows:
+    * Employment type (IT, Banking, Healthcare, etc.)
+    * Income range (>₹10 LPA, >₹15 LPA, etc.)
+    * Looking for (BHK type)
+    * Budget range
+    * Preferred locations
+    * Move-in date
+    * Lifestyle preferences
+  - Hides:
+    * Name, email, phone
+    * Exact salary
+    * Current address
+
+✓ Reverse marketplace page (owners only):
+  - Requires verified owner status
+  - Grid of anonymous renter cards
+  - Filters:
+    * Budget range
+    * BHK type
+    * Preferred location
+    * Move-in date range
+    * Employment type
+  - Sort by: Recent, Budget, Move-in date
+
+✓ Renter card design:
+  - Anonymous ID prominently displayed
+  - Key info in card format
+  - "Match Score" if filtering by property
+  - "Contact Renter" button
+  - Verified badge
+
+✓ Owner-initiated contact:
+  - Click "Contact Renter"
+  - Modal to select which property to pitch
+  - Write initial message
+  - Submit creates chat with owner as initiator
+
+✓ Renter receives notification:
+  - "A verified owner is interested in you"
+  - Property details shown
+  - Owner's message
+  - Can reply or ignore
+
+✓ Privacy controls for renters:
+  - Settings page in renter profile
+  - Toggle: "Make my profile visible to verified owners"
+  - Default: ON (if premium + verified)
+  - Can opt out anytime
+  - Info about what's shared and what's hidden
+
+✓ Access control:
+  - Only verified owners can access reverse marketplace
+  - Only premium + verified renters listed
+  - Only renters who opted in
+
+✓ Match score calculation:
+  - If owner is viewing from specific property
+  - Calculate compatibility:
+    * Budget match
+    * Location preference match
+    * BHK match
+    * Move-in date proximity
+  - Show percentage match
+
+TESTING CHECKLIST:
+------------------
+□ Premium + verified renters appear in reverse marketplace
+□ Profiles are properly anonymized
+□ Free renters don't appear
+□ Unverified owners can't access page
+□ Filters work correctly
+□ Owner can initiate contact
+□ Chat created with owner as initiator
+□ Renter receives notification
+□ Can reply to owner-initiated chat
+□ Privacy toggle works (opt out hides profile)
+□ Match score displays correctly
+
+WHAT WORKS AFTER PHASE 11:
+---------------------------
+✅ Reverse marketplace fully functional
+✅ Our second major USP operational!
+✅ Two-way marketplace complete
+✅ Privacy-first approach working
+✅ Unique value for both sides
+
+=================================================================
+PHASE 12: ANALYTICS DASHBOARD & POLISH
+=================================================================
+
+GOAL: Owner analytics, UI polish, and final touches
+
+ESTIMATED CREDITS: 4-5
+
+WHAT WILL BE BUILT:
+-------------------
+1. Owner property analytics
+2. Performance metrics
+3. Upsell messages for free owners
+4. UI polish and animations
+5. Final testing and bug fixes
+
+FILES TO CREATE:
+----------------
+Backend:
+- /app/backend/routes/analytics.py
+- /app/backend/services/analytics_service.py
+
+Frontend:
+- /app/frontend/src/pages/owner/PropertyAnalytics.js
+- /app/frontend/src/components/AnalyticsChart.js
+- /app/frontend/src/components/PerformanceCard.js
+- /app/frontend/src/components/UpgradePrompt.js
+- /app/frontend/src/components/LoadingSpinner.js
+- /app/frontend/src/components/Skeleton.js
+
+API ENDPOINTS:
+--------------
+GET /api/properties/:id/analytics
+POST /api/properties/:id/track-view
+GET /api/analytics/comparison
+
+FEATURES IN THIS PHASE:
+-----------------------
+✓ Property analytics tracking:
+  - Track views (increment on property detail page load)
+  - Track premium views (if viewer is premium renter)
+  - Track contacts (when chat initiated)
+  - Track shortlists
+  - Last viewed timestamp
+
+✓ Analytics dashboard page:
+  - Total views (line chart over time)
+  - Total contacts
+  - Shortlist count
+  - Premium viewer percentage
+  - View-to-contact conversion rate
+  - Time on market
+
+✓ Performance comparison:
+  - Verified vs Unverified comparison
+  - Show: "Verified properties get 5X more views"
+  - Industry averages
+  - Your property ranking
+
+✓ Upsell for free owners:
+  - Banner on analytics page
+  - "Your unverified listing is getting 90% fewer views"
+  - "Get verified to rank higher"
+  - Show potential reach increase
+  - "Upgrade Now" CTA
+
+✓ UI polish:
+  - Add loading skeletons
+  - Smooth page transitions
+  - Hover effects on all cards
+  - Success animations
+  - Error handling improvements
+  - Toast notifications
+  - Consistent spacing and typography
+
+✓ Performance optimizations:
+  - Lazy loading for images
+  - Debounce search inputs
+  - Pagination for large lists
+  - Caching frequently accessed data
+
+✓ Mobile responsiveness:
+  - Test all pages on mobile
+  - Fix any layout issues
+  - Touch-friendly buttons
+  - Mobile navigation
+
+✓ Final testing:
+  - Test all user flows
+  - Test payment (mock)
+  - Test verification workflow
+  - Test chat system
+  - Test lifestyle search
+  - Test reverse marketplace
+  - Cross-browser testing
+
+✓ Documentation:
+  - Update README.md
+  - API documentation
+  - Setup instructions
+  - Environment variables guide
+
+ANALYTICS SCHEMA (in property document):
+-----------------------------------------
+{
+  analytics: {
+    total_views: 156,
+    premium_views: 42,
+    total_contacts: 8,
+    shortlisted_count: 23,
+    last_viewed: DateTime,
+    views_history: [
+      {date: "2025-01-01", count: 12},
+      {date: "2025-01-02", count: 15}
+    ]
+  }
+}
+
+TESTING CHECKLIST:
+------------------
+□ Analytics page loads correctly
+□ View counts increment on property view
+□ Charts display correctly
+□ Performance comparison shows
+□ Upsell messages appear for unverified owners
+□ All pages responsive on mobile
+□ Loading states work smoothly
+□ All animations smooth
+□ No console errors
+□ All features tested end-to-end
+□ Payment flow works (mock)
+□ Chat works both ways
+□ Search and filters work
+□ Verification workflow complete
+□ Reverse marketplace functional
+
+WHAT WORKS AFTER PHASE 12:
+---------------------------
+✅ Complete MVP is ready!
+✅ All features fully functional
+✅ Analytics dashboard operational
+✅ Professional UI/UX
+✅ Mobile responsive
+✅ Ready for demo/launch
+✅ Can switch to production APIs anytime
+
+=================================================================
+FINAL MVP FEATURE LIST (ALL 12 PHASES COMPLETE)
+=================================================================
+
+✅ AUTHENTICATION:
+   - User registration and login
+   - JWT-based authorization
+   - Password hashing
+
+✅ PROPERTY MANAGEMENT:
+   - Create, edit, delete properties
+   - Image upload
+   - Comprehensive property details
+
+✅ SEARCH & DISCOVERY:
+   - Basic search with filters
+   - Advanced lifestyle search (premium)
+   - Natural language search with AI
+   - Search ranking by verification
+
+✅ CHAT SYSTEM:
+   - Renter-to-owner messaging
+   - Owner-to-renter messaging
+   - Message persistence
+   - Unread counts
+
+✅ FREEMIUM MODEL:
+   - Free tier (5 contact limit)
+   - Premium tier (unlimited + perks)
+   - Feature gating
+   - Upsell modals
+
+✅ PAYMENT SYSTEM:
+   - Mock payment (default)
+   - Razorpay integration ready
+   - Subscription management
+   - Transaction history
+
+✅ LIFESTYLE SEARCH:
+   - Mock AQI, noise, walkability data
+   - Advanced filters
+   - Lifestyle data display
+   - Switchable to real APIs
+
+✅ VERIFICATION:
+   - Document upload
+   - Admin review
+   - Approval/rejection
+   - Verified badges
+
+✅ REVERSE MARKETPLACE:
+   - Anonymous renter profiles
+   - Owner browse and contact
+   - Privacy controls
+   - Match scoring
+
+✅ ANALYTICS:
+   - Property performance metrics
+   - View tracking
+   - Comparison charts
+   - Upsell messaging
+
+✅ UI/UX:
+   - Professional design
+   - Responsive layout
+   - Smooth animations
+   - Loading states
+
+=================================================================
+CREDIT ESTIMATION PER PHASE
+=================================================================
+
+Phase 1:  4-5 credits (Setup + Landing)
+Phase 2:  4-5 credits (Auth)
+Phase 3:  4-5 credits (Property Listing)
+Phase 4:  4-5 credits (Search)
+Phase 5:  4-5 credits (Chat)
+Phase 6:  3-4 credits (Limits)
+Phase 7:  5 credits (Payment)
+Phase 8:  3-4 credits (Premium Features)
+Phase 9:  5 credits (Lifestyle Search)
+Phase 10: 4-5 credits (Verification)
+Phase 11: 4-5 credits (Reverse Marketplace)
+Phase 12: 4-5 credits (Analytics & Polish)
+
+TOTAL: ~50-58 credits for complete MVP
+
+=================================================================
+HOW TO USE THIS PLAN
+=================================================================
+
+1. START WITH PHASE 1
+   - Tell the agent: "Let's start Phase 1"
+   - Agent will build everything in Phase 1
+   - Test thoroughly before moving on
+
+2. MOVE TO NEXT PHASE ONLY AFTER TESTING
+   - Each phase builds on previous
+   - Don't skip phases
+   - Test each phase before proceeding
+
+3. AFTER EACH PHASE:
+   - Test all features listed in "Testing Checklist"
+   - Verify "What Works After Phase X"
+   - Fix any issues before next phase
+
+4. WHEN COMPLETE:
+   - You'll have a fully functional MVP
+   - Can launch with mock data
+   - Can switch to production APIs by adding keys to .env
+
+5. SWITCHING TO PRODUCTION:
+   - Add API keys to .env file
+   - Restart servers
+   - No code changes needed!
+
+=================================================================
+END OF PHASED IMPLEMENTATION PLAN
+=================================================================
+
+Each phase is self-contained and delivers working features.
+Total time: 12 phases × 1 session = ~12 work sessions
+Total credits: ~50-58 credits
+
+Ready to start Phase 1? 🚀
