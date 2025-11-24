@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getShortlists } from '../../services/shortlistService';
 import { searchProperties } from '../../services/propertyService';
 import PropertyCard from '../../components/property/PropertyCard';
+import ContactLimitIndicator from '../../components/upsell/ContactLimitIndicator';
 import Button from '../../components/common/Button';
 
 const RenterDashboard = () => {
@@ -186,6 +187,16 @@ const RenterDashboard = () => {
             )}
           </div>
         </div>
+
+        {/* Contact Limit Indicator */}
+        {user && (
+          <ContactLimitIndicator
+            contactsUsed={user.contacts_used || 0}
+            contactsLimit={isPremium ? 'unlimited' : 5}
+            isPremium={isPremium}
+            className="mb-8"
+          />
+        )}
 
         {/* Upgrade Banner (for free users) */}
         {!isPremium && (

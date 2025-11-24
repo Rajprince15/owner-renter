@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import PropertyGallery from '../components/property/PropertyGallery';
 import Button from '../components/common/Button';
+import UpgradeModal from '../components/upsell/UpgradeModal';
 import { getPropertyDetail } from '../services/propertyService';
 import { addToShortlist, removeFromShortlistByPropertyId, isPropertyShortlisted } from '../services/shortlistService';
 import { initiateChat } from '../services/chatService';
@@ -22,6 +23,7 @@ const PropertyDetail = () => {
   const [error, setError] = useState(null);
   const [isShortlisted, setIsShortlisted] = useState(false);
   const [contactingOwner, setContactingOwner] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -92,16 +94,19 @@ const PropertyDetail = () => {
       
       // Check if it's a contact limit error
       if (err.response?.status === 403 && err.response?.data?.message?.includes('Contact limit')) {
-        // User has reached free tier limit - navigate to subscription page
-        if (window.confirm('You have reached your free contact limit (5 properties). Upgrade to premium for unlimited contacts?')) {
-          navigate('/renter/subscription');
-        }
+        // User has reached free tier limit - show upgrade modal
+        setShowUpgradeModal(true);
       } else {
         alert(err.response?.data?.message || 'Failed to start chat. Please try again.');
       }
     } finally {
       setContactingOwner(false);
     }
+  };
+
+  const handleUpgrade = () => {
+    setShowUpgradeModal(false);
+    navigate('/renter/subscription');
   };
 
   if (loading) {
@@ -423,6 +428,15 @@ const PropertyDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        onUpgrade={handleUpgrade}
+        contactsUsed={user?.contacts_used || 0}
+        contactsLimit={user?.subscription_tier === 'premium' ? 'unlimited' : 5}
+      />
     </div>
   );
 };

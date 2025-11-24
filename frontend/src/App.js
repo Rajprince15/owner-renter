@@ -23,6 +23,14 @@ import OwnerChats from './pages/owner/Chats';
 import RenterDashboard from './pages/renter/Dashboard';
 import RenterShortlists from './pages/renter/Shortlists';
 import RenterChats from './pages/renter/Chats';
+import RenterSubscription from './pages/renter/Subscription';
+
+// Owner Pages - Additional
+import OwnerVerification from './pages/owner/Verification';
+
+// Payment Pages
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentFailure from './pages/PaymentFailure';
 
 // Layout components
 import Navbar from './components/layout/Navbar';
@@ -71,15 +79,10 @@ function App() {
                 </ProtectedRoute>
               } />
               
-              {/* Renter Subscription (placeholder for Phase 6) */}
+              {/* Renter Subscription */}
               <Route path="/renter/subscription" element={
                 <ProtectedRoute userType="renter">
-                  <div className="min-h-screen flex items-center justify-center bg-slate-50">
-                    <div className="text-center">
-                      <h1 className="text-3xl font-bold text-slate-900 mb-4">Subscription</h1>
-                      <p className="text-slate-600">Coming in Phase 6</p>
-                    </div>
-                  </div>
+                  <RenterSubscription />
                 </ProtectedRoute>
               } />
               
@@ -129,17 +132,16 @@ function App() {
                 </ProtectedRoute>
               } />
               
-              {/* Owner Verification (placeholder for future phase) */}
+              {/* Owner Verification */}
               <Route path="/owner/verification" element={
                 <ProtectedRoute userType="owner">
-                  <div className="min-h-screen flex items-center justify-center bg-slate-50">
-                    <div className="text-center">
-                      <h1 className="text-3xl font-bold text-slate-900 mb-4">Property Verification</h1>
-                      <p className="text-slate-600">Coming in Phase 8</p>
-                    </div>
-                  </div>
+                  <OwnerVerification />
                 </ProtectedRoute>
               } />
+              
+              {/* Payment Result Pages */}
+              <Route path="/payment/success" element={<PaymentSuccess />} />
+              <Route path="/payment/failure" element={<PaymentFailure />} />
             </Routes>
           </main>
           
