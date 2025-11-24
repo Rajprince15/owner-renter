@@ -49,6 +49,15 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleQuickLogin = (email, password) => {
+    setFormData({
+      email: email,
+      password: password
+    });
+    setErrors({});
+    setApiError('');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setApiError('');
@@ -68,7 +77,9 @@ const Login = () => {
       if (result.success) {
         // Navigate based on user type
         const user = JSON.parse(localStorage.getItem('user'));
-        if (user.user_type === 'renter') {
+        if (user.user_type === 'admin') {
+          navigate('/admin');
+        } else if (user.user_type === 'renter') {
           navigate('/renter/dashboard');
         } else if (user.user_type === 'owner') {
           navigate('/owner/dashboard');
@@ -108,14 +119,50 @@ const Login = () => {
             </div>
           )}
 
-          {/* Demo Credentials */}
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800 font-semibold mb-2">Demo Credentials:</p>
-            <div className="text-xs text-blue-700 space-y-1">
-              <p><strong>Renter (Free):</strong> renter@test.com / password123</p>
-              <p><strong>Renter (Premium):</strong> premium@test.com / password123</p>
-              <p><strong>Owner:</strong> owner@test.com / password123</p>
+          {/* Quick Login Buttons */}
+          <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-900 font-semibold mb-3">🚀 Quick Login (Demo Accounts)</p>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('admin@homer.com', 'admin@123')}
+                className="px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded-md transition-colors duration-200 flex items-center justify-center gap-1"
+                data-testid="quick-login-admin"
+              >
+                <span>👑</span>
+                <span>Admin</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('renter.free@homer.com', 'password123')}
+                className="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded-md transition-colors duration-200 flex items-center justify-center gap-1"
+                data-testid="quick-login-renter-free"
+              >
+                <span>🏠</span>
+                <span>Free Renter</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('renter.premium@homer.com', 'password123')}
+                className="px-3 py-2 bg-purple-500 hover:bg-purple-600 text-white text-xs font-semibold rounded-md transition-colors duration-200 flex items-center justify-center gap-1"
+                data-testid="quick-login-renter-premium"
+              >
+                <span>⭐</span>
+                <span>Premium Renter</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('owner.verified@homer.com', 'password123')}
+                className="px-3 py-2 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold rounded-md transition-colors duration-200 flex items-center justify-center gap-1"
+                data-testid="quick-login-owner"
+              >
+                <span>🔑</span>
+                <span>Owner</span>
+              </button>
             </div>
+            <p className="text-xs text-blue-700 mt-3 text-center">
+              Click any button to auto-fill credentials
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
