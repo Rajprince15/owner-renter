@@ -2,23 +2,38 @@ import { USE_MOCK, mockApiCall, mockApiError } from './mockApi';
 import axios from 'axios';
 
 // MOCK DATA STORE (in-memory for testing)
+// These users match the quick login buttons and SQL sample_data.sql schema
 let mockUsers = [
   {
+    user_id: 'admin_001',
+    email: 'admin@homer.com',
+    phone: '+919999999999',
+    password_hash: 'admin@123', // In real backend, this is bcrypt hashed
+    user_type: 'admin',
+    full_name: 'System Administrator',
+    is_admin: true,
+    admin_role: 'super_admin',
+    is_active: true,
+    created_at: new Date().toISOString()
+  },
+  {
     user_id: 'user_001_renter_free',
-    email: 'renter@test.com',
+    email: 'renter.free@homer.com',
     phone: '+919876543210',
-    password_hash: 'password123', // In real backend, this is hashed
+    password_hash: 'password123',
     user_type: 'renter',
     full_name: 'Raj Kumar',
     subscription_tier: 'free',
     contacts_used: 2,
     is_verified_renter: false,
     renter_verification_status: 'none',
+    is_admin: false,
+    is_active: true,
     created_at: new Date().toISOString()
   },
   {
     user_id: 'user_002_renter_premium',
-    email: 'premium@test.com',
+    email: 'renter.premium@homer.com',
     phone: '+919876543211',
     password_hash: 'password123',
     user_type: 'renter',
@@ -29,17 +44,21 @@ let mockUsers = [
     contacts_used: 15,
     is_verified_renter: true,
     renter_verification_status: 'verified',
+    is_admin: false,
+    is_active: true,
     created_at: new Date().toISOString()
   },
   {
-    user_id: 'user_003_owner',
-    email: 'owner@test.com',
-    phone: '+919876543212',
+    user_id: 'user_004_owner_verified',
+    email: 'owner.verified@homer.com',
+    phone: '+919876543213',
     password_hash: 'password123',
     user_type: 'owner',
-    full_name: 'Amit Patel',
+    full_name: 'Sunita Reddy',
     is_verified_owner: true,
     owner_verification_status: 'verified',
+    is_admin: false,
+    is_active: true,
     created_at: new Date().toISOString()
   }
 ];

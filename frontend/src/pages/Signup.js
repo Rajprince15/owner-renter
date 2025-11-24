@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/common/Button';
-import { Mail, Lock, Phone, User, AlertCircle, CheckCircle } from 'lucide-react';
+import { Mail, Lock, Phone, User, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -20,6 +20,8 @@ const Signup = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -266,17 +268,29 @@ const Signup = () => {
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Create a password"
                   className={`
-                    w-full pl-11 pr-4 py-2.5 border rounded-lg
+                    w-full pl-11 pr-11 py-2.5 border rounded-lg
                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                     ${errors.password ? 'border-red-500' : 'border-gray-300'}
                   `}
                   data-testid="signup-password-input"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  data-testid="signup-password-toggle"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
               </div>
               {errors.password && (
                 <p className="mt-1 text-sm text-red-500">{errors.password}</p>
@@ -293,17 +307,29 @@ const Signup = () => {
                 <input
                   id="confirmPassword"
                   name="confirmPassword"
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   placeholder="Confirm your password"
                   className={`
-                    w-full pl-11 pr-4 py-2.5 border rounded-lg
+                    w-full pl-11 pr-11 py-2.5 border rounded-lg
                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                     ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'}
                   `}
                   data-testid="signup-confirm-password-input"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  data-testid="signup-confirm-password-toggle"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
               </div>
               {errors.confirmPassword && (
                 <p className="mt-1 text-sm text-red-500">{errors.confirmPassword}</p>
