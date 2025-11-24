@@ -4,6 +4,8 @@ import './App.css';
 
 // Context
 import { AuthProvider } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
+import { ToastProvider } from './context/ToastContext';
 
 // Pages
 import LandingPage from './pages/LandingPage';
@@ -19,6 +21,7 @@ import MyProperties from './pages/owner/MyProperties';
 import AddProperty from './pages/owner/AddProperty';
 import EditProperty from './pages/owner/EditProperty';
 import OwnerChats from './pages/owner/Chats';
+import PropertyAnalytics from './pages/owner/PropertyAnalytics';
 
 // Renter Pages
 import RenterDashboard from './pages/renter/Dashboard';
@@ -53,11 +56,13 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <div className="min-h-screen flex flex-col">
-          <Navbar />
-          
-          <main className="flex-grow">
-            <Routes>
+        <NotificationProvider>
+          <ToastProvider>
+            <div className="min-h-screen flex flex-col">
+              <Navbar />
+              
+              <main className="flex-grow">
+                <Routes>
               {/* Public routes */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
@@ -174,11 +179,20 @@ function App() {
               {/* Payment Result Pages */}
               <Route path="/payment/success" element={<PaymentSuccess />} />
               <Route path="/payment/failure" element={<PaymentFailure />} />
+              
+              {/* Property Analytics */}
+              <Route path="/owner/property/:propertyId/analytics" element={
+                <ProtectedRoute userType="owner">
+                  <PropertyAnalytics />
+                </ProtectedRoute>
+              } />
             </Routes>
           </main>
           
           <Footer />
         </div>
+          </ToastProvider>
+        </NotificationProvider>
       </AuthProvider>
     </Router>
   );

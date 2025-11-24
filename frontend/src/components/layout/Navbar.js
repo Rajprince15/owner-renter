@@ -4,6 +4,7 @@ import { Menu, X, Home, Search, User, LogOut, MessageCircle } from 'lucide-react
 import Button from '../common/Button';
 import { useAuth } from '../../context/AuthContext';
 import { getUnreadCount } from '../../services/chatService';
+import NotificationPanel from '../notifications/NotificationPanel';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -110,6 +111,9 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated ? (
               <>
+                {/* Notification Panel */}
+                <NotificationPanel />
+                
                 <Link 
                   to={getChatsLink()}
                   className="relative flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100 transition"
