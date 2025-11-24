@@ -9,6 +9,7 @@ import PropertyGallery from '../components/property/PropertyGallery';
 import Button from '../components/common/Button';
 import { getPropertyDetail } from '../services/propertyService';
 import { addToShortlist, removeFromShortlistByPropertyId, isPropertyShortlisted } from '../services/shortlistService';
+import { initiateChat } from '../services/chatService';
 import { useAuth } from '../context/AuthContext';
 
 const PropertyDetail = () => {
@@ -20,6 +21,7 @@ const PropertyDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isShortlisted, setIsShortlisted] = useState(false);
+  const [contactingOwner, setContactingOwner] = useState(false);
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -65,15 +67,41 @@ const PropertyDetail = () => {
     }
   };
 
-  const handleContactOwner = () => {
+  const handleContactOwner = async () => {
     if (!user) {
       navigate('/login');
       return;
     }
     
-    // Navigate to chats (Phase 5 feature)
-    alert('Contact feature will be available in Phase 5 (Chat functionality)');
-    // navigate('/renter/chats');
+    // Only renters can contact owners
+    if (user.user_type === 'owner') {
+      alert('Property owners cannot contact other owners. Please create a renter account.');
+      return;
+    }
+    
+    setContactingOwner(true);
+    
+    try {
+      const response = await initiateChat(id);
+      const chatId = response.data.chat_id;
+      
+      // Navigate to the chat
+      navigate(`/renter/chats/${chatId}`);
+    } catch (err) {
+      console.error('Error initiating chat:', err);
+      
+      // Check if it's a contact limit error
+      if (err.response?.status === 403 && err.response?.data?.message?.includes('Contact limit')) {
+        // User has reached free tier limit - navigate to subscription page
+        if (window.confirm('You have reached your free contact limit (5 properties). Upgrade to premium for unlimited contacts?')) {
+          navigate('/renter/subscription');
+        }
+      } else {
+        alert(err.response?.data?.message || 'Failed to start chat. Please try again.');
+      }
+    } finally {
+      setContactingOwner(false);
+    }
   };
 
   if (loading) {
@@ -356,9 +384,10 @@ const PropertyDetail = () => {
                   onClick={handleContactOwner}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                   data-testid="contact-owner-btn"
+                  disabled={contactingOwner}
                 >
                   <MessageCircle className="w-5 h-5 mr-2" />
-                  Contact Owner
+                  {contactingOwner ? 'Connecting...' : 'Contact Owner'}
                 </Button>
                 
                 <Button

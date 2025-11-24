@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Home, TrendingUp, Eye, Users, AlertCircle } from 'lucide-react';
+import { Plus, Home, TrendingUp, Eye, Users, AlertCircle, MessageCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { getMyProperties } from '../../services/propertyService';
 import Button from '../../components/common/Button';
@@ -109,6 +109,14 @@ const OwnerDashboard = () => {
             >
               <Home className="w-5 h-5 mr-2" />
               View All Properties
+            </Button>
+            <Button
+              variant="outline"
+              to="/owner/chats"
+              data-testid="view-chats-btn"
+            >
+              <MessageCircle className="w-5 h-5 mr-2" />
+              View Messages
             </Button>
             {stats.unverified > 0 && (
               <Button

@@ -17,10 +17,12 @@ import OwnerDashboard from './pages/owner/Dashboard';
 import MyProperties from './pages/owner/MyProperties';
 import AddProperty from './pages/owner/AddProperty';
 import EditProperty from './pages/owner/EditProperty';
+import OwnerChats from './pages/owner/Chats';
 
 // Renter Pages
 import RenterDashboard from './pages/renter/Dashboard';
 import RenterShortlists from './pages/renter/Shortlists';
+import RenterChats from './pages/renter/Chats';
 
 // Layout components
 import Navbar from './components/layout/Navbar';
@@ -54,6 +56,18 @@ function App() {
               <Route path="/renter/shortlists" element={
                 <ProtectedRoute userType="renter">
                   <RenterShortlists />
+                </ProtectedRoute>
+              } />
+              
+              {/* Renter Chats */}
+              <Route path="/renter/chats" element={
+                <ProtectedRoute userType="renter">
+                  <RenterChats />
+                </ProtectedRoute>
+              } />
+              <Route path="/renter/chats/:chatId" element={
+                <ProtectedRoute userType="renter">
+                  <RenterChats />
                 </ProtectedRoute>
               } />
               
@@ -100,6 +114,18 @@ function App() {
               <Route path="/owner/property/:id/edit" element={
                 <ProtectedRoute userType="owner">
                   <EditProperty />
+                </ProtectedRoute>
+              } />
+              
+              {/* Owner Chats */}
+              <Route path="/owner/chats" element={
+                <ProtectedRoute userType="owner">
+                  <OwnerChats />
+                </ProtectedRoute>
+              } />
+              <Route path="/owner/chats/:chatId" element={
+                <ProtectedRoute userType="owner">
+                  <OwnerChats />
                 </ProtectedRoute>
               } />
               

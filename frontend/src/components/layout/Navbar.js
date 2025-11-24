@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Home, Search, User, LogOut } from 'lucide-react';
+import { Menu, X, Home, Search, User, LogOut, MessageCircle } from 'lucide-react';
 import Button from '../common/Button';
 import { useAuth } from '../../context/AuthContext';
+import { getUnreadCount } from '../../services/chatService';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
@@ -16,6 +18,25 @@ const Navbar = () => {
     { name: 'About', path: '/about', icon: null },
     { name: 'Pricing', path: '/pricing', icon: null },
   ];
+
+  // Load unread message count
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadUnreadCount();
+      // Refresh count every 30 seconds
+      const interval = setInterval(loadUnreadCount, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated]);
+
+  const loadUnreadCount = async () => {
+    try {
+      const response = await getUnreadCount();
+      setUnreadCount(response.data.unread_count);
+    } catch (err) {
+      console.error('Error loading unread count:', err);
+    }
+  };
 
   const isActive = (path) => location.pathname === path;
 
@@ -29,6 +50,13 @@ const Navbar = () => {
     if (!user) return '/';
     if (user.user_type === 'renter') return '/renter/dashboard';
     if (user.user_type === 'owner') return '/owner/dashboard';
+    return '/';
+  };
+
+  const getChatsLink = () => {
+    if (!user) return '/';
+    if (user.user_type === 'renter') return '/renter/chats';
+    if (user.user_type === 'owner') return '/owner/chats';
     return '/';
   };
 
@@ -65,6 +93,22 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated ? (
               <>
+                <Link 
+                  to={getChatsLink()}
+                  className="relative flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100 transition"
+                  data-testid="navbar-chats-link"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Messages</span>
+                  {unreadCount > 0 && (
+                    <span 
+                      className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+                      data-testid="navbar-unread-badge"
+                    >
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </Link>
                 <Link 
                   to={getDashboardLink()}
                   className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100 transition"
@@ -127,6 +171,19 @@ const Navbar = () => {
               <div className="border-t border-slate-200 pt-4 px-4 space-y-3">
                 {isAuthenticated ? (
                   <>
+                    <Link
+                      to={getChatsLink()}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="relative flex items-center justify-center space-x-2 w-full px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 text-slate-700"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>Messages</span>
+                      {unreadCount > 0 && (
+                        <span className="ml-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                      )}
+                    </Link>
                     <Link
                       to={getDashboardLink()}
                       onClick={() => setIsMenuOpen(false)}

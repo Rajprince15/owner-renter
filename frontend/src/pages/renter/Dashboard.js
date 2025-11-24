@@ -120,11 +120,18 @@ const RenterDashboard = () => {
               {isPremium ? 'Unlimited contacts' : `Contacts remaining`}
             </p>
             {!isPremium && contactsRemaining < 3 && (
-              <p className="text-xs text-orange-600 font-medium">
+              <p className="text-xs text-orange-600 font-medium mb-2">
                 <AlertCircle className="w-3 h-3 inline mr-1" />
                 Running low on contacts
               </p>
             )}
+            <button
+              onClick={() => navigate('/renter/chats')}
+              className="text-sm font-medium text-blue-600 hover:text-blue-700"
+              data-testid="view-chats-btn"
+            >
+              View Messages →
+            </button>
           </div>
 
           {/* Shortlisted Properties */}
