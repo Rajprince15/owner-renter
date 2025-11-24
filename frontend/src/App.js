@@ -29,9 +29,11 @@ import RenterSubscription from './pages/renter/Subscription';
 // Owner Pages - Additional
 import OwnerVerification from './pages/owner/Verification';
 import PropertyVerification from './pages/owner/PropertyVerification';
+import ReverseMarketplace from './pages/owner/ReverseMarketplace';
 
 // Renter Pages - Additional
 import RenterVerificationUpload from './pages/renter/VerificationUpload';
+import RenterPrivacySettings from './pages/renter/PrivacySettings';
 
 // Admin Pages
 import AdminVerificationReview from './pages/admin/VerificationReview';
@@ -147,6 +149,20 @@ function App() {
               <Route path="/owner/property-verification" element={
                 <ProtectedRoute userType="owner">
                   <PropertyVerification />
+                </ProtectedRoute>
+              } />
+              
+              {/* Reverse Marketplace */}
+              <Route path="/owner/reverse-marketplace" element={
+                <ProtectedRoute userType="owner">
+                  <ReverseMarketplace />
+                </ProtectedRoute>
+              } />
+              
+              {/* Renter Privacy Settings */}
+              <Route path="/renter/privacy" element={
+                <ProtectedRoute userType="renter">
+                  <RenterPrivacySettings />
                 </ProtectedRoute>
               } />
               

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Search, Heart, MessageCircle, 
-  AlertCircle, Crown, CheckCircle, MapPin
+  AlertCircle, Crown, CheckCircle, MapPin, Shield
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { getShortlists } from '../../services/shortlistService';
@@ -240,7 +240,7 @@ const RenterDashboard = () => {
         )}
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <button
             onClick={() => navigate('/search')}
             className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow text-left group"
@@ -275,6 +275,20 @@ const RenterDashboard = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Messages</h3>
             <p className="text-sm text-gray-600">Chat with property owners</p>
           </button>
+
+          {isPremium && isVerified && (
+            <button
+              onClick={() => navigate('/renter/privacy')}
+              className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow text-left group"
+              data-testid="quick-action-privacy"
+            >
+              <div className="p-3 bg-purple-100 rounded-lg w-fit mb-4 group-hover:bg-purple-200 transition-colors">
+                <Shield className="w-6 h-6 text-purple-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Privacy Settings</h3>
+              <p className="text-sm text-gray-600">Manage reverse marketplace visibility</p>
+            </button>
+          )}
         </div>
 
         {/* Search Suggestions */}
