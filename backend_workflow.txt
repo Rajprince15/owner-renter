@@ -1629,10 +1629,13 @@ Endpoint: POST /api/verification/renter/submit
 - Stores: URLs in MySQL JSON columns
 - Updates: verification_status = 'pending'
 
-ADMIN WORKFLOW:
-1. GET /api/verification/admin/pending → Returns URLs from MySQL
-2. GET /uploads/verification/{user_id}/{filename} → Serves file from disk
-3. POST /api/verification/admin/approve/{id} → Updates MySQL status
+FILE ACCESS FOR ALL USERS:
+1. GET /uploads/verification/{user_id}/{filename} → Serves file from disk
+   - Renter can view their own documents
+   - Owner can view their own documents
+   - Admin can view all documents
+2. GET /api/verification/admin/pending → Returns URLs from MySQL (admin only)
+3. POST /api/verification/admin/approve/{id} → Updates MySQL status (admin only)
 
 FILE: /app/backend/routes/verification.py
 ------------------------------------------
@@ -2049,6 +2052,126 @@ async def reject_verification(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to reject verification: {str(e)}"
         )
+
+# =================================================================
+# FILE SERVING ENDPOINT (FOR ALL USERS)
+# =================================================================
+
+# This endpoint must be added to server.py main app, NOT in verification router
+# because it needs to serve static files directly
+
+from fastapi import FastAPI
+from fastapi.responses import FileResponse
+
+app = FastAPI()
+
+@app.get("/uploads/{file_type}/{user_id}/{filename}")
+async def serve_uploaded_file(
+    file_type: str,
+    user_id: str,
+    filename: str,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Serve uploaded files with authorization
+    
+    Access control:
+    - User can view their own files
+    - Admin can view all files
+    
+    file_type: 'verification' or 'properties'
+    user_id: owner of the file
+    filename: actual filename
+    
+    Examples:
+    - /uploads/verification/user_123/abc123_1737360000.pdf
+    - /uploads/properties/prop_456/img1_1737360200.jpg
+    """
+    # Authorization check
+    is_owner = current_user.user_id == user_id
+    is_admin = getattr(current_user, 'is_admin', False)
+    
+    if not is_owner and not is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied. You can only view your own files."
+        )
+    
+    # Construct file path
+    file_path = os.path.join(UPLOAD_BASE_DIR, file_type, user_id, filename)
+    
+    # Check if file exists
+    if not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="File not found"
+        )
+    
+    # Serve file
+    return FileResponse(
+        file_path,
+        media_type='application/octet-stream',
+        filename=filename
+    )
+
+# Alternative: Serve verification files specifically
+@app.get("/api/verification/download/{user_id}/{filename}")
+async def download_verification_file(
+    user_id: str,
+    filename: str,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Download verification document
+    
+    Access control:
+    - User can download their own documents
+    - Admin can download all documents
+    """
+    is_owner = current_user.user_id == user_id
+    is_admin = getattr(current_user, 'is_admin', False)
+    
+    if not is_owner and not is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied"
+        )
+    
+    file_path = f"{UPLOAD_BASE_DIR}/verification/{user_id}/{filename}"
+    
+    if not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="File not found"
+        )
+    
+    return FileResponse(file_path, filename=filename)
+
+# Serve property images (public or owner/admin only based on requirement)
+@app.get("/api/properties/image/{property_id}/{filename}")
+async def get_property_image(
+    property_id: str,
+    filename: str,
+    current_user: User = Depends(get_current_user_optional)  # Optional auth
+):
+    """
+    Serve property image
+    
+    Access control:
+    - Public images: Anyone can view
+    - Private images: Owner and admin only
+    
+    For now, property images are public
+    """
+    file_path = f"{UPLOAD_BASE_DIR}/properties/{property_id}/{filename}"
+    
+    if not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Image not found"
+        )
+    
+    return FileResponse(file_path)
 ```
 
 =================================================================

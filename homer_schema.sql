@@ -82,6 +82,8 @@ CREATE TABLE users (
     INDEX idx_user_type (user_type),
     INDEX idx_subscription_tier (subscription_tier),
     INDEX idx_verified_renter (is_verified_renter, profile_visibility),
+    INDEX idx_renter_verification_status (renter_verification_status),
+    INDEX idx_owner_verification_status (owner_verification_status),
     INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='User accounts table';
 
@@ -528,6 +530,62 @@ DESCRIBE admin_audit_logs;
 -- 6. CHARACTER SET: utf8mb4 supports emojis and international characters
 -- 7. ENGINE: InnoDB provides ACID compliance and foreign key support
 -- 8. COLLATION: utf8mb4_unicode_ci for case-insensitive string comparisons
+-- 
+-- =====================================================================
+-- FILE UPLOAD ARCHITECTURE
+-- =====================================================================
+-- 
+-- IMPORTANT: Files are NOT stored in MySQL!
+-- 
+-- FILE STORAGE APPROACH:
+-- 1. Actual files stored on disk: /app/uploads/
+--    - Verification documents: /app/uploads/verification/{user_id}/
+--    - Property images: /app/uploads/properties/{property_id}/
+-- 
+-- 2. MySQL stores only file metadata in JSON columns:
+--    - users.renter_verification_documents (file URLs, names, sizes)
+--    - properties.verification_documents (file URLs, names, sizes)
+--    - properties.images (array of image URLs)
+-- 
+-- 3. File access control via backend API:
+--    - GET /uploads/verification/{user_id}/{filename}
+--      → User can view their own files
+--      → Admin can view all files
+--    - GET /uploads/properties/{property_id}/{filename}
+--      → Public access for property images
+-- 
+-- 4. Example JSON structure in renter_verification_documents:
+--    {
+--      "id_proof": {
+--        "file_name": "aadhaar_card.pdf",
+--        "file_url": "/uploads/verification/user_123/abc123_1737360000.pdf",
+--        "file_size": 245678,
+--        "file_type": "application/pdf",
+--        "uploaded_at": "2025-01-20T10:30:00Z",
+--        "verified": false
+--      },
+--      "income_proof": {
+--        "file_name": "salary_slip.pdf",
+--        "file_url": "/uploads/verification/user_123/def456_1737360100.pdf",
+--        "file_size": 189234,
+--        "uploaded_at": "2025-01-20T10:32:00Z",
+--        "verified": false
+--      }
+--    }
+-- 
+-- 5. Workflow:
+--    a. User uploads file → Backend saves to disk
+--    b. Backend returns file URL
+--    c. Frontend stores URL in form state
+--    d. User submits form → URLs saved to MySQL JSON columns
+--    e. Admin/User retrieves URLs from MySQL
+--    f. Click URL → Backend serves file from disk (with auth check)
+-- 
+-- BENEFITS:
+-- - Efficient: MySQL stores only small metadata, not large files
+-- - Scalable: Easy to migrate to S3/cloud storage later
+-- - Fast queries: JSON columns indexed for quick retrieval
+-- - Secure: File access controlled by backend authorization
 -- 
 -- =====================================================================
 -- END OF SCHEMA
