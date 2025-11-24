@@ -1472,6 +1472,663 @@ def convert_transaction_to_dict(transaction: Transaction) -> dict:
 ```
 
 =================================================================
+4B. STORAGE SERVICE & FILE UPLOAD
+=================================================================
+
+FILE: /app/backend/services/storage_service.py
+------------------------------------------------
+
+```python
+import os
+import uuid
+import shutil
+from typing import List
+from fastapi import UploadFile, HTTPException
+from datetime import datetime
+import aiofiles
+
+# Configuration
+UPLOAD_BASE_DIR = os.getenv('UPLOAD_DIR', '/app/uploads')
+ALLOWED_EXTENSIONS = {'.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx'}
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+
+def get_file_extension(filename: str) -> str:
+    """Get file extension"""
+    return os.path.splitext(filename)[1].lower()
+
+def validate_file(file: UploadFile) -> None:
+    """Validate file type and size"""
+    ext = get_file_extension(file.filename)
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File type not allowed. Allowed: {', '.join(ALLOWED_EXTENSIONS)}"
+        )
+
+async def save_file(file: UploadFile, subdirectory: str) -> dict:
+    """
+    Save uploaded file to local storage
+    
+    Args:
+        file: UploadFile object
+        subdirectory: Subdirectory (e.g., "verification/user_123")
+    
+    Returns:
+        dict with file metadata (file_name, file_url, file_size, etc.)
+    """
+    try:
+        validate_file(file)
+        
+        # Create directory
+        upload_dir = os.path.join(UPLOAD_BASE_DIR, subdirectory)
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        # Generate unique filename
+        file_ext = get_file_extension(file.filename)
+        unique_filename = f"{uuid.uuid4().hex[:8]}_{int(datetime.now().timestamp())}{file_ext}"
+        file_path = os.path.join(upload_dir, unique_filename)
+        
+        # Save file
+        async with aiofiles.open(file_path, 'wb') as f:
+            content = await file.read()
+            
+            if len(content) > MAX_FILE_SIZE:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"File too large. Max: {MAX_FILE_SIZE / (1024*1024)}MB"
+                )
+            
+            await f.write(content)
+        
+        # Return metadata
+        file_url = f"/uploads/{subdirectory}/{unique_filename}"
+        
+        return {
+            "file_name": file.filename,
+            "file_url": file_url,
+            "file_size": len(content),
+            "file_type": file.content_type,
+            "uploaded_at": datetime.utcnow().isoformat()
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to save file: {str(e)}"
+        )
+
+async def upload_files(files: List[UploadFile], subdirectory: str) -> List[str]:
+    """Upload multiple files (for property images)"""
+    file_urls = []
+    for file in files:
+        file_metadata = await save_file(file, subdirectory)
+        file_urls.append(file_metadata['file_url'])
+    return file_urls
+
+def delete_file(file_url: str) -> bool:
+    """Delete file from storage"""
+    try:
+        file_path = file_url.replace('/uploads/', '')
+        full_path = os.path.join(UPLOAD_BASE_DIR, file_path)
+        if os.path.exists(full_path):
+            os.remove(full_path)
+            return True
+        return False
+    except Exception as e:
+        print(f"Error deleting file: {e}")
+        return False
+```
+
+=================================================================
+4C. VERIFICATION ROUTES (COMPLETE)
+=================================================================
+
+FILE: /app/backend/routes/verification.py
+------------------------------------------
+
+```python
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
+from sqlalchemy.orm import Session
+from typing import Optional
+from datetime import datetime
+
+from config.database import get_db
+from models.user import User
+from models.property import Property
+from middleware.auth_middleware import get_current_user
+from services.storage_service import save_file
+
+router = APIRouter(prefix="/api/verification", tags=["Verification"])
+
+# =================================================================
+# DOCUMENT UPLOAD ENDPOINT (CRITICAL - CALLED BY FRONTEND)
+# =================================================================
+
+@router.post("/upload-document")
+async def upload_verification_document(
+    document: UploadFile = File(...),
+    document_type: str = Form(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Upload verification document (ID proof, income proof, etc.)
+    
+    Frontend expects:
+    - FormData with 'document' (file) and 'document_type' (string)
+    
+    Returns:
+    - {success: true, data: {file_name, file_url, file_size, uploaded_at}}
+    
+    Called by: frontend/src/services/verificationService.js line 370-387
+    """
+    try:
+        # Save file in user-specific directory
+        subdirectory = f"verification/{current_user.user_id}"
+        file_metadata = await save_file(document, subdirectory)
+        
+        return {
+            "success": True,
+            "data": file_metadata
+        }
+    
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to upload document: {str(e)}"
+        )
+
+# =================================================================
+# RENTER VERIFICATION SUBMISSION
+# =================================================================
+
+@router.post("/renter/submit")
+async def submit_renter_verification(
+    verification_data: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Submit renter verification with documents and employment details
+    
+    Expected by frontend (verificationService.js line 77-120):
+    {
+        "documents": {
+            "id_proof": {
+                "type": "aadhaar",
+                "file_name": "...",
+                "file_url": "/uploads/verification/...",
+                "file_size": 123456,
+                "uploaded_at": "..."
+            },
+            "income_proof": {...}
+        },
+        "employment_details": {
+            "company_name": "...",
+            "designation": "...",
+            "employment_type": "salaried",
+            "annual_income": 1500000,
+            "years_of_experience": 5
+        }
+    }
+    
+    Stores in MySQL:
+    - users.renter_verification_documents (JSON column)
+    - users.employment_info (JSON column)
+    - users.renter_verification_status = 'pending'
+    """
+    try:
+        # Update user's verification data in MySQL
+        current_user.renter_verification_documents = verification_data.get('documents')
+        current_user.employment_info = verification_data.get('employment_details')
+        current_user.renter_verification_status = 'pending'
+        
+        db.commit()
+        
+        return {
+            "success": True,
+            "message": "Verification request submitted successfully",
+            "verification_id": f"renter_{current_user.user_id}",
+            "status": "pending"
+        }
+    
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to submit verification: {str(e)}"
+        )
+
+# =================================================================
+# PROPERTY VERIFICATION SUBMISSION
+# =================================================================
+
+@router.post("/property/submit")
+async def submit_property_verification(
+    verification_data: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Submit property verification with documents
+    
+    Stores in MySQL:
+    - properties.verification_documents (JSON column)
+    - properties.verification_tier = 'pending'
+    """
+    try:
+        property_id = verification_data.get('property_id')
+        
+        # Get property
+        property_obj = db.query(Property).filter(
+            Property.property_id == property_id,
+            Property.owner_id == current_user.user_id
+        ).first()
+        
+        if not property_obj:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Property not found or not authorized"
+            )
+        
+        # Update property verification in MySQL
+        property_obj.verification_documents = verification_data.get('documents')
+        property_obj.verification_tier = 'pending'
+        property_obj.verification_fee_paid = verification_data.get('payment_status') == 'success'
+        property_obj.payment_id = verification_data.get('payment_id')
+        
+        db.commit()
+        
+        return {
+            "success": True,
+            "message": "Property verification request submitted successfully",
+            "verification_id": f"property_{property_id}",
+            "status": "pending"
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to submit verification: {str(e)}"
+        )
+
+# =================================================================
+# GET MY VERIFICATION STATUS
+# =================================================================
+
+@router.get("/my-status")
+async def get_my_verification_status(
+    type: str = "renter",
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get current user's verification status
+    
+    Called by: frontend/src/pages/renter/VerificationUpload.js line 37
+    
+    Returns data from MySQL users table
+    """
+    if type == "renter":
+        return {
+            "status": current_user.renter_verification_status or "none",
+            "is_verified": current_user.is_verified_renter or False,
+            "verification": {
+                "documents": current_user.renter_verification_documents,
+                "employment_details": current_user.employment_info,
+                "submitted_at": None,
+                "reviewed_at": None,
+                "rejection_reason": None
+            } if current_user.renter_verification_status == "pending" else None
+        }
+    else:
+        return {
+            "status": current_user.owner_verification_status or "none",
+            "is_verified": current_user.is_verified_owner or False
+        }
+
+# =================================================================
+# ADMIN: GET PENDING VERIFICATIONS
+# =================================================================
+
+@router.get("/admin/pending")
+async def get_pending_verifications(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get all pending verification requests (admin only)
+    
+    Called by: frontend/src/pages/admin/VerificationReview.js line 26
+    
+    Returns:
+    - List of pending renter and property verifications
+    - Includes user details and document URLs from MySQL
+    
+    Admin can then view documents via secure file serving endpoint
+    """
+    # Check admin permission
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized"
+        )
+    
+    verifications = []
+    
+    # Get pending renter verifications from MySQL
+    pending_renters = db.query(User).filter(
+        User.renter_verification_status == 'pending'
+    ).all()
+    
+    for user in pending_renters:
+        verifications.append({
+            "verification_id": f"renter_{user.user_id}",
+            "verification_type": "renter",
+            "user_id": user.user_id,
+            "user_name": user.full_name,
+            "user_email": user.email,
+            "documents": user.renter_verification_documents,  # File URLs from JSON
+            "employment_details": user.employment_info,
+            "submitted_at": user.created_at.isoformat() if user.created_at else None,
+            "status": "pending"
+        })
+    
+    # Get pending property verifications from MySQL
+    pending_properties = db.query(Property).filter(
+        Property.verification_tier == 'pending'
+    ).all()
+    
+    for prop in pending_properties:
+        owner = db.query(User).filter(User.user_id == prop.owner_id).first()
+        verifications.append({
+            "verification_id": f"property_{prop.property_id}",
+            "verification_type": "property",
+            "property_id": prop.property_id,
+            "property_title": prop.title,
+            "owner_id": prop.owner_id,
+            "owner_name": owner.full_name if owner else None,
+            "owner_email": owner.email if owner else None,
+            "documents": prop.verification_documents,  # File URLs from JSON
+            "payment_status": "success" if prop.verification_fee_paid else "pending",
+            "submitted_at": prop.created_at.isoformat() if prop.created_at else None,
+            "status": "pending"
+        })
+    
+    return verifications
+
+# =================================================================
+# ADMIN: APPROVE VERIFICATION
+# =================================================================
+
+@router.post("/admin/approve/{verification_id}")
+async def approve_verification(
+    verification_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Approve verification request (admin only)
+    
+    Called by: frontend/src/pages/admin/VerificationReview.js line 47
+    
+    Updates MySQL database:
+    - For renter: users.is_verified_renter = true
+    - For property: properties.is_verified = true
+    """
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized"
+        )
+    
+    try:
+        # Parse verification_id format: "renter_user_123" or "property_prop_456"
+        parts = verification_id.split('_')
+        verification_type = parts[0]
+        entity_id = '_'.join(parts[1:])
+        
+        if verification_type == "renter":
+            user = db.query(User).filter(User.user_id == entity_id).first()
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+            
+            # Update MySQL
+            user.is_verified_renter = True
+            user.renter_verification_status = 'verified'
+            
+        elif verification_type == "property":
+            prop = db.query(Property).filter(Property.property_id == entity_id).first()
+            if not prop:
+                raise HTTPException(status_code=404, detail="Property not found")
+            
+            # Update MySQL
+            prop.is_verified = True
+            prop.verification_tier = 'verified'
+            prop.verification_date = datetime.utcnow()
+            
+            # Also mark owner as verified
+            owner = db.query(User).filter(User.user_id == prop.owner_id).first()
+            if owner:
+                owner.is_verified_owner = True
+                owner.owner_verification_status = 'verified'
+        
+        db.commit()
+        
+        return {
+            "success": True,
+            "message": "Verification approved successfully"
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to approve verification: {str(e)}"
+        )
+
+# =================================================================
+# ADMIN: REJECT VERIFICATION
+# =================================================================
+
+@router.post("/admin/reject/{verification_id}")
+async def reject_verification(
+    verification_id: str,
+    reason_data: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Reject verification request (admin only)
+    
+    Called by: frontend/src/pages/admin/VerificationReview.js line 72
+    
+    Expected body: {"reason": "Reason for rejection"}
+    
+    Updates MySQL database verification status to 'rejected'
+    """
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized"
+        )
+    
+    try:
+        reason = reason_data.get('reason')
+        
+        # Parse verification_id
+        parts = verification_id.split('_')
+        verification_type = parts[0]
+        entity_id = '_'.join(parts[1:])
+        
+        if verification_type == "renter":
+            user = db.query(User).filter(User.user_id == entity_id).first()
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+            
+            # Update MySQL
+            user.renter_verification_status = 'rejected'
+            # TODO: Store rejection reason in future schema update
+            
+        elif verification_type == "property":
+            prop = db.query(Property).filter(Property.property_id == entity_id).first()
+            if not prop:
+                raise HTTPException(status_code=404, detail="Property not found")
+            
+            # Update MySQL
+            prop.verification_tier = 'free'
+        
+        db.commit()
+        
+        return {
+            "success": True,
+            "message": "Verification rejected"
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to reject verification: {str(e)}"
+        )
+```
+
+=================================================================
+4D. SECURE FILE SERVING (ADD TO server.py)
+=================================================================
+
+ADD THESE ROUTES TO: /app/backend/server.py
+--------------------------------------------
+
+```python
+from fastapi import FastAPI, HTTPException, Depends
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+from middleware.auth_middleware import get_current_user
+from models.user import User
+import os
+
+# ... (existing app initialization code) ...
+
+# IMPORTANT: Add verification routes to server.py
+from routes import verification
+app.include_router(verification.router)
+
+# =================================================================
+# SECURE FILE SERVING WITH AUTHORIZATION
+# =================================================================
+
+@app.get("/uploads/verification/{user_id}/{filename}")
+async def get_verification_document(
+    user_id: str,
+    filename: str,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Serve verification documents with authorization
+    
+    Security:
+    - Users can only access their own documents
+    - Admins can access all documents
+    
+    Called when admin views documents in VerificationReview.js
+    """
+    # Check authorization
+    if current_user.user_id != user_id and not current_user.is_admin:
+        raise HTTPException(
+            status_code=403,
+            detail="Not authorized to access this file"
+        )
+    
+    file_path = f"/app/uploads/verification/{user_id}/{filename}"
+    
+    if not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=404,
+            detail="File not found"
+        )
+    
+    return FileResponse(file_path)
+
+@app.get("/uploads/properties/{property_id}/{filename}")
+async def get_property_file(
+    property_id: str,
+    filename: str
+):
+    """
+    Serve property images (public access)
+    """
+    file_path = f"/app/uploads/properties/{property_id}/{filename}"
+    
+    if not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=404,
+            detail="File not found"
+        )
+    
+    return FileResponse(file_path)
+
+# Mount static files for property images AFTER protected routes
+# This allows public access to property images only
+app.mount("/uploads/properties", StaticFiles(directory="/app/uploads/properties"), name="property-uploads")
+```
+
+=================================================================
+4E. FILE STORAGE STRUCTURE ON LOCALHOST
+=================================================================
+
+When backend runs on localhost, create this directory structure:
+
+```
+/app/uploads/
+├── verification/           # PROTECTED - Only owner + admin
+│   ├── user_001/
+│   │   ├── abc12345_1234567890.pdf  (Aadhaar card)
+│   │   └── def67890_1234567899.pdf  (Salary slip)
+│   ├── user_002/
+│   │   ├── xyz45678_1234567900.pdf
+│   │   └── ...
+│   └── ...
+│
+├── properties/            # PUBLIC - Anyone can view
+│   ├── prop_001/
+│   │   ├── img1_1234567890.jpg
+│   │   ├── img2_1234567891.jpg
+│   │   └── video_1234567892.mp4
+│   ├── prop_002/
+│   │   └── ...
+│   └── ...
+│
+└── profiles/              # PUBLIC - Profile photos
+    ├── user_001_profile.jpg
+    └── ...
+```
+
+CREATE DIRECTORIES ON BACKEND STARTUP:
+
+```python
+# Add to server.py startup
+import os
+
+# Create upload directories
+os.makedirs("/app/uploads/verification", exist_ok=True)
+os.makedirs("/app/uploads/properties", exist_ok=True)
+os.makedirs("/app/uploads/profiles", exist_ok=True)
+
+# Set permissions (if needed)
+os.chmod("/app/uploads", 0o755)
+```
+
+=================================================================
 5. UTILITY FUNCTIONS
 =================================================================
 
@@ -1590,9 +2247,14 @@ from fastapi.staticfiles import StaticFiles
 import os
 
 from config.database import Base, engine
-from routes import auth, properties, chats, payments, shortlists
+from routes import auth, properties, chats, payments, shortlists, verification, admin
 
-# Create tables
+# Create upload directories on startup
+os.makedirs("/app/uploads/verification", exist_ok=True)
+os.makedirs("/app/uploads/properties", exist_ok=True)
+os.makedirs("/app/uploads/profiles", exist_ok=True)
+
+# Create database tables
 Base.metadata.create_all(bind=engine)
 
 # Initialize FastAPI app
@@ -1611,17 +2273,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files (uploads)
-app.mount("/uploads", StaticFiles(directory="/app/uploads"), name="uploads")
-
 # Include routers
 app.include_router(auth.router)
 app.include_router(properties.router)
 app.include_router(chats.router)
 app.include_router(payments.router)
 app.include_router(shortlists.router)
+app.include_router(verification.router)  # VERIFICATION ROUTES - CRITICAL
 app.include_router(admin.router)  # Admin routes
-# ... include other routers
 
 # Health check
 @app.get("/")

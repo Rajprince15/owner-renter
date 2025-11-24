@@ -256,45 +256,120 @@ PHASE 6: VERIFICATION APIs (4-5 credits)
 GOAL: Document upload and verification workflow
 
 WHAT TO BUILD:
-1. Document upload endpoints
-2. Verification status tracking
-3. Admin approval/rejection endpoints
-4. Verification status updates
+1. Storage service for file uploads
+2. Document upload endpoints
+3. Verification submission endpoints
+4. Admin approval/rejection endpoints
+5. Secure file serving with authorization
 
 FILES TO CREATE:
-- /app/backend/routes/verification.py
-- /app/backend/routes/admin.py
-- /app/backend/services/verification_service.py
-- /app/backend/services/document_service.py
+- /app/backend/services/storage_service.py (FILE UPLOAD HANDLER)
+- /app/backend/routes/verification.py (VERIFICATION ROUTES)
+- /app/backend/routes/admin.py (ADMIN ROUTES)
 
-API ENDPOINTS TO IMPLEMENT:
-POST /api/verification/renter/upload
-POST /api/verification/property/:id/upload
-GET  /api/verification/status
-GET  /api/admin/verifications/pending
-POST /api/admin/verifications/:id/approve
-POST /api/admin/verifications/:id/reject
+API ENDPOINTS TO IMPLEMENT (MATCHES FRONTEND):
+POST   /api/verification/upload-document          # Upload single document
+POST   /api/verification/renter/submit             # Submit renter verification
+POST   /api/verification/property/submit           # Submit property verification
+GET    /api/verification/my-status                 # Get my verification status
+GET    /api/verification/admin/pending             # Get pending verifications (admin)
+POST   /api/verification/admin/approve/:id         # Approve verification (admin)
+POST   /api/verification/admin/reject/:id          # Reject verification (admin)
+GET    /uploads/verification/:user_id/:filename    # Serve documents (protected)
+GET    /uploads/properties/:property_id/:filename  # Serve property files (public)
 
 VERIFICATION WORKFLOW:
-1. User uploads documents
-2. Status changes to 'pending'
-3. Admin reviews documents
-4. Admin approves/rejects
-5. On approval:
-   - Renter: is_verified_renter = true
-   - Property: is_verified = true, calculate lifestyle_data
+1. Renter uploads documents via POST /api/verification/upload-document
+   - Returns file metadata: {file_name, file_url, file_size, uploaded_at}
+   - Files stored in /app/uploads/verification/{user_id}/
+   
+2. Renter submits verification via POST /api/verification/renter/submit
+   - Body contains file URLs and employment details
+   - Stores in MySQL: users.renter_verification_documents (JSON)
+   - Updates: users.renter_verification_status = 'pending'
+   
+3. Admin views pending verifications via GET /api/verification/admin/pending
+   - Returns list with document URLs from MySQL
+   - Admin can click to view actual files
+   
+4. Admin views documents via GET /uploads/verification/{user_id}/{filename}
+   - Authorization: Only admin or file owner can access
+   - Returns actual PDF/image file
+   
+5. Admin approves/rejects:
+   - Approve: is_verified_renter = true, status = 'verified'
+   - Reject: status = 'rejected', reason stored
 
-FILE STORAGE:
-- Local storage in /uploads/verification/
-- Organized by user_id and document type
+FILE STORAGE STRUCTURE:
+/app/uploads/
+├── verification/           # PROTECTED (auth required)
+│   ├── user_001/
+│   │   ├── abc12345_1234567890.pdf  # ID proof
+│   │   └── def67890_1234567899.pdf  # Income proof
+│   └── user_002/
+│       └── ...
+├── properties/            # PUBLIC (no auth)
+│   ├── prop_001/
+│   │   ├── img1_timestamp.jpg
+│   │   └── ...
+│   └── ...
+└── profiles/              # PUBLIC
+    └── ...
+
+MYSQL STORAGE (homer_schema.sql):
+- users.renter_verification_documents (JSON column)
+  Stores: {
+    "id_proof": {
+      "type": "aadhaar",
+      "file_url": "/uploads/verification/user_123/abc.pdf",
+      "file_name": "aadhaar.pdf",
+      "uploaded_at": "2025-01-20T10:30:00"
+    },
+    "income_proof": {...}
+  }
+- users.employment_info (JSON column)
+- users.renter_verification_status (ENUM: none/pending/verified/rejected)
+
+STORAGE SERVICE FEATURES:
+- File type validation (.pdf, .jpg, .jpeg, .png, .doc, .docx)
+- File size limit (10MB max)
+- Unique filename generation (UUID + timestamp)
+- Directory auto-creation
+- Error handling
+
+SECURITY:
+- Verification documents: Only owner + admin can access
+- Property images: Public access
+- File type whitelist
+- File size limits
+- Path traversal protection
+
+FRONTEND INTEGRATION:
+Frontend already implemented and expects these exact endpoints:
+- frontend/src/services/verificationService.js line 370: uploadDocument()
+- frontend/src/pages/renter/VerificationUpload.js: Uses upload + submit
+- frontend/src/pages/admin/VerificationReview.js: Views pending + approves/rejects
 
 TESTING:
-□ Documents upload successfully
-□ Verification status updates
-□ Admin can view pending verifications
-□ Admin can approve verification
-□ Admin can reject with reason
-□ Verified badge reflects correctly
+□ Create /app/uploads directory structure
+□ File upload returns correct metadata
+□ Files saved to correct directories
+□ Verification submission stores in MySQL JSON columns
+□ Admin can fetch pending verifications with document URLs
+□ Admin can view documents (authorized)
+□ Non-admin cannot view other users' documents (403 error)
+□ Admin can approve - MySQL updates correctly
+□ Admin can reject - MySQL updates correctly
+□ Frontend displays verification status correctly
+
+IMPORTANT NOTES:
+- Files NOT stored in MySQL (only file URLs in JSON columns)
+- Actual files stored in /app/uploads/ directory
+- Admin dashboard shows document URLs and can fetch actual files
+- Authorization handled at file serving endpoint level
+
+SEE COMPLETE IMPLEMENTATION:
+backend_workflow.txt sections 4B, 4C, 4D for full code
 
 CREDITS: 4-5
 
