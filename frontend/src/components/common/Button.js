@@ -19,6 +19,7 @@ const Button = ({
     secondary: 'bg-white text-primary-600 border-2 border-primary-600 hover:bg-primary-50 focus:ring-primary-500',
     outline: 'bg-transparent text-slate-700 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 focus:ring-slate-500',
     ghost: 'bg-transparent text-slate-700 hover:bg-slate-100 focus:ring-slate-500',
+    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-lg hover:shadow-xl',
   };
   
   const sizes = {

@@ -28,6 +28,13 @@ import RenterSubscription from './pages/renter/Subscription';
 
 // Owner Pages - Additional
 import OwnerVerification from './pages/owner/Verification';
+import PropertyVerification from './pages/owner/PropertyVerification';
+
+// Renter Pages - Additional
+import RenterVerificationUpload from './pages/renter/VerificationUpload';
+
+// Admin Pages
+import AdminVerificationReview from './pages/admin/VerificationReview';
 
 // Payment Pages
 import PaymentSuccess from './pages/PaymentSuccess';
@@ -88,15 +95,10 @@ function App() {
                 </ProtectedRoute>
               } />
               
-              {/* Renter Verification (placeholder for Phase 8) */}
+              {/* Renter Verification */}
               <Route path="/renter/verification" element={
                 <ProtectedRoute userType="renter">
-                  <div className="min-h-screen flex items-center justify-center bg-slate-50">
-                    <div className="text-center">
-                      <h1 className="text-3xl font-bold text-slate-900 mb-4">Verification</h1>
-                      <p className="text-slate-600">Coming in Phase 8</p>
-                    </div>
-                  </div>
+                  <RenterVerificationUpload />
                 </ProtectedRoute>
               } />
               
@@ -139,6 +141,18 @@ function App() {
                 <ProtectedRoute userType="owner">
                   <OwnerVerification />
                 </ProtectedRoute>
+              } />
+              
+              {/* Property Verification */}
+              <Route path="/owner/property-verification" element={
+                <ProtectedRoute userType="owner">
+                  <PropertyVerification />
+                </ProtectedRoute>
+              } />
+              
+              {/* Admin Routes */}
+              <Route path="/admin/verification-review" element={
+                <AdminVerificationReview />
               } />
               
               {/* Payment Result Pages */}
