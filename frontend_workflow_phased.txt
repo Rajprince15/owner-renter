@@ -11,6 +11,7 @@ REFER TO:
 - frontend_workflow.txt for complete mock API service layer
 - workflow.txt for overall system design
 - phased_implementation_plan.txt for full-stack phases
+- /app/frontend/src/services/mockData.js for centralized mock data structures and update it if needed
 
 =================================================================
 PHASE 1: FRONTEND SETUP + LANDING PAGE (4-5 credits)
@@ -145,7 +146,12 @@ FILES TO CREATE:
 - /app/frontend/src/pages/owner/MyProperties.js
 - /app/frontend/src/pages/owner/EditProperty.js
 - /app/frontend/src/components/property/PropertyForm.js
-- /app/frontend/src/services/propertyService.js
+- /app/frontend/src/services/propertyService.js (imports from mockData.js)
+
+**IMPORTANT: Mock Data Reference**
+- All mock property data is in /app/frontend/src/services/mockData.js
+- propertyService.js imports: mockProperties, getPropertyById, getPropertiesByOwner, generateMockProperty
+- See mockData.js for complete property structure with lifestyle data, analytics, etc.
 
 ADD PROPERTY FORM (MULTI-STEP):
 - Step 1: Basic info (title, type, BHK, rent, deposit)

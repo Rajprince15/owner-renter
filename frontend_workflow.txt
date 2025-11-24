@@ -172,6 +172,14 @@ REACT_APP_USE_MOCK_DATA=true  # Set to false when backend is ready
 This section defines ALL API endpoints that the backend will implement.
 For frontend development, these return mock data.
 
+**IMPORTANT: CENTRALIZED MOCK DATA**
+All mock data is now centralized in a single file for easier management:
+- FILE: /app/frontend/src/services/mockData.js
+- Contains: mockUsers, mockProperties, mockChats, mockTransactions, mockShortlists, mockNotifications
+- Includes helper functions for data access
+- All service files import mock data from this centralized location
+- When backend is ready, only mockApi.js needs to change USE_MOCK flag
+
 FILE: /app/frontend/src/services/mockApi.js
 -------------------------------------------
 
@@ -212,11 +220,17 @@ export { USE_MOCK, API_BASE_URL, mockApiCall, mockApiError };
 FILE: /app/frontend/src/services/authService.js
 ------------------------------------------------
 
+**NOTE: This service now imports mock data from /app/frontend/src/services/mockData.js**
+**See mockData.js for complete data structures**
+
 ```javascript
 import { USE_MOCK, mockApiCall, mockApiError } from './mockApi';
 import axios from 'axios';
+import { mockUsers, getUserByCredentials, getUserById } from './mockData';
 
-// MOCK DATA STORE (in-memory for testing)
+// mockUsers is now imported from mockData.js
+// Example mockUsers structure (see mockData.js for complete data):
+/*
 let mockUsers = [
   {
     user_id: 'user_001_renter_free',
@@ -435,11 +449,22 @@ export const getContactsRemaining = async () => {
 FILE: /app/frontend/src/services/propertyService.js
 ----------------------------------------------------
 
+**NOTE: This service now imports mock data from /app/frontend/src/services/mockData.js**
+**See mockData.js for complete data structures and propertyService.js for full implementation**
+
 ```javascript
 import { USE_MOCK, mockApiCall, mockApiError } from './mockApi';
 import axios from 'axios';
+import { 
+  mockProperties, 
+  getPropertyById, 
+  getPropertiesByOwner, 
+  generateMockProperty 
+} from './mockData';
 
-// MOCK PROPERTIES DATA
+// mockProperties is now imported from mockData.js
+// Example mockProperties structure (see mockData.js for complete data):
+/*
 let mockProperties = [
   {
     property_id: 'prop_001',
