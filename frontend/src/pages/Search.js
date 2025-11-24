@@ -102,33 +102,55 @@ const Search = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2" data-testid="search-page-title">
-            Find Your Perfect Home
-          </h1>
-          <p className="text-gray-600">
-            {totalCount} properties available in {filters.city}
-          </p>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2" data-testid="search-page-title">
+              Find Your Perfect Home
+            </h1>
+            <p className="text-gray-600">
+              {totalCount} properties available in {filters.city}
+            </p>
+          </div>
+          
+          {/* Premium Lifestyle Search Button */}
+          {user && user.subscription_tier === 'premium' && (
+            <button
+              onClick={() => navigate('/lifestyle-search')}
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+              data-testid="lifestyle-search-btn"
+            >
+              <SearchIcon className="w-4 h-4" />
+              Lifestyle Search
+            </button>
+          )}
         </div>
 
         {/* Upgrade Banner for Free Users */}
         {user && user.subscription_tier === 'free' && (
-          <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4 mb-6">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6">
             <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <SearchIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <h3 className="text-sm font-semibold text-blue-900 mb-1">
-                  Upgrade to Premium for Better Results
+                  🌟 Unlock Lifestyle Search with Premium
                 </h3>
                 <p className="text-sm text-blue-800 mb-2">
-                  Get access to advanced lifestyle search, unlimited contacts, and verified badge.
+                  Search by air quality, noise levels, walkability, and more! Plus unlimited contacts and verified badge.
                 </p>
-                <button
-                  onClick={() => navigate('/renter/subscription')}
-                  className="text-sm font-medium text-blue-600 hover:text-blue-700 underline"
-                >
-                  Upgrade Now →
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => navigate('/lifestyle-search')}
+                    className="text-sm font-medium text-blue-600 hover:text-blue-700 underline"
+                  >
+                    Learn More →
+                  </button>
+                  <button
+                    onClick={() => navigate('/renter/subscription')}
+                    className="text-sm font-medium px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Upgrade Now
+                  </button>
+                </div>
               </div>
             </div>
           </div>

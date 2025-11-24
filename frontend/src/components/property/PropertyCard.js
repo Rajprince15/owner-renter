@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, BedDouble, Heart, CheckCircle, AlertCircle } from 'lucide-react';
+import { MapPin, BedDouble, Heart } from 'lucide-react';
+import VerifiedBadge from '../common/VerifiedBadge';
+import LifestyleScoreBadge from './LifestyleScoreBadge';
 
 const PropertyCard = ({ property, onShortlist, isShortlisted = false }) => {
   const [shortlisted, setShortlisted] = useState(isShortlisted);
@@ -50,17 +52,7 @@ const PropertyCard = ({ property, onShortlist, isShortlisted = false }) => {
         
         {/* Verification badge */}
         <div className="absolute top-2 right-2">
-          {is_verified ? (
-            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-              <CheckCircle className="w-3 h-3 mr-1" />
-              Verified
-            </span>
-          ) : (
-            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-              <AlertCircle className="w-3 h-3 mr-1" />
-              Not Verified
-            </span>
-          )}
+          <VerifiedBadge isVerified={is_verified} size="small" />
         </div>
         
         {/* Shortlist button */}
@@ -113,27 +105,18 @@ const PropertyCard = ({ property, onShortlist, isShortlisted = false }) => {
           {/* Lifestyle scores (if verified) */}
           {lifestyle_data && (
             <div className="flex flex-wrap gap-2">
-              {/* AQI Badge */}
-              <span 
-                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                  lifestyle_data.aqi_score <= 50 ? 'bg-green-100 text-green-800' :
-                  lifestyle_data.aqi_score <= 100 ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-red-100 text-red-800'
-                }`}
-              >
-                AQI: {lifestyle_data.aqi_score}
-              </span>
-              
-              {/* Walkability Badge */}
-              <span 
-                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                  lifestyle_data.walkability_score >= 70 ? 'bg-green-100 text-green-800' :
-                  lifestyle_data.walkability_score >= 40 ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-red-100 text-red-800'
-                }`}
-              >
-                Walk: {lifestyle_data.walkability_score}/100
-              </span>
+              <LifestyleScoreBadge 
+                type="aqi" 
+                value={lifestyle_data.aqi_score} 
+                size="small"
+                showLabel={false}
+              />
+              <LifestyleScoreBadge 
+                type="walkability" 
+                value={lifestyle_data.walkability_score} 
+                size="small"
+                showLabel={false}
+              />
             </div>
           )}
         </div>

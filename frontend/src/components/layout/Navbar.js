@@ -12,12 +12,24 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
 
-  const navLinks = [
-    { name: 'Home', path: '/', icon: Home },
-    { name: 'Search', path: '/search', icon: Search },
-    { name: 'About', path: '/about', icon: null },
-    { name: 'Pricing', path: '/pricing', icon: null },
-  ];
+  const getNavLinks = () => {
+    const links = [
+      { name: 'Home', path: '/', icon: Home },
+      { name: 'Search', path: '/search', icon: Search },
+    ];
+    
+    // Add Lifestyle Search for premium users
+    if (user && user.subscription_tier === 'premium') {
+      links.push({ name: 'Lifestyle Search', path: '/lifestyle-search', icon: Search, badge: 'Premium' });
+    }
+    
+    links.push({ name: 'About', path: '/about', icon: null });
+    links.push({ name: 'Pricing', path: '/pricing', icon: null });
+    
+    return links;
+  };
+
+  const navLinks = getNavLinks();
 
   // Load unread message count
   useEffect(() => {
@@ -78,13 +90,18 @@ const Navbar = () => {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`text-sm font-medium transition-colors ${
+                className={`text-sm font-medium transition-colors relative ${
                   isActive(link.path)
                     ? 'text-primary-600'
                     : 'text-slate-600 hover:text-primary-600'
                 }`}
               >
                 {link.name}
+                {link.badge && (
+                  <span className="ml-1 text-xs bg-blue-600 text-white px-1.5 py-0.5 rounded-full">
+                    {link.badge}
+                  </span>
+                )}
               </Link>
             ))}
           </div>
