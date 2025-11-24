@@ -254,8 +254,9 @@ const RenterDashboard = () => {
           </button>
 
           <button
-            onClick={() => alert('Chat feature coming in Phase 5!')}
+            onClick={() => navigate('/renter/chats')}
             className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow text-left group"
+            data-testid="quick-action-messages"
           >
             <div className="p-3 bg-green-100 rounded-lg w-fit mb-4 group-hover:bg-green-200 transition-colors">
               <MessageCircle className="w-6 h-6 text-green-600" />
