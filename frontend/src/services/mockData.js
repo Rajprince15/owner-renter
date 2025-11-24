@@ -15,7 +15,8 @@
 // real backend endpoints - NO code changes needed!
 // =================================================================
 
-import { v4 as uuidv4 } from 'uuid';
+// UUID library available if needed for generating IDs
+// import { v4 as uuidv4 } from 'uuid';
 
 // =================================================================
 // MOCK USERS DATA
