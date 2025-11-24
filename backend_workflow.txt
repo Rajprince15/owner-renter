@@ -1475,6 +1475,31 @@ def convert_transaction_to_dict(transaction: Transaction) -> dict:
 4B. STORAGE SERVICE & FILE UPLOAD
 =================================================================
 
+⚡ CRITICAL: FILES UPLOAD IMMEDIATELY (NOT ON FORM SUBMIT)
+-----------------------------------------------------------
+
+FLOW OVERVIEW:
+1. User selects file → Frontend IMMEDIATELY calls uploadDocument()
+2. Backend saves file to disk → Returns URL
+3. Frontend stores URL in form state (NOT the file)
+4. User fills other form fields
+5. User clicks "Submit" → Frontend sends URLs (NOT files)
+6. Backend stores URLs in MySQL JSON columns
+
+KEY PRINCIPLE:
+- Files go to DISK immediately when selected
+- URLs go to MySQL when form submitted
+- Submit button NEVER sends files (only URLs)
+- Admin downloads from DISK using URLs from MySQL
+
+WHY THIS APPROACH?
+✅ Better UX: No waiting during submit (files already uploaded)
+✅ Progress feedback: Users see upload progress immediately
+✅ Retry logic: Can retry individual file uploads
+✅ Validation: File validation happens before form submit
+✅ MySQL efficiency: Store URLs (few bytes) not files (megabytes)
+✅ Scalability: Easy to switch to S3/cloud storage
+
 FILE: /app/backend/services/storage_service.py
 ------------------------------------------------
 
@@ -1584,6 +1609,30 @@ def delete_file(file_url: str) -> bool:
 =================================================================
 4C. VERIFICATION ROUTES (COMPLETE)
 =================================================================
+
+🔄 TWO-STEP VERIFICATION PROCESS
+---------------------------------
+
+STEP 1: UPLOAD FILES IMMEDIATELY (ONE AT A TIME)
+Endpoint: POST /api/verification/upload-document
+- Called when user selects each file (not on submit)
+- Receives: FormData with file
+- Saves: File to /app/uploads/verification/{user_id}/
+- Returns: File metadata with URL
+- Frontend: Stores URL in form state
+
+STEP 2: SUBMIT VERIFICATION (URLS ONLY)
+Endpoint: POST /api/verification/renter/submit
+- Called when user clicks "Submit Verification" button
+- Receives: JSON with file URLs (from step 1) + employment details
+- NO FILES in this request (only URLs)
+- Stores: URLs in MySQL JSON columns
+- Updates: verification_status = 'pending'
+
+ADMIN WORKFLOW:
+1. GET /api/verification/admin/pending → Returns URLs from MySQL
+2. GET /uploads/verification/{user_id}/{filename} → Serves file from disk
+3. POST /api/verification/admin/approve/{id} → Updates MySQL status
 
 FILE: /app/backend/routes/verification.py
 ------------------------------------------
@@ -2003,7 +2052,121 @@ async def reject_verification(
 ```
 
 =================================================================
-4D. SECURE FILE SERVING (ADD TO server.py)
+4D. COMPLETE FILE UPLOAD WORKFLOW (VISUAL DIAGRAM)
+=================================================================
+
+📋 RENTER VERIFICATION FLOW:
+
+┌─────────────────────────────────────────────────────────────────┐
+│ FRONTEND                     BACKEND                  STORAGE   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│ 1. User selects ID proof                                        │
+│    ↓                                                             │
+│ 2. uploadDocument(file, 'id_proof')                             │
+│    → POST /api/verification/upload-document                     │
+│    → FormData: { document: [FILE], document_type: 'id_proof' } │
+│                              ↓                                   │
+│                         Validate file                            │
+│                         Save to disk ────────→ /app/uploads/    │
+│                              ↓                  verification/    │
+│                         Generate URL            user_123/       │
+│                              ↓                  abc_123.pdf     │
+│    ← Returns: { file_url: "/uploads/..." }                      │
+│    ↓                                                             │
+│ 3. Store URL in state                                           │
+│    documents.id_proof = { file_url: "...", file_name: "..." }  │
+│                                                                  │
+│ 4. User selects income proof                                    │
+│    ↓                                                             │
+│ 5. uploadDocument(file, 'income_proof')                         │
+│    → POST /api/verification/upload-document                     │
+│                              ↓                                   │
+│                         Save to disk ────────→ /app/uploads/    │
+│                              ↓                  verification/    │
+│    ← Returns: { file_url: "..." }              user_123/       │
+│    ↓                                            def_456.pdf     │
+│ 6. Store URL in state                                           │
+│    documents.income_proof = { file_url: "..." }                │
+│                                                                  │
+│ 7. User fills employment form                                   │
+│                                                                  │
+│ 8. User clicks "Submit Verification"                            │
+│    ↓                                                             │
+│ 9. submitRenterVerification({                                   │
+│      documents: { id_proof: {...}, income_proof: {...} },      │
+│      employment_details: {...}                                  │
+│    })                                                           │
+│    → POST /api/verification/renter/submit                       │
+│    → JSON: { documents: {...}, employment_details: {...} }     │
+│    → NO FILES, only URLs                                        │
+│                              ↓                                   │
+│                         Store URLs in MySQL                     │
+│                         users.renter_verification_documents =   │
+│                         { id_proof: { file_url: "..." } }       │
+│                              ↓                                   │
+│                         Set status = 'pending'                  │
+│                              ↓                                   │
+│    ← Returns: { success: true, status: 'pending' }             │
+│                                                                  │
+├─────────────────────────────────────────────────────────────────┤
+│ ADMIN REVIEW FLOW:                                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│ 1. Admin views pending verifications                            │
+│    → GET /api/verification/admin/pending                        │
+│                              ↓                                   │
+│                         Query MySQL                             │
+│                         SELECT renter_verification_documents    │
+│                         FROM users WHERE status = 'pending'     │
+│                              ↓                                   │
+│    ← Returns: [{                                                │
+│         user_id: "user_123",                                    │
+│         documents: {                                            │
+│           id_proof: {                                           │
+│             file_url: "/uploads/verification/user_123/abc.pdf" │
+│           }                                                     │
+│         }                                                       │
+│       }]                                                        │
+│                                                                  │
+│ 2. Admin clicks document link                                   │
+│    → GET /uploads/verification/user_123/abc_123.pdf            │
+│                              ↓                                   │
+│                         Check authorization                     │
+│                         (admin or owner only)                   │
+│                              ↓                                   │
+│                         Read file from disk ←──── /app/uploads/ │
+│                              ↓                     verification/ │
+│                         FileResponse               user_123/    │
+│                              ↓                     abc_123.pdf  │
+│    ← Returns: [PDF FILE DATA]                                   │
+│                                                                  │
+│ 3. Admin approves                                               │
+│    → POST /api/verification/admin/approve/renter_user_123      │
+│                              ↓                                   │
+│                         Update MySQL                            │
+│                         SET is_verified_renter = true           │
+│                         SET renter_verification_status = 'verified' │
+│                              ↓                                   │
+│    ← Returns: { success: true }                                │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+
+🔑 KEY POINTS:
+1. Files upload IMMEDIATELY when selected (steps 2 & 5)
+2. URLs stored in state (steps 3 & 6)
+3. Submit sends URLs (step 9) - NO FILES
+4. MySQL stores URLs in JSON columns
+5. Admin fetches URLs from MySQL (step 1)
+6. Admin downloads files from disk using URLs (step 2)
+
+💾 STORAGE LOCATIONS:
+- Files: /app/uploads/verification/{user_id}/*.pdf
+- URLs: MySQL users.renter_verification_documents JSON column
+- Format: { "id_proof": { "file_url": "/uploads/verification/user_123/abc.pdf" } }
+
+=================================================================
+4E. SECURE FILE SERVING (ADD TO server.py)
 =================================================================
 
 ADD THESE ROUTES TO: /app/backend/server.py
@@ -2083,7 +2246,7 @@ app.mount("/uploads/properties", StaticFiles(directory="/app/uploads/properties"
 ```
 
 =================================================================
-4E. FILE STORAGE STRUCTURE ON LOCALHOST
+4F. FILE STORAGE STRUCTURE ON LOCALHOST
 =================================================================
 
 When backend runs on localhost, create this directory structure:

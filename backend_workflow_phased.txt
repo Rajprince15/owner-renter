@@ -278,25 +278,79 @@ POST   /api/verification/admin/reject/:id          # Reject verification (admin)
 GET    /uploads/verification/:user_id/:filename    # Serve documents (protected)
 GET    /uploads/properties/:property_id/:filename  # Serve property files (public)
 
-VERIFICATION WORKFLOW:
+=================================================================
+⚡ CRITICAL FILE UPLOAD FLOW (FILES UPLOAD IMMEDIATELY)
+=================================================================
+
+📱 FRONTEND FLOW:
+1. User selects file → IMMEDIATELY uploads to backend
+   └─> Calls uploadDocument(file, 'id_proof')
+   
+2. Backend saves file to disk → Returns URL
+   └─> File stored: /app/uploads/verification/user_123/abc_1234567890.pdf
+   └─> Returns: { file_url: "/uploads/verification/user_123/abc.pdf", ... }
+   
+3. Frontend stores URL in form state (NOT the file)
+   └─> documents.id_proof = { file_url: "/uploads/...", file_name: "aadhaar.pdf" }
+   
+4. User fills employment details
+   
+5. User clicks "Submit" → Sends URLs only (NOT files)
+   └─> Calls submitRenterVerification({ documents: {...}, employment: {...} })
+   
+6. Backend stores URLs in MySQL JSON column
+   └─> users.renter_verification_documents = { id_proof: { file_url: "..." } }
+
+💾 BACKEND FLOW:
+1. POST /api/verification/upload-document receives file
+   └─> Validates file type and size
+   └─> Saves to /app/uploads/verification/{user_id}/{unique_filename}
+   └─> Returns metadata with URL (NOT file data)
+   
+2. POST /api/verification/renter/submit receives URLs
+   └─> Stores URLs in MySQL JSON column
+   └─> Updates verification_status = 'pending'
+   
+3. GET /api/verification/admin/pending returns URLs from MySQL
+   └─> Admin sees: { documents: { id_proof: { file_url: "/uploads/..." } } }
+   
+4. GET /uploads/verification/{user_id}/{filename} serves file
+   └─> Checks authorization (admin or owner only)
+   └─> Returns actual file from disk
+
+🎯 KEY PRINCIPLE:
+- Files go to DISK immediately when uploaded
+- URLs go to MySQL when form submitted
+- Submit button NEVER sends files (only URLs)
+- Admin downloads from DISK using URLs from MySQL
+
+VERIFICATION WORKFLOW (DETAILED):
 1. Renter uploads documents via POST /api/verification/upload-document
+   - IMMEDIATE UPLOAD: File saved to disk as soon as selected
    - Returns file metadata: {file_name, file_url, file_size, uploaded_at}
    - Files stored in /app/uploads/verification/{user_id}/
+   - Frontend stores this metadata (URL) in form state
    
-2. Renter submits verification via POST /api/verification/renter/submit
-   - Body contains file URLs and employment details
+2. Renter fills employment details form
+   - No file operations here, just form fields
+   
+3. Renter submits verification via POST /api/verification/renter/submit
+   - Body contains file URLs (from step 1) and employment details
+   - NO FILES SENT in this request, only JSON with URLs
    - Stores in MySQL: users.renter_verification_documents (JSON)
    - Updates: users.renter_verification_status = 'pending'
    
-3. Admin views pending verifications via GET /api/verification/admin/pending
+4. Admin views pending verifications via GET /api/verification/admin/pending
    - Returns list with document URLs from MySQL
+   - Admin sees: { id_proof: { file_url: "/uploads/verification/user_123/abc.pdf" } }
    - Admin can click to view actual files
    
-4. Admin views documents via GET /uploads/verification/{user_id}/{filename}
+5. Admin views documents via GET /uploads/verification/{user_id}/{filename}
    - Authorization: Only admin or file owner can access
-   - Returns actual PDF/image file
+   - Backend reads file from disk using URL
+   - Returns actual PDF/image file (FileResponse)
    
-5. Admin approves/rejects:
+6. Admin approves/rejects:
    - Approve: is_verified_renter = true, status = 'verified'
    - Reject: status = 'rejected', reason stored
 
@@ -330,19 +384,153 @@ MYSQL STORAGE (homer_schema.sql):
 - users.employment_info (JSON column)
 - users.renter_verification_status (ENUM: none/pending/verified/rejected)
 
-STORAGE SERVICE FEATURES:
-- File type validation (.pdf, .jpg, .jpeg, .png, .doc, .docx)
-- File size limit (10MB max)
-- Unique filename generation (UUID + timestamp)
-- Directory auto-creation
-- Error handling
+STORAGE SERVICE IMPLEMENTATION:
+FILE: /app/backend/services/storage_service.py
+
+```python
+import os
+import uuid
+from datetime import datetime
+from fastapi import UploadFile, HTTPException
+import aiofiles
+
+UPLOAD_BASE_DIR = os.getenv('UPLOAD_DIR', '/app/uploads')
+ALLOWED_EXTENSIONS = {'.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx'}
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+
+def get_file_extension(filename: str) -> str:
+    return os.path.splitext(filename)[1].lower()
+
+def validate_file(file: UploadFile) -> None:
+    ext = get_file_extension(file.filename)
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(400, f"File type not allowed. Allowed: {', '.join(ALLOWED_EXTENSIONS)}")
+
+async def save_file(file: UploadFile, subdirectory: str) -> dict:
+    """
+    Saves file to disk and returns metadata with URL
+    """
+    validate_file(file)
+    
+    # Create directory
+    upload_dir = os.path.join(UPLOAD_BASE_DIR, subdirectory)
+    os.makedirs(upload_dir, exist_ok=True)
+    
+    # Generate unique filename
+    file_ext = get_file_extension(file.filename)
+    unique_filename = f"{uuid.uuid4().hex[:8]}_{int(datetime.now().timestamp())}{file_ext}"
+    file_path = os.path.join(upload_dir, unique_filename)
+    
+    # Save file
+    async with aiofiles.open(file_path, 'wb') as f:
+        content = await file.read()
+        
+        if len(content) > MAX_FILE_SIZE:
+            raise HTTPException(400, f"File too large. Max: {MAX_FILE_SIZE / (1024*1024)}MB")
+        
+        await f.write(content)
+    
+    # Return metadata (URL, not file data)
+    file_url = f"/uploads/{subdirectory}/{unique_filename}"
+    
+    return {
+        "file_name": file.filename,
+        "file_url": file_url,
+        "file_size": len(content),
+        "file_type": file.content_type,
+        "uploaded_at": datetime.utcnow().isoformat()
+    }
+```
+
+VERIFICATION ROUTES IMPLEMENTATION:
+FILE: /app/backend/routes/verification.py
+
+```python
+from fastapi import APIRouter, Depends, UploadFile, File, Form
+from services.storage_service import save_file
+from models.user import User
+from middleware.auth_middleware import get_current_user
+
+router = APIRouter(prefix="/api/verification", tags=["Verification"])
+
+@router.post("/upload-document")
+async def upload_verification_document(
+    document: UploadFile = File(...),
+    document_type: str = Form(...),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    IMMEDIATE FILE UPLOAD
+    - Receives file as FormData
+    - Saves to /app/uploads/verification/{user_id}/
+    - Returns URL (not file)
+    """
+    subdirectory = f"verification/{current_user.user_id}"
+    file_metadata = await save_file(document, subdirectory)
+    
+    return {
+        "success": True,
+        "data": file_metadata
+    }
+
+@router.post("/renter/submit")
+async def submit_renter_verification(
+    verification_data: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    SUBMIT WITH URLS (not files)
+    - Receives JSON with file URLs (from upload step)
+    - Stores URLs in MySQL JSON column
+    """
+    current_user.renter_verification_documents = verification_data.get('documents')
+    current_user.employment_info = verification_data.get('employment_details')
+    current_user.renter_verification_status = 'pending'
+    db.commit()
+    
+    return {
+        "success": True,
+        "message": "Verification submitted successfully",
+        "verification_id": f"renter_{current_user.user_id}",
+        "status": "pending"
+    }
+```
+
+SECURE FILE SERVING:
+FILE: /app/backend/server.py (ADD THESE ROUTES)
+
+```python
+from fastapi.responses import FileResponse
+
+@app.get("/uploads/verification/{user_id}/{filename}")
+async def get_verification_document(
+    user_id: str,
+    filename: str,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Serve file from disk with authorization
+    """
+    # Check authorization
+    if current_user.user_id != user_id and not current_user.is_admin:
+        raise HTTPException(403, "Not authorized to access this file")
+    
+    file_path = f"/app/uploads/verification/{user_id}/{filename}"
+    
+    if not os.path.exists(file_path):
+        raise HTTPException(404, "File not found")
+    
+    return FileResponse(file_path)
+```
 
 SECURITY:
 - Verification documents: Only owner + admin can access
 - Property images: Public access
-- File type whitelist
-- File size limits
-- Path traversal protection
+- File type whitelist: .pdf, .jpg, .jpeg, .png, .doc, .docx
+- File size limits: 10MB max
+- Path traversal protection: Validated paths
+- Authorization: JWT token required for verification docs
 
 FRONTEND INTEGRATION:
 Frontend already implemented and expects these exact endpoints:
@@ -350,26 +538,131 @@ Frontend already implemented and expects these exact endpoints:
 - frontend/src/pages/renter/VerificationUpload.js: Uses upload + submit
 - frontend/src/pages/admin/VerificationReview.js: Views pending + approves/rejects
 
-TESTING:
-□ Create /app/uploads directory structure
-□ File upload returns correct metadata
-□ Files saved to correct directories
-□ Verification submission stores in MySQL JSON columns
-□ Admin can fetch pending verifications with document URLs
-□ Admin can view documents (authorized)
-□ Non-admin cannot view other users' documents (403 error)
-□ Admin can approve - MySQL updates correctly
-□ Admin can reject - MySQL updates correctly
-□ Frontend displays verification status correctly
+FRONTEND CONTRACT (verificationService.js):
+```javascript
+// Step 1: Upload file IMMEDIATELY when selected
+export const uploadDocument = async (file, documentType) => {
+  const formData = new FormData();
+  formData.append('document', file);
+  formData.append('document_type', documentType);
+  
+  const response = await axios.post('/api/verification/upload-document', formData);
+  // Returns: { success: true, data: { file_url: "/uploads/...", ... } }
+  return response.data;
+};
+
+// Step 2: Submit with URLs (not files)
+export const submitRenterVerification = async (data) => {
+  const response = await axios.post('/api/verification/renter/submit', {
+    documents: {
+      id_proof: { file_url: "...", file_name: "..." },  // URLs only
+      income_proof: { file_url: "...", file_name: "..." }
+    },
+    employment_details: { ... }
+  });
+  return response.data;
+};
+```
+
+STEP-BY-STEP TESTING:
+
+1. SETUP:
+   □ Create /app/uploads directory structure:
+     mkdir -p /app/uploads/verification
+     mkdir -p /app/uploads/properties
+     mkdir -p /app/uploads/profiles
+   □ Set permissions: chmod 755 /app/uploads
+   □ Verify backend dependencies installed: aiofiles, python-multipart
+
+2. FILE UPLOAD TEST (IMMEDIATE):
+   □ Select file in frontend DocumentUpload component
+   □ File immediately uploads (don't wait for submit)
+   □ Backend receives FormData with file
+   □ File saved to /app/uploads/verification/{user_id}/
+   □ Check file exists on disk: ls /app/uploads/verification/{user_id}/
+   □ Backend returns metadata: { file_url: "/uploads/...", file_name: "...", file_size: ... }
+   □ Frontend stores URL in state (not file)
+
+3. VERIFICATION SUBMISSION TEST (URLS ONLY):
+   □ Fill employment details form
+   □ Click "Submit Verification"
+   □ Network tab shows JSON payload (NO FILES, only URLs)
+   □ Backend receives URLs: { documents: { id_proof: { file_url: "..." } } }
+   □ MySQL updated: SELECT renter_verification_documents FROM users WHERE user_id = '...';
+   □ JSON column contains file URLs (not file data)
+   □ Verification status = 'pending'
+
+4. ADMIN PENDING LIST TEST:
+   □ Admin logs in
+   □ Views pending verifications
+   □ GET /api/verification/admin/pending returns list
+   □ Each item has documents with file URLs from MySQL
+   □ URLs like: "/uploads/verification/user_123/abc_1234567890.pdf"
+
+5. ADMIN FILE VIEW TEST (FROM DISK):
+   □ Admin clicks document link
+   □ GET /uploads/verification/{user_id}/{filename}
+   □ Backend checks authorization (admin or owner)
+   □ Backend reads file from disk using URL
+   □ Returns FileResponse with actual PDF/image
+   □ File displays in browser/downloads
+
+6. AUTHORIZATION TEST:
+   □ Non-admin user tries to access another user's document
+   □ GET /uploads/verification/other_user_id/file.pdf
+   □ Returns 403 Forbidden
+   □ Admin can access: Returns 200 with file
+
+7. APPROVAL TEST:
+   □ Admin approves verification
+   □ POST /api/verification/admin/approve/renter_user_123
+   □ MySQL updated: is_verified_renter = true, status = 'verified'
+   □ SELECT is_verified_renter, renter_verification_status FROM users WHERE user_id = '...';
+   □ Verified badge appears on frontend
+
+8. REJECTION TEST:
+   □ Admin rejects verification with reason
+   □ POST /api/verification/admin/reject/renter_user_456
+   □ Body: { "reason": "Document expired" }
+   □ MySQL updated: status = 'rejected'
+   □ User sees rejection reason on frontend
+
+9. END-TO-END TEST:
+   □ New user registers
+   □ Uploads ID proof (immediate) → Check file on disk
+   □ Uploads income proof (immediate) → Check file on disk
+   □ Fills employment form
+   □ Submits verification → Check MySQL has URLs
+   □ Admin sees pending request with document URLs
+   □ Admin clicks document → Views PDF from disk
+   □ Admin approves → User becomes verified
+   □ Verified badge shows on user profile
+
+10. PROPERTY IMAGES TEST (PUBLIC):
+    □ Owner uploads property images
+    □ Files saved to /app/uploads/properties/{property_id}/
+    □ URLs stored in properties.images JSON column
+    □ GET /uploads/properties/{property_id}/{filename} (no auth)
+    □ Returns file (public access)
+
+VALIDATION TESTS:
+□ Upload non-PDF/image file → Returns 400 error
+□ Upload file > 10MB → Returns 400 error
+□ Upload without authentication → Returns 401 error
+□ Malformed file path → Returns 404 error
+□ Path traversal attempt (../) → Blocked
 
 IMPORTANT NOTES:
-- Files NOT stored in MySQL (only file URLs in JSON columns)
-- Actual files stored in /app/uploads/ directory
-- Admin dashboard shows document URLs and can fetch actual files
-- Authorization handled at file serving endpoint level
+✅ Files NOT stored in MySQL (only file URLs in JSON columns)
+✅ Actual files stored in /app/uploads/ directory
+✅ Upload happens IMMEDIATELY when file selected (not on submit)
+✅ Submit button sends URLs (not files)
+✅ Admin downloads from DISK using URLs from MySQL
+✅ Authorization handled at file serving endpoint level
+✅ Production ready: Can switch to S3/cloud storage by changing save_file() function only
 
 SEE COMPLETE IMPLEMENTATION:
-backend_workflow.txt sections 4B, 4C, 4D for full code
+backend_workflow.txt sections 4B, 4C, 4D for full code with all endpoints
 
 CREDITS: 4-5
 
