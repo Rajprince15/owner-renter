@@ -1994,6 +1994,587 @@ Make sure backend implements exact same API contracts defined in
 Section 3 of this document.
 
 =================================================================
+10. ADMIN DASHBOARD (FULL DATABASE CONTROL)
+=================================================================
+
+ADMIN DASHBOARD FEATURES:
+- Complete control over all database entities
+- CRUD operations for all tables
+- User management (view, edit, delete users)
+- Property management (approve, reject, edit, delete)
+- Verification management (approve/reject with admin override)
+- Transaction history and financial reports
+- Analytics and insights
+- System settings and configuration
+
+FILE: /app/frontend/src/pages/admin/AdminDashboard.js
+-------------------------------------------------------
+
+```javascript
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { 
+  Users, Home, CheckCircle, DollarSign, 
+  Settings, Database, Shield, BarChart3 
+} from 'lucide-react';
+
+const AdminDashboard = () => {
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalProperties: 0,
+    pendingVerifications: 0,
+    totalRevenue: 0
+  });
+
+  const menuItems = [
+    { icon: Users, label: 'User Management', path: '/admin/users', color: 'blue' },
+    { icon: Home, label: 'Property Management', path: '/admin/properties', color: 'green' },
+    { icon: CheckCircle, label: 'Verifications', path: '/admin/verifications', color: 'purple' },
+    { icon: DollarSign, label: 'Transactions', path: '/admin/transactions', color: 'yellow' },
+    { icon: BarChart3, label: 'Analytics', path: '/admin/analytics', color: 'red' },
+    { icon: Database, label: 'Database Tools', path: '/admin/database', color: 'indigo' },
+    { icon: Settings, label: 'System Settings', path: '/admin/settings', color: 'gray' }
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p className="text-gray-600 mt-1">Complete system control and management</p>
+          </div>
+          <Shield className="w-12 h-12 text-red-600" />
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <StatCard label="Total Users" value={stats.totalUsers} color="blue" />
+          <StatCard label="Total Properties" value={stats.totalProperties} color="green" />
+          <StatCard label="Pending Verifications" value={stats.pendingVerifications} color="purple" />
+          <StatCard label="Revenue" value={`₹${stats.totalRevenue.toLocaleString()}`} color="yellow" />
+        </div>
+
+        {/* Menu Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {menuItems.map((item, index) => (
+            <MenuCard key={index} {...item} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminDashboard;
+```
+
+FILE: /app/frontend/src/pages/admin/UserManagement.js
+------------------------------------------------------
+
+```javascript
+import React, { useState, useEffect } from 'react';
+import { getUsersAdmin, updateUserAdmin, deleteUserAdmin } from '../../services/adminService';
+
+const UserManagement = () => {
+  const [users, setUsers] = useState([]);
+  const [filters, setFilters] = useState({
+    user_type: 'all',
+    subscription_tier: 'all',
+    verification_status: 'all'
+  });
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  // Features:
+  // - View all users with filters
+  // - Edit user details (name, email, phone, subscription, verification status)
+  // - Delete users
+  // - Bulk operations
+  // - Export user data
+  // - Search by email/phone/name
+
+  return (
+    <div className="admin-user-management">
+      {/* User table with actions */}
+      {/* Edit modal */}
+      {/* Bulk actions */}
+    </div>
+  );
+};
+
+export default UserManagement;
+```
+
+FILE: /app/frontend/src/pages/admin/PropertyManagement.js
+----------------------------------------------------------
+
+```javascript
+import React, { useState, useEffect } from 'react';
+import { getPropertiesAdmin, updatePropertyAdmin, deletePropertyAdmin } from '../../services/adminService';
+
+const PropertyManagement = () => {
+  // Features:
+  // - View all properties
+  // - Edit property details
+  // - Delete properties
+  // - Force verify/unverify
+  // - Change property status (active/inactive/rented)
+  // - Bulk operations
+  // - Analytics per property
+
+  return (
+    <div className="admin-property-management">
+      {/* Property table with actions */}
+    </div>
+  );
+};
+
+export default PropertyManagement;
+```
+
+FILE: /app/frontend/src/pages/admin/VerificationManagement.js
+--------------------------------------------------------------
+
+```javascript
+import React, { useState, useEffect } from 'react';
+import { 
+  getPendingVerifications, 
+  approveVerification, 
+  rejectVerification,
+  overrideVerification 
+} from '../../services/adminService';
+
+const VerificationManagement = () => {
+  // Features:
+  // - View all pending verifications (renters & properties)
+  // - Approve/Reject with reasons
+  // - Admin override (force verify without documents)
+  // - View verification history
+  // - Document viewer
+  // - Bulk approve/reject
+
+  return (
+    <div className="admin-verification-management">
+      {/* Verification queue */}
+    </div>
+  );
+};
+
+export default VerificationManagement;
+```
+
+FILE: /app/frontend/src/pages/admin/TransactionManagement.js
+-------------------------------------------------------------
+
+```javascript
+import React, { useState, useEffect } from 'react';
+import { getTransactionsAdmin, refundTransaction } from '../../services/adminService';
+
+const TransactionManagement = () => {
+  // Features:
+  // - View all transactions
+  // - Filter by type, status, user
+  // - Issue refunds
+  // - Mark as success/failed
+  // - Export financial reports
+  // - Revenue analytics
+
+  return (
+    <div className="admin-transaction-management">
+      {/* Transaction table */}
+    </div>
+  );
+};
+
+export default TransactionManagement;
+```
+
+FILE: /app/frontend/src/pages/admin/DatabaseTools.js
+-----------------------------------------------------
+
+```javascript
+import React, { useState } from 'react';
+import { executeDatabaseQuery, backupDatabase } from '../../services/adminService';
+
+const DatabaseTools = () => {
+  // Features:
+  // - Direct database query interface
+  // - View all tables
+  // - Run custom SQL queries (read-only by default)
+  // - Database backup
+  // - Export data as CSV/JSON
+  // - Data integrity checks
+
+  return (
+    <div className="admin-database-tools">
+      {/* Query interface */}
+      {/* Table browser */}
+    </div>
+  );
+};
+
+export default DatabaseTools;
+```
+
+FILE: /app/frontend/src/services/adminService.js
+-------------------------------------------------
+
+```javascript
+import { USE_MOCK, API_BASE_URL, mockApiCall, mockApiError } from './mockApi';
+import axios from 'axios';
+import { mockUsers, mockProperties, mockTransactions } from './mockData';
+
+// =================================================================
+// USER MANAGEMENT APIS
+// =================================================================
+
+// API ENDPOINT: GET /api/admin/users
+export const getUsersAdmin = async (filters = {}) => {
+  if (USE_MOCK) {
+    let users = [...mockUsers];
+    
+    if (filters.user_type && filters.user_type !== 'all') {
+      users = users.filter(u => u.user_type === filters.user_type);
+    }
+    
+    if (filters.subscription_tier && filters.subscription_tier !== 'all') {
+      users = users.filter(u => u.subscription_tier === filters.subscription_tier);
+    }
+    
+    return mockApiCall({ users, total_count: users.length });
+  }
+  
+  return axios.get('/api/admin/users', { params: filters });
+};
+
+// API ENDPOINT: PUT /api/admin/users/:user_id
+export const updateUserAdmin = async (userId, userData) => {
+  if (USE_MOCK) {
+    const index = mockUsers.findIndex(u => u.user_id === userId);
+    
+    if (index === -1) {
+      return mockApiError('User not found', 404);
+    }
+    
+    mockUsers[index] = { ...mockUsers[index], ...userData, updated_at: new Date().toISOString() };
+    
+    return mockApiCall({ user: mockUsers[index] });
+  }
+  
+  return axios.put(`/api/admin/users/${userId}`, userData);
+};
+
+// API ENDPOINT: DELETE /api/admin/users/:user_id
+export const deleteUserAdmin = async (userId) => {
+  if (USE_MOCK) {
+    const index = mockUsers.findIndex(u => u.user_id === userId);
+    
+    if (index === -1) {
+      return mockApiError('User not found', 404);
+    }
+    
+    mockUsers.splice(index, 1);
+    
+    return mockApiCall({ message: 'User deleted successfully' });
+  }
+  
+  return axios.delete(`/api/admin/users/${userId}`);
+};
+
+// =================================================================
+// PROPERTY MANAGEMENT APIS
+// =================================================================
+
+// API ENDPOINT: GET /api/admin/properties
+export const getPropertiesAdmin = async (filters = {}) => {
+  if (USE_MOCK) {
+    let properties = [...mockProperties];
+    
+    // Apply admin filters
+    if (filters.status) {
+      properties = properties.filter(p => p.status === filters.status);
+    }
+    
+    return mockApiCall({ properties, total_count: properties.length });
+  }
+  
+  return axios.get('/api/admin/properties', { params: filters });
+};
+
+// API ENDPOINT: PUT /api/admin/properties/:property_id
+export const updatePropertyAdmin = async (propertyId, propertyData) => {
+  if (USE_MOCK) {
+    const index = mockProperties.findIndex(p => p.property_id === propertyId);
+    
+    if (index === -1) {
+      return mockApiError('Property not found', 404);
+    }
+    
+    mockProperties[index] = { ...mockProperties[index], ...propertyData };
+    
+    return mockApiCall({ property: mockProperties[index] });
+  }
+  
+  return axios.put(`/api/admin/properties/${propertyId}`, propertyData);
+};
+
+// API ENDPOINT: DELETE /api/admin/properties/:property_id
+export const deletePropertyAdmin = async (propertyId) => {
+  if (USE_MOCK) {
+    const index = mockProperties.findIndex(p => p.property_id === propertyId);
+    
+    if (index === -1) {
+      return mockApiError('Property not found', 404);
+    }
+    
+    mockProperties.splice(index, 1);
+    
+    return mockApiCall({ message: 'Property deleted successfully' });
+  }
+  
+  return axios.delete(`/api/admin/properties/${propertyId}`);
+};
+
+// API ENDPOINT: POST /api/admin/properties/:property_id/force-verify
+export const forceVerifyProperty = async (propertyId) => {
+  if (USE_MOCK) {
+    const property = mockProperties.find(p => p.property_id === propertyId);
+    
+    if (!property) {
+      return mockApiError('Property not found', 404);
+    }
+    
+    property.is_verified = true;
+    property.verification_tier = 'verified';
+    property.verification_date = new Date().toISOString();
+    
+    return mockApiCall({ property });
+  }
+  
+  return axios.post(`/api/admin/properties/${propertyId}/force-verify`);
+};
+
+// =================================================================
+// VERIFICATION MANAGEMENT APIS
+// =================================================================
+
+// API ENDPOINT: GET /api/admin/verifications/pending
+export const getPendingVerifications = async () => {
+  if (USE_MOCK) {
+    const pendingUsers = mockUsers.filter(
+      u => u.renter_verification_status === 'pending' || u.owner_verification_status === 'pending'
+    );
+    
+    const pendingProperties = mockProperties.filter(
+      p => !p.is_verified && p.verification_tier === 'pending'
+    );
+    
+    return mockApiCall({
+      pending_users: pendingUsers,
+      pending_properties: pendingProperties
+    });
+  }
+  
+  return axios.get('/api/admin/verifications/pending');
+};
+
+// API ENDPOINT: POST /api/admin/verifications/approve
+export const approveVerification = async (type, id) => {
+  if (USE_MOCK) {
+    if (type === 'user') {
+      const user = mockUsers.find(u => u.user_id === id);
+      if (user) {
+        if (user.user_type === 'renter') {
+          user.renter_verification_status = 'verified';
+          user.is_verified_renter = true;
+        } else {
+          user.owner_verification_status = 'verified';
+          user.is_verified_owner = true;
+        }
+      }
+    } else if (type === 'property') {
+      const property = mockProperties.find(p => p.property_id === id);
+      if (property) {
+        property.is_verified = true;
+        property.verification_tier = 'verified';
+        property.verification_date = new Date().toISOString();
+      }
+    }
+    
+    return mockApiCall({ message: 'Verification approved' });
+  }
+  
+  return axios.post('/api/admin/verifications/approve', { type, id });
+};
+
+// API ENDPOINT: POST /api/admin/verifications/reject
+export const rejectVerification = async (type, id, reason) => {
+  if (USE_MOCK) {
+    if (type === 'user') {
+      const user = mockUsers.find(u => u.user_id === id);
+      if (user) {
+        if (user.user_type === 'renter') {
+          user.renter_verification_status = 'rejected';
+        } else {
+          user.owner_verification_status = 'rejected';
+        }
+      }
+    }
+    
+    return mockApiCall({ message: 'Verification rejected', reason });
+  }
+  
+  return axios.post('/api/admin/verifications/reject', { type, id, reason });
+};
+
+// =================================================================
+// TRANSACTION MANAGEMENT APIS
+// =================================================================
+
+// API ENDPOINT: GET /api/admin/transactions
+export const getTransactionsAdmin = async (filters = {}) => {
+  if (USE_MOCK) {
+    let transactions = [...mockTransactions];
+    
+    if (filters.transaction_type) {
+      transactions = transactions.filter(t => t.transaction_type === filters.transaction_type);
+    }
+    
+    if (filters.payment_status) {
+      transactions = transactions.filter(t => t.payment_status === filters.payment_status);
+    }
+    
+    return mockApiCall({ transactions, total_count: transactions.length });
+  }
+  
+  return axios.get('/api/admin/transactions', { params: filters });
+};
+
+// API ENDPOINT: POST /api/admin/transactions/:transaction_id/refund
+export const refundTransaction = async (transactionId) => {
+  if (USE_MOCK) {
+    const transaction = mockTransactions.find(t => t.transaction_id === transactionId);
+    
+    if (!transaction) {
+      return mockApiError('Transaction not found', 404);
+    }
+    
+    transaction.payment_status = 'refunded';
+    transaction.refunded_at = new Date().toISOString();
+    
+    return mockApiCall({ transaction });
+  }
+  
+  return axios.post(`/api/admin/transactions/${transactionId}/refund`);
+};
+
+// =================================================================
+// DATABASE TOOLS APIS
+// =================================================================
+
+// API ENDPOINT: POST /api/admin/database/query
+export const executeDatabaseQuery = async (query, readOnly = true) => {
+  if (USE_MOCK) {
+    // Mock: Only return sample data, don't actually execute
+    return mockApiCall({
+      results: [],
+      message: 'Query executed successfully (mock)',
+      rowCount: 0
+    });
+  }
+  
+  return axios.post('/api/admin/database/query', { query, readOnly });
+};
+
+// API ENDPOINT: POST /api/admin/database/backup
+export const backupDatabase = async () => {
+  if (USE_MOCK) {
+    return mockApiCall({
+      backup_url: 'mock_backup_url.sql',
+      message: 'Database backup created'
+    });
+  }
+  
+  return axios.post('/api/admin/database/backup');
+};
+
+export default {
+  getUsersAdmin,
+  updateUserAdmin,
+  deleteUserAdmin,
+  getPropertiesAdmin,
+  updatePropertyAdmin,
+  deletePropertyAdmin,
+  forceVerifyProperty,
+  getPendingVerifications,
+  approveVerification,
+  rejectVerification,
+  getTransactionsAdmin,
+  refundTransaction,
+  executeDatabaseQuery,
+  backupDatabase
+};
+```
+
+ADMIN ROUTES (Add to App.js):
+```javascript
+// Admin routes (protected)
+<Route path="/admin/dashboard" element={
+  <ProtectedRoute userType="admin">
+    <AdminDashboard />
+  </ProtectedRoute>
+} />
+<Route path="/admin/users" element={
+  <ProtectedRoute userType="admin">
+    <UserManagement />
+  </ProtectedRoute>
+} />
+<Route path="/admin/properties" element={
+  <ProtectedRoute userType="admin">
+    <PropertyManagement />
+  </ProtectedRoute>
+} />
+<Route path="/admin/verifications" element={
+  <ProtectedRoute userType="admin">
+    <VerificationManagement />
+  </ProtectedRoute>
+} />
+<Route path="/admin/transactions" element={
+  <ProtectedRoute userType="admin">
+    <TransactionManagement />
+  </ProtectedRoute>
+} />
+<Route path="/admin/database" element={
+  <ProtectedRoute userType="admin">
+    <DatabaseTools />
+  </ProtectedRoute>
+} />
+```
+
+ADMIN AUTHENTICATION:
+- Add admin user type to database
+- Admin login with special credentials
+- Admin token with elevated permissions
+- Protected routes check for admin role
+
+TESTING ADMIN DASHBOARD:
+□ Admin can login
+□ Dashboard shows system stats
+□ Can view all users
+□ Can edit user details
+□ Can delete users
+□ Can view all properties
+□ Can edit/delete properties
+□ Can force verify properties
+□ Can approve/reject verifications
+□ Can view all transactions
+□ Can issue refunds
+□ Can access database tools
+□ All changes reflect in database
+
+=================================================================
 END OF FRONTEND WORKFLOW
 =================================================================
 

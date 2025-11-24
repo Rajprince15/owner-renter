@@ -88,6 +88,23 @@ INSERT INTO users (
     NOW()
 );
 
+-- Sample Admin User
+INSERT INTO users (
+    user_id, email, phone, password_hash, user_type, full_name,
+    is_admin, admin_role, is_active, created_at
+) VALUES (
+    'admin_001',
+    'admin@homer.com',
+    '+919999999999',
+    '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyJB.Dq3s.P2', -- password: admin@123
+    'admin',
+    'System Administrator',
+    TRUE,
+    'super_admin',
+    TRUE,
+    NOW()
+);
+
 -- Sample User (Both Renter + Owner)
 INSERT INTO users (
     user_id, email, phone, password_hash, user_type, full_name,

@@ -24,6 +24,36 @@
 
 export const mockUsers = [
   {
+    user_id: 'admin_001',
+    email: 'admin@homer.com',
+    phone: '+919999999999',
+    password_hash: 'admin@123', // In real backend, this is hashed
+    user_type: 'admin',
+    full_name: 'System Administrator',
+    profile_photo_url: null,
+    date_of_birth: null,
+    gender: null,
+    is_admin: true,
+    admin_role: 'super_admin',
+    is_active: true,
+    created_at: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(),
+    last_login: new Date().toISOString(),
+    
+    // Not applicable for admin
+    subscription_tier: null,
+    subscription_start: null,
+    subscription_end: null,
+    is_verified_renter: false,
+    renter_verification_status: 'none',
+    renter_verification_documents: null,
+    renter_preferences: null,
+    employment_info: null,
+    contacts_used: 0,
+    profile_visibility: false,
+    is_verified_owner: false,
+    owner_verification_status: 'none'
+  },
+  {
     user_id: 'user_001_renter_free',
     email: 'renter.free@homer.com',
     phone: '+919876543210',

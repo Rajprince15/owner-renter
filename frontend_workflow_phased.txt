@@ -694,7 +694,356 @@ TESTING:
 CREDITS: 4-5
 
 =================================================================
-TOTAL FRONTEND CREDITS: ~45-50
+PHASE 11: ADMIN DASHBOARD (FULL DATABASE CONTROL) (5-6 credits)
+=================================================================
+
+GOAL: Complete admin dashboard with full control over database
+
+WHAT TO BUILD:
+1. Admin dashboard with system overview
+2. User management (CRUD operations)
+3. Property management (edit, delete, force verify)
+4. Verification management (approve/reject with override)
+5. Transaction management (view, refund)
+6. Database tools (query interface, backup)
+7. System settings
+8. Admin authentication
+
+FILES TO CREATE:
+- /app/frontend/src/pages/admin/AdminDashboard.js
+- /app/frontend/src/pages/admin/UserManagement.js
+- /app/frontend/src/pages/admin/PropertyManagement.js
+- /app/frontend/src/pages/admin/VerificationManagement.js
+- /app/frontend/src/pages/admin/TransactionManagement.js
+- /app/frontend/src/pages/admin/DatabaseTools.js
+- /app/frontend/src/pages/admin/SystemSettings.js
+- /app/frontend/src/services/adminService.js
+- /app/frontend/src/components/admin/StatCard.js
+- /app/frontend/src/components/admin/MenuCard.js
+- /app/frontend/src/components/admin/UserTable.js
+- /app/frontend/src/components/admin/PropertyTable.js
+- /app/frontend/src/components/admin/TransactionTable.js
+- /app/frontend/src/components/admin/QueryInterface.js
+
+ADMIN DASHBOARD:
+- System statistics overview
+  * Total users (renters, owners)
+  * Total properties (active, inactive, rented)
+  * Pending verifications
+  * Total revenue
+- Quick access menu cards
+- Recent activity feed
+- System health indicators
+- Admin role badge
+
+USER MANAGEMENT PAGE:
+- Table with all users
+- Filters:
+  * User type (renter/owner/both)
+  * Subscription tier (free/premium)
+  * Verification status
+  * Active/Inactive
+- Search by email/phone/name
+- Actions per user:
+  * Edit (name, email, phone, subscription, verification)
+  * Delete user
+  * Toggle active status
+  * Force verify
+  * View full profile
+- Bulk operations:
+  * Bulk delete
+  * Bulk verify
+  * Export as CSV
+- Pagination
+- User detail modal
+
+PROPERTY MANAGEMENT PAGE:
+- Table with all properties
+- Filters:
+  * Status (active/inactive/rented)
+  * Verification status
+  * Owner
+  * Location
+  * Price range
+- Actions per property:
+  * Edit details
+  * Delete property
+  * Force verify/unverify
+  * Change status
+  * View analytics
+  * View images
+- Bulk operations:
+  * Bulk verify
+  * Bulk delete
+  * Bulk status change
+- Property detail modal with edit form
+
+VERIFICATION MANAGEMENT PAGE:
+- Two tabs: Renter Verifications | Property Verifications
+- Pending queue with priority sorting
+- Each verification card shows:
+  * User/Property details
+  * Documents uploaded
+  * Submission date
+  * Document viewer
+- Actions:
+  * Approve (with verification badge)
+  * Reject (with reason input)
+  * Request more documents
+  * Admin override (force verify without docs)
+- Verification history log
+- Bulk approve/reject
+- Statistics:
+  * Average review time
+  * Approval rate
+  * Pending count
+
+TRANSACTION MANAGEMENT PAGE:
+- Table with all transactions
+- Filters:
+  * Transaction type (subscription, property verification)
+  * Payment status (success, failed, pending, refunded)
+  * Date range
+  * User
+- Transaction details:
+  * Transaction ID
+  * User
+  * Amount
+  * Payment gateway
+  * Status
+  * Date
+- Actions:
+  * View details
+  * Issue refund
+  * Mark as success/failed
+  * Download receipt
+- Financial reports:
+  * Revenue by month
+  * Revenue by type
+  * Refund statistics
+- Export to CSV/Excel
+
+DATABASE TOOLS PAGE:
+- ⚠️ DANGER ZONE - Requires extra confirmation
+- Query interface:
+  * SQL query input (syntax highlighting)
+  * Read-only mode toggle
+  * Execute button
+  * Results table
+  * Export results
+- Table browser:
+  * Dropdown to select table
+  * View table schema
+  * View all records
+  * Edit records inline
+  * Delete records
+- Database operations:
+  * Backup database
+  * Restore from backup
+  * Database health check
+  * Connection status
+- Data export:
+  * Export full database as SQL
+  * Export specific tables as CSV/JSON
+  * Schedule automatic backups
+
+SYSTEM SETTINGS PAGE:
+- General settings:
+  * Platform name
+  * Contact email
+  * Support phone
+- Pricing settings:
+  * Renter subscription price
+  * Property verification price
+  * Update prices
+- Feature flags:
+  * Enable/disable features
+  * Toggle maintenance mode
+- Payment gateway config:
+  * Razorpay credentials
+  * Test mode toggle
+- Email settings:
+  * SMTP configuration
+  * Email templates
+- Notification settings:
+  * Push notifications
+  * Email notifications
+
+ADMIN AUTHENTICATION:
+- Admin login separate from user login
+- Admin role check in AuthContext
+- Protected admin routes
+- Admin token with elevated permissions
+- Session timeout (30 minutes)
+- Activity logging
+
+MOCK ADMIN API (adminService.js):
+- All CRUD operations on mock data
+- Admin user in mockUsers:
+  ```javascript
+  {
+    user_id: 'admin_001',
+    email: 'admin@homer.com',
+    user_type: 'admin',
+    full_name: 'Admin User',
+    is_admin: true
+  }
+  ```
+- Mock API endpoints:
+  * GET /api/admin/stats
+  * GET /api/admin/users
+  * PUT /api/admin/users/:id
+  * DELETE /api/admin/users/:id
+  * GET /api/admin/properties
+  * PUT /api/admin/properties/:id
+  * DELETE /api/admin/properties/:id
+  * POST /api/admin/properties/:id/force-verify
+  * GET /api/admin/verifications/pending
+  * POST /api/admin/verifications/approve
+  * POST /api/admin/verifications/reject
+  * GET /api/admin/transactions
+  * POST /api/admin/transactions/:id/refund
+  * POST /api/admin/database/query
+  * POST /api/admin/database/backup
+
+ADMIN DASHBOARD COMPONENTS:
+- StatCard: Display metric with icon and color
+- MenuCard: Navigation card with icon
+- UserTable: Sortable table with actions
+- PropertyTable: Sortable table with actions
+- TransactionTable: Sortable table with filters
+- QueryInterface: SQL query editor with results
+- ConfirmDialog: Confirmation for dangerous actions
+- ActivityLog: Recent admin actions log
+
+SECURITY FEATURES:
+- Admin-only routes (redirect if not admin)
+- Confirmation dialogs for delete operations
+- Audit log of all admin actions
+- IP address logging
+- Failed login attempt tracking
+- Two-factor authentication (optional)
+
+UI/UX CONSIDERATIONS:
+- Clean, professional admin interface
+- Consistent color scheme (dark sidebar, light content)
+- Responsive tables with horizontal scroll
+- Loading states for all operations
+- Success/error toasts for actions
+- Breadcrumb navigation
+- Keyboard shortcuts (Ctrl+K for search)
+- Dark mode support
+
+ADMIN ROUTES (Add to App.js):
+```javascript
+// Admin routes (protected by admin role check)
+<Route path="/admin" element={
+  <ProtectedRoute userType="admin">
+    <AdminDashboard />
+  </ProtectedRoute>
+} />
+<Route path="/admin/users" element={
+  <ProtectedRoute userType="admin">
+    <UserManagement />
+  </ProtectedRoute>
+} />
+<Route path="/admin/properties" element={
+  <ProtectedRoute userType="admin">
+    <PropertyManagement />
+  </ProtectedRoute>
+} />
+<Route path="/admin/verifications" element={
+  <ProtectedRoute userType="admin">
+    <VerificationManagement />
+  </ProtectedRoute>
+} />
+<Route path="/admin/transactions" element={
+  <ProtectedRoute userType="admin">
+    <TransactionManagement />
+  </ProtectedRoute>
+} />
+<Route path="/admin/database" element={
+  <ProtectedRoute userType="admin">
+    <DatabaseTools />
+  </ProtectedRoute>
+} />
+<Route path="/admin/settings" element={
+  <ProtectedRoute userType="admin">
+    <SystemSettings />
+  </ProtectedRoute>
+} />
+```
+
+PROTECTED ROUTE UPDATE:
+```javascript
+// Update ProtectedRoute component to check for admin role
+const ProtectedRoute = ({ children, userType }) => {
+  const { user, isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  
+  if (userType === 'admin' && !user.is_admin) {
+    return <Navigate to="/" />;
+  }
+  
+  if (userType && userType !== 'admin' && user.user_type !== userType) {
+    return <Navigate to="/" />;
+  }
+  
+  return children;
+};
+```
+
+TESTING ADMIN DASHBOARD:
+□ Admin can login with admin credentials
+□ Dashboard shows correct statistics
+□ User management:
+  □ Can view all users
+  □ Can edit user details
+  □ Can delete users
+  □ Can force verify users
+  □ Filters work correctly
+  □ Search works
+□ Property management:
+  □ Can view all properties
+  □ Can edit property details
+  □ Can delete properties
+  □ Can force verify properties
+  □ Can change property status
+□ Verification management:
+  □ Can view pending verifications
+  □ Can approve verifications
+  □ Can reject with reason
+  □ Documents display correctly
+□ Transaction management:
+  □ Can view all transactions
+  □ Can issue refunds
+  □ Filters work
+  □ Financial reports display
+□ Database tools:
+  □ Query interface works
+  □ Can view table data
+  □ Backup functionality works
+  □ Export works
+□ System settings:
+  □ Can update settings
+  □ Changes persist
+□ Security:
+  □ Non-admin users cannot access
+  □ Confirmation dialogs work
+  □ Audit log records actions
+□ UI/UX:
+  □ Responsive on all screens
+  □ Loading states show
+  □ Success/error messages display
+  □ Navigation works smoothly
+
+CREDITS: 5-6
+
+=================================================================
+TOTAL FRONTEND CREDITS: ~50-56
 =================================================================
 
 =================================================================
@@ -714,6 +1063,9 @@ When backend is ready:
 
 The mock API service layer automatically switches based on the
 REACT_APP_USE_MOCK_DATA flag.
+
+**Note**: Backend must implement admin authentication and admin-specific
+API endpoints with proper authorization checks.
 
 =================================================================
 END OF FRONTEND WORKFLOW (PHASED)

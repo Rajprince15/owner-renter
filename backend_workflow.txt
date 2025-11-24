@@ -1620,6 +1620,7 @@ app.include_router(properties.router)
 app.include_router(chats.router)
 app.include_router(payments.router)
 app.include_router(shortlists.router)
+app.include_router(admin.router)  # Admin routes
 # ... include other routers
 
 # Health check
@@ -1632,6 +1633,646 @@ async def health_check():
     return {"status": "ok"}
 
 # Run with: uvicorn server:app --host 0.0.0.0 --port 8001 --reload
+```
+
+=================================================================
+6.8 ADMIN MANAGEMENT APIS
+=================================================================
+
+FILE: /app/backend/routes/admin.py
+------------------------------------
+
+```python
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from sqlalchemy.orm import Session
+from typing import List, Optional
+from datetime import datetime
+import uuid
+
+from database import get_db
+from models import User, Property, Transaction, AdminAuditLog
+from auth import get_current_user, require_admin
+from schemas import AdminStatsResponse, UserAdminUpdate, PropertyAdminUpdate
+
+router = APIRouter(prefix="/api/admin", tags=["admin"])
+
+# =================================================================
+# ADMIN AUTHENTICATION & AUTHORIZATION
+# =================================================================
+
+# Middleware to check admin access
+def require_admin(current_user: User = Depends(get_current_user)):
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+    return current_user
+
+# Log admin action
+async def log_admin_action(
+    db: Session,
+    admin_id: str,
+    action_type: str,
+    entity_type: str,
+    entity_id: str,
+    action_details: dict,
+    old_value: dict = None,
+    new_value: dict = None,
+    request: Request = None
+):
+    log = AdminAuditLog(
+        log_id=str(uuid.uuid4()),
+        admin_id=admin_id,
+        action_type=action_type,
+        entity_type=entity_type,
+        entity_id=entity_id,
+        action_details=action_details,
+        old_value=old_value,
+        new_value=new_value,
+        ip_address=request.client.host if request else None,
+        user_agent=request.headers.get("user-agent") if request else None,
+        status="success"
+    )
+    db.add(log)
+    db.commit()
+
+# =================================================================
+# DASHBOARD & STATISTICS
+# =================================================================
+
+@router.get("/stats")
+async def get_admin_stats(
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Get system statistics for admin dashboard"""
+    
+    total_users = db.query(User).count()
+    total_renters = db.query(User).filter(User.user_type.in_(['renter', 'both'])).count()
+    total_owners = db.query(User).filter(User.user_type.in_(['owner', 'both'])).count()
+    premium_users = db.query(User).filter(User.subscription_tier == 'premium').count()
+    
+    total_properties = db.query(Property).count()
+    active_properties = db.query(Property).filter(Property.status == 'active').count()
+    verified_properties = db.query(Property).filter(Property.is_verified == True).count()
+    
+    pending_renter_verifications = db.query(User).filter(
+        User.renter_verification_status == 'pending'
+    ).count()
+    pending_owner_verifications = db.query(User).filter(
+        User.owner_verification_status == 'pending'
+    ).count()
+    
+    total_revenue = db.query(Transaction).filter(
+        Transaction.payment_status == 'success'
+    ).count() * 750  # Simplified calculation
+    
+    recent_users = db.query(User).order_by(User.created_at.desc()).limit(5).all()
+    recent_properties = db.query(Property).order_by(Property.created_at.desc()).limit(5).all()
+    
+    return {
+        "users": {
+            "total": total_users,
+            "renters": total_renters,
+            "owners": total_owners,
+            "premium": premium_users
+        },
+        "properties": {
+            "total": total_properties,
+            "active": active_properties,
+            "verified": verified_properties
+        },
+        "verifications": {
+            "pending_renters": pending_renter_verifications,
+            "pending_owners": pending_owner_verifications,
+            "total_pending": pending_renter_verifications + pending_owner_verifications
+        },
+        "revenue": {
+            "total": total_revenue,
+            "currency": "INR"
+        },
+        "recent_activity": {
+            "users": [{"user_id": u.user_id, "name": u.full_name, "created_at": u.created_at} for u in recent_users],
+            "properties": [{"property_id": p.property_id, "title": p.title, "created_at": p.created_at} for p in recent_properties]
+        }
+    }
+
+# =================================================================
+# USER MANAGEMENT
+# =================================================================
+
+@router.get("/users")
+async def get_all_users(
+    user_type: Optional[str] = None,
+    subscription_tier: Optional[str] = None,
+    verification_status: Optional[str] = None,
+    page: int = 1,
+    limit: int = 50,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Get all users with filters"""
+    
+    query = db.query(User)
+    
+    if user_type and user_type != 'all':
+        query = query.filter(User.user_type == user_type)
+    
+    if subscription_tier and subscription_tier != 'all':
+        query = query.filter(User.subscription_tier == subscription_tier)
+    
+    if verification_status:
+        if verification_status == 'verified':
+            query = query.filter(
+                (User.is_verified_renter == True) | (User.is_verified_owner == True)
+            )
+        elif verification_status == 'pending':
+            query = query.filter(
+                (User.renter_verification_status == 'pending') | 
+                (User.owner_verification_status == 'pending')
+            )
+    
+    total = query.count()
+    users = query.offset((page - 1) * limit).limit(limit).all()
+    
+    return {
+        "users": users,
+        "total_count": total,
+        "page": page,
+        "limit": limit,
+        "has_more": (page * limit) < total
+    }
+
+@router.get("/users/{user_id}")
+async def get_user_details(
+    user_id: str,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Get detailed information about a specific user"""
+    
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return user
+
+@router.put("/users/{user_id}")
+async def update_user(
+    user_id: str,
+    user_data: dict,
+    request: Request,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Update user information (admin override)"""
+    
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    old_value = user.__dict__.copy()
+    
+    # Update fields
+    for key, value in user_data.items():
+        if hasattr(user, key) and key != 'user_id':
+            setattr(user, key, value)
+    
+    db.commit()
+    db.refresh(user)
+    
+    # Log action
+    await log_admin_action(
+        db=db,
+        admin_id=current_user.user_id,
+        action_type="user_update",
+        entity_type="user",
+        entity_id=user_id,
+        action_details={"fields_updated": list(user_data.keys())},
+        old_value=old_value,
+        new_value=user.__dict__.copy(),
+        request=request
+    )
+    
+    return {"message": "User updated successfully", "user": user}
+
+@router.delete("/users/{user_id}")
+async def delete_user(
+    user_id: str,
+    request: Request,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Delete user account (admin only)"""
+    
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if user.is_admin:
+        raise HTTPException(status_code=403, detail="Cannot delete admin users")
+    
+    old_value = user.__dict__.copy()
+    
+    db.delete(user)
+    db.commit()
+    
+    # Log action
+    await log_admin_action(
+        db=db,
+        admin_id=current_user.user_id,
+        action_type="user_delete",
+        entity_type="user",
+        entity_id=user_id,
+        action_details={"user_email": old_value.get('email')},
+        old_value=old_value,
+        request=request
+    )
+    
+    return {"message": "User deleted successfully"}
+
+# =================================================================
+# PROPERTY MANAGEMENT
+# =================================================================
+
+@router.get("/properties")
+async def get_all_properties(
+    status: Optional[str] = None,
+    verification_status: Optional[str] = None,
+    page: int = 1,
+    limit: int = 50,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Get all properties with filters"""
+    
+    query = db.query(Property)
+    
+    if status:
+        query = query.filter(Property.status == status)
+    
+    if verification_status == 'verified':
+        query = query.filter(Property.is_verified == True)
+    elif verification_status == 'unverified':
+        query = query.filter(Property.is_verified == False)
+    
+    total = query.count()
+    properties = query.offset((page - 1) * limit).limit(limit).all()
+    
+    return {
+        "properties": properties,
+        "total_count": total,
+        "page": page,
+        "limit": limit,
+        "has_more": (page * limit) < total
+    }
+
+@router.put("/properties/{property_id}")
+async def update_property(
+    property_id: str,
+    property_data: dict,
+    request: Request,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Update property information (admin override)"""
+    
+    property = db.query(Property).filter(Property.property_id == property_id).first()
+    if not property:
+        raise HTTPException(status_code=404, detail="Property not found")
+    
+    old_value = property.__dict__.copy()
+    
+    for key, value in property_data.items():
+        if hasattr(property, key) and key != 'property_id':
+            setattr(property, key, value)
+    
+    db.commit()
+    db.refresh(property)
+    
+    await log_admin_action(
+        db=db,
+        admin_id=current_user.user_id,
+        action_type="property_update",
+        entity_type="property",
+        entity_id=property_id,
+        action_details={"fields_updated": list(property_data.keys())},
+        old_value=old_value,
+        new_value=property.__dict__.copy(),
+        request=request
+    )
+    
+    return {"message": "Property updated successfully", "property": property}
+
+@router.delete("/properties/{property_id}")
+async def delete_property(
+    property_id: str,
+    request: Request,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Delete property (admin only)"""
+    
+    property = db.query(Property).filter(Property.property_id == property_id).first()
+    if not property:
+        raise HTTPException(status_code=404, detail="Property not found")
+    
+    old_value = property.__dict__.copy()
+    
+    db.delete(property)
+    db.commit()
+    
+    await log_admin_action(
+        db=db,
+        admin_id=current_user.user_id,
+        action_type="property_delete",
+        entity_type="property",
+        entity_id=property_id,
+        action_details={"property_title": old_value.get('title')},
+        old_value=old_value,
+        request=request
+    )
+    
+    return {"message": "Property deleted successfully"}
+
+@router.post("/properties/{property_id}/force-verify")
+async def force_verify_property(
+    property_id: str,
+    request: Request,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Force verify a property (admin override)"""
+    
+    property = db.query(Property).filter(Property.property_id == property_id).first()
+    if not property:
+        raise HTTPException(status_code=404, detail="Property not found")
+    
+    old_verified = property.is_verified
+    
+    property.is_verified = True
+    property.verification_tier = 'verified'
+    property.verification_date = datetime.utcnow()
+    
+    db.commit()
+    db.refresh(property)
+    
+    await log_admin_action(
+        db=db,
+        admin_id=current_user.user_id,
+        action_type="property_force_verify",
+        entity_type="property",
+        entity_id=property_id,
+        action_details={"previous_status": old_verified, "new_status": True},
+        request=request
+    )
+    
+    return {"message": "Property force verified", "property": property}
+
+# =================================================================
+# VERIFICATION MANAGEMENT
+# =================================================================
+
+@router.get("/verifications/pending")
+async def get_pending_verifications(
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Get all pending verifications"""
+    
+    pending_renters = db.query(User).filter(
+        User.renter_verification_status == 'pending'
+    ).all()
+    
+    pending_owners = db.query(User).filter(
+        User.owner_verification_status == 'pending'
+    ).all()
+    
+    pending_properties = db.query(Property).filter(
+        Property.is_verified == False,
+        Property.verification_tier == 'pending'
+    ).all()
+    
+    return {
+        "pending_renter_verifications": pending_renters,
+        "pending_owner_verifications": pending_owners,
+        "pending_property_verifications": pending_properties
+    }
+
+@router.post("/verifications/approve")
+async def approve_verification(
+    verification_type: str,
+    entity_id: str,
+    request: Request,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Approve a verification request"""
+    
+    if verification_type == 'renter':
+        user = db.query(User).filter(User.user_id == entity_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user.renter_verification_status = 'verified'
+        user.is_verified_renter = True
+        
+    elif verification_type == 'owner':
+        user = db.query(User).filter(User.user_id == entity_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user.owner_verification_status = 'verified'
+        user.is_verified_owner = True
+        
+    elif verification_type == 'property':
+        property = db.query(Property).filter(Property.property_id == entity_id).first()
+        if not property:
+            raise HTTPException(status_code=404, detail="Property not found")
+        
+        property.is_verified = True
+        property.verification_tier = 'verified'
+        property.verification_date = datetime.utcnow()
+    
+    db.commit()
+    
+    await log_admin_action(
+        db=db,
+        admin_id=current_user.user_id,
+        action_type="verification_approve",
+        entity_type=verification_type,
+        entity_id=entity_id,
+        action_details={"verification_type": verification_type},
+        request=request
+    )
+    
+    return {"message": "Verification approved successfully"}
+
+@router.post("/verifications/reject")
+async def reject_verification(
+    verification_type: str,
+    entity_id: str,
+    reason: str,
+    request: Request,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Reject a verification request"""
+    
+    if verification_type == 'renter':
+        user = db.query(User).filter(User.user_id == entity_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        user.renter_verification_status = 'rejected'
+        
+    elif verification_type == 'owner':
+        user = db.query(User).filter(User.user_id == entity_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        user.owner_verification_status = 'rejected'
+    
+    db.commit()
+    
+    await log_admin_action(
+        db=db,
+        admin_id=current_user.user_id,
+        action_type="verification_reject",
+        entity_type=verification_type,
+        entity_id=entity_id,
+        action_details={"verification_type": verification_type, "reason": reason},
+        request=request
+    )
+    
+    return {"message": "Verification rejected", "reason": reason}
+
+# =================================================================
+# TRANSACTION MANAGEMENT
+# =================================================================
+
+@router.get("/transactions")
+async def get_all_transactions(
+    transaction_type: Optional[str] = None,
+    payment_status: Optional[str] = None,
+    page: int = 1,
+    limit: int = 50,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Get all transactions with filters"""
+    
+    query = db.query(Transaction)
+    
+    if transaction_type:
+        query = query.filter(Transaction.transaction_type == transaction_type)
+    
+    if payment_status:
+        query = query.filter(Transaction.payment_status == payment_status)
+    
+    total = query.count()
+    transactions = query.offset((page - 1) * limit).limit(limit).all()
+    
+    return {
+        "transactions": transactions,
+        "total_count": total,
+        "page": page,
+        "limit": limit
+    }
+
+@router.post("/transactions/{transaction_id}/refund")
+async def refund_transaction(
+    transaction_id: str,
+    request: Request,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Issue a refund for a transaction"""
+    
+    transaction = db.query(Transaction).filter(
+        Transaction.transaction_id == transaction_id
+    ).first()
+    
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    
+    if transaction.payment_status != 'success':
+        raise HTTPException(status_code=400, detail="Can only refund successful transactions")
+    
+    old_status = transaction.payment_status
+    transaction.payment_status = 'refunded'
+    transaction.refunded_at = datetime.utcnow()
+    
+    db.commit()
+    
+    await log_admin_action(
+        db=db,
+        admin_id=current_user.user_id,
+        action_type="transaction_refund",
+        entity_type="transaction",
+        entity_id=transaction_id,
+        action_details={
+            "amount": str(transaction.amount),
+            "previous_status": old_status
+        },
+        request=request
+    )
+    
+    return {"message": "Refund processed successfully", "transaction": transaction}
+
+# =================================================================
+# AUDIT LOGS
+# =================================================================
+
+@router.get("/audit-logs")
+async def get_audit_logs(
+    action_type: Optional[str] = None,
+    entity_type: Optional[str] = None,
+    page: int = 1,
+    limit: int = 100,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Get admin audit logs"""
+    
+    query = db.query(AdminAuditLog)
+    
+    if action_type:
+        query = query.filter(AdminAuditLog.action_type == action_type)
+    
+    if entity_type:
+        query = query.filter(AdminAuditLog.entity_type == entity_type)
+    
+    total = query.count()
+    logs = query.order_by(AdminAuditLog.timestamp.desc()).offset((page - 1) * limit).limit(limit).all()
+    
+    return {
+        "logs": logs,
+        "total_count": total,
+        "page": page,
+        "limit": limit
+    }
+```
+
+MODEL UPDATE: Add AdminAuditLog to models.py
+---------------------------------------------
+
+```python
+class AdminAuditLog(Base):
+    __tablename__ = "admin_audit_logs"
+    
+    log_id = Column(String(36), primary_key=True)
+    admin_id = Column(String(36), ForeignKey('users.user_id'))
+    action_type = Column(String(100), nullable=False)
+    entity_type = Column(String(50), nullable=False)
+    entity_id = Column(String(36))
+    action_details = Column(JSON)
+    old_value = Column(JSON)
+    new_value = Column(JSON)
+    ip_address = Column(String(45))
+    user_agent = Column(Text)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    status = Column(Enum('success', 'failed', 'partial'), default='success')
+    error_message = Column(Text)
 ```
 
 =================================================================

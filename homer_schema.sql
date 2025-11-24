@@ -24,6 +24,7 @@ COLLATE utf8mb4_unicode_ci;
 USE homer_db;
 
 -- Drop existing tables (in correct order due to foreign keys)
+DROP TABLE IF EXISTS admin_audit_logs;
 DROP TABLE IF EXISTS notifications;
 DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS shortlists;
@@ -44,11 +45,15 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL COMMENT 'Bcrypt hashed password',
     
     -- User type and basic info
-    user_type ENUM('renter', 'owner', 'both') NOT NULL DEFAULT 'renter' COMMENT 'User role in marketplace',
+    user_type ENUM('renter', 'owner', 'both', 'admin') NOT NULL DEFAULT 'renter' COMMENT 'User role in marketplace',
     full_name VARCHAR(255) COMMENT 'Full name of user',
     profile_photo_url TEXT COMMENT 'URL to profile photo',
     date_of_birth DATE COMMENT 'Date of birth for verification',
     gender VARCHAR(20) COMMENT 'Gender (optional)',
+    
+    -- Admin fields
+    is_admin BOOLEAN DEFAULT FALSE COMMENT 'Admin access flag',
+    admin_role VARCHAR(50) COMMENT 'Admin role type (super_admin, moderator, support)',
     
     -- Account status
     is_active BOOLEAN DEFAULT TRUE COMMENT 'Account active status',
@@ -460,6 +465,44 @@ CREATE TABLE reviews (
 -- }
 
 -- =====================================================================
+-- TABLE: admin_audit_logs
+-- Tracks all admin actions for security and auditing
+-- =====================================================================
+CREATE TABLE admin_audit_logs (
+    -- Primary identification
+    log_id VARCHAR(36) PRIMARY KEY COMMENT 'UUID for log entry',
+    admin_id VARCHAR(36) NOT NULL COMMENT 'Foreign key to users table (admin user)',
+    
+    -- Action details
+    action_type VARCHAR(100) NOT NULL COMMENT 'Type of action (user_edit, property_delete, etc)',
+    entity_type VARCHAR(50) NOT NULL COMMENT 'Entity affected (user, property, transaction, etc)',
+    entity_id VARCHAR(36) COMMENT 'ID of the affected entity',
+    action_details JSON COMMENT 'Detailed information about the action',
+    
+    -- Change tracking
+    old_value JSON COMMENT 'Previous value before change',
+    new_value JSON COMMENT 'New value after change',
+    
+    -- Context
+    ip_address VARCHAR(45) COMMENT 'IP address of admin',
+    user_agent TEXT COMMENT 'Browser/client user agent',
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'When action was performed',
+    
+    -- Status
+    status ENUM('success', 'failed', 'partial') DEFAULT 'success' COMMENT 'Action outcome',
+    error_message TEXT COMMENT 'Error details if action failed',
+    
+    -- Indexes for performance
+    INDEX idx_admin_id (admin_id),
+    INDEX idx_action_type (action_type),
+    INDEX idx_entity_type (entity_type),
+    INDEX idx_entity_id (entity_id),
+    INDEX idx_timestamp (timestamp),
+    
+    FOREIGN KEY (admin_id) REFERENCES users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Admin action audit logs';
+
+-- =====================================================================
 -- INITIAL SETUP COMPLETE
 -- =====================================================================
 
@@ -471,6 +514,7 @@ DESCRIBE users;
 DESCRIBE properties;
 DESCRIBE chats;
 DESCRIBE transactions;
+DESCRIBE admin_audit_logs;
 
 -- =====================================================================
 -- NOTES FOR PRODUCTION DEPLOYMENT

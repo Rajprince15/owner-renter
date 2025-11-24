@@ -487,7 +487,234 @@ TESTING:
 CREDITS: 3-4
 
 =================================================================
-TOTAL BACKEND CREDITS: ~45-50
+PHASE 11: ADMIN APIs (4-5 credits)
+=================================================================
+
+GOAL: Complete admin backend APIs for full database control
+
+WHAT TO BUILD:
+1. Admin authentication and authorization middleware
+2. Admin statistics endpoint
+3. User management APIs (CRUD)
+4. Property management APIs (CRUD + force verify)
+5. Verification approval/rejection APIs
+6. Transaction management APIs (view + refund)
+7. Audit logging system
+8. Admin dashboard data endpoints
+
+FILES TO CREATE/UPDATE:
+- /app/backend/routes/admin.py (new)
+- /app/backend/models.py (add AdminAuditLog model)
+- /app/backend/auth.py (add require_admin decorator)
+- /app/backend/server.py (include admin router)
+
+ADMIN AUTHENTICATION:
+```python
+# In auth.py
+def require_admin(current_user: User = Depends(get_current_user)):
+    """Middleware to check if user is admin"""
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+    return current_user
+```
+
+ADMIN STATISTICS API:
+- Endpoint: GET /api/admin/stats
+- Returns:
+  * Total users (renters, owners, premium)
+  * Total properties (active, verified)
+  * Pending verifications count
+  * Total revenue
+  * Recent activity
+
+USER MANAGEMENT APIs:
+- GET /api/admin/users (with filters: user_type, subscription_tier, verification_status)
+- GET /api/admin/users/:user_id
+- PUT /api/admin/users/:user_id (update any field)
+- DELETE /api/admin/users/:user_id
+- POST /api/admin/users/:user_id/force-verify
+
+PROPERTY MANAGEMENT APIs:
+- GET /api/admin/properties (with filters: status, verification)
+- GET /api/admin/properties/:property_id
+- PUT /api/admin/properties/:property_id
+- DELETE /api/admin/properties/:property_id
+- POST /api/admin/properties/:property_id/force-verify
+
+VERIFICATION MANAGEMENT APIs:
+- GET /api/admin/verifications/pending
+- POST /api/admin/verifications/approve (body: {type, entity_id})
+- POST /api/admin/verifications/reject (body: {type, entity_id, reason})
+
+TRANSACTION MANAGEMENT APIs:
+- GET /api/admin/transactions (with filters)
+- GET /api/admin/transactions/:transaction_id
+- POST /api/admin/transactions/:transaction_id/refund
+
+AUDIT LOGGING:
+- Every admin action logs to admin_audit_logs table
+- Captures: action_type, entity_type, entity_id, old_value, new_value
+- Records: IP address, user agent, timestamp
+- Endpoint: GET /api/admin/audit-logs (admin only)
+
+AUDIT LOG MODEL:
+```python
+class AdminAuditLog(Base):
+    __tablename__ = "admin_audit_logs"
+    
+    log_id = Column(String(36), primary_key=True)
+    admin_id = Column(String(36), ForeignKey('users.user_id'))
+    action_type = Column(String(100), nullable=False)
+    entity_type = Column(String(50), nullable=False)
+    entity_id = Column(String(36))
+    action_details = Column(JSON)
+    old_value = Column(JSON)
+    new_value = Column(JSON)
+    ip_address = Column(String(45))
+    user_agent = Column(Text)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    status = Column(Enum('success', 'failed', 'partial'))
+    error_message = Column(Text)
+```
+
+SECURITY FEATURES:
+- All admin endpoints require is_admin=True
+- JWT token validation
+- Rate limiting on admin endpoints
+- Audit log for all admin actions
+- Cannot delete other admin users
+- IP address tracking
+- Failed action logging
+
+DATABASE UPDATES:
+- Add is_admin column to users table
+- Add admin_role column to users table
+- Update user_type enum to include 'admin'
+- Create admin_audit_logs table
+
+SAMPLE DATA:
+- Create admin user: admin@homer.com / admin@123
+- user_type = 'admin'
+- is_admin = True
+- admin_role = 'super_admin'
+
+ADMIN ROUTES IN server.py:
+```python
+from routes import admin
+
+app.include_router(admin.router)
+```
+
+TESTING ADMIN APIs:
+
+1. Admin Login:
+```bash
+curl -X POST http://localhost:8001/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@homer.com",
+    "password": "admin@123"
+  }'
+```
+
+2. Get Admin Stats:
+```bash
+curl -X GET http://localhost:8001/api/admin/stats \
+  -H "Authorization: Bearer ADMIN_TOKEN"
+```
+
+3. Get All Users:
+```bash
+curl -X GET "http://localhost:8001/api/admin/users?user_type=renter&page=1&limit=50" \
+  -H "Authorization: Bearer ADMIN_TOKEN"
+```
+
+4. Update User:
+```bash
+curl -X PUT http://localhost:8001/api/admin/users/user_001 \
+  -H "Authorization: Bearer ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "subscription_tier": "premium",
+    "is_verified_renter": true
+  }'
+```
+
+5. Delete Property:
+```bash
+curl -X DELETE http://localhost:8001/api/admin/properties/prop_123 \
+  -H "Authorization: Bearer ADMIN_TOKEN"
+```
+
+6. Force Verify Property:
+```bash
+curl -X POST http://localhost:8001/api/admin/properties/prop_456/force-verify \
+  -H "Authorization: Bearer ADMIN_TOKEN"
+```
+
+7. Approve Verification:
+```bash
+curl -X POST http://localhost:8001/api/admin/verifications/approve \
+  -H "Authorization: Bearer ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "verification_type": "renter",
+    "entity_id": "user_002"
+  }'
+```
+
+8. Refund Transaction:
+```bash
+curl -X POST http://localhost:8001/api/admin/transactions/txn_789/refund \
+  -H "Authorization: Bearer ADMIN_TOKEN"
+```
+
+9. Get Audit Logs:
+```bash
+curl -X GET "http://localhost:8001/api/admin/audit-logs?action_type=user_update&page=1" \
+  -H "Authorization: Bearer ADMIN_TOKEN"
+```
+
+ERROR HANDLING:
+- 403 Forbidden if non-admin tries to access
+- 404 Not Found for invalid entity IDs
+- 400 Bad Request for invalid operations
+- All errors logged in audit_logs with status='failed'
+
+RESPONSE FORMATS:
+- Success: {"message": "...", "data": {...}}
+- Error: {"detail": "...", "error_code": "..."}
+- List: {"items": [...], "total_count": N, "page": N, "has_more": bool}
+
+TESTING CHECKLIST:
+□ Admin can login
+□ Non-admin gets 403 on admin endpoints
+□ Admin stats endpoint works
+□ Can get all users with filters
+□ Can update user details
+□ Can delete user
+□ Cannot delete admin user
+□ Can get all properties
+□ Can update property
+□ Can delete property
+□ Can force verify property
+□ Can get pending verifications
+□ Can approve verification
+□ Can reject verification with reason
+□ Can get all transactions
+□ Can refund transaction
+□ All actions logged in audit_logs
+□ Audit logs retrievable
+□ IP address captured
+□ Error cases handled properly
+
+CREDITS: 4-5
+
+=================================================================
+TOTAL BACKEND CREDITS: ~49-55
 =================================================================
 
 =================================================================
