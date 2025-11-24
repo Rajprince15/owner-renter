@@ -10,6 +10,12 @@ import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 
+// Owner Pages
+import OwnerDashboard from './pages/owner/Dashboard';
+import MyProperties from './pages/owner/MyProperties';
+import AddProperty from './pages/owner/AddProperty';
+import EditProperty from './pages/owner/EditProperty';
+
 // Layout components
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
@@ -53,13 +59,35 @@ function App() {
                 </ProtectedRoute>
               } />
               
-              {/* Protected Owner Dashboard (placeholder) */}
+              {/* Protected Owner Routes */}
               <Route path="/owner/dashboard" element={
+                <ProtectedRoute userType="owner">
+                  <OwnerDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/owner/properties" element={
+                <ProtectedRoute userType="owner">
+                  <MyProperties />
+                </ProtectedRoute>
+              } />
+              <Route path="/owner/property/add" element={
+                <ProtectedRoute userType="owner">
+                  <AddProperty />
+                </ProtectedRoute>
+              } />
+              <Route path="/owner/property/:id/edit" element={
+                <ProtectedRoute userType="owner">
+                  <EditProperty />
+                </ProtectedRoute>
+              } />
+              
+              {/* Owner Verification (placeholder for future phase) */}
+              <Route path="/owner/verification" element={
                 <ProtectedRoute userType="owner">
                   <div className="min-h-screen flex items-center justify-center bg-slate-50">
                     <div className="text-center">
-                      <h1 className="text-3xl font-bold text-slate-900 mb-4">Owner Dashboard</h1>
-                      <p className="text-slate-600">Welcome! This page is coming in Phase 3</p>
+                      <h1 className="text-3xl font-bold text-slate-900 mb-4">Property Verification</h1>
+                      <p className="text-slate-600">Coming in Phase 8</p>
                     </div>
                   </div>
                 </ProtectedRoute>
