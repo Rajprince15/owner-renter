@@ -15,6 +15,39 @@
 -- mysql> USE homer_db;
 -- mysql> SOURCE homer_schema.sql;
 -- =====================================================================
+--
+-- FREEMIUM TIER SYSTEM:
+-- ---------------------
+-- RENTERS:
+--   • FREE TIER ("Free Browser"): 
+--     - Unlimited browsing, basic filters only
+--     - 5 contact limit (contacts_used field)
+--     - subscription_tier = 'free'
+--   
+--   • PREMIUM TIER (₹750/90 days):
+--     - Unlimited contacts
+--     - subscription_tier = 'premium'
+--     - is_verified_renter = TRUE (after document upload)
+--     - Access to lifestyle search
+--     - Visible in reverse marketplace (profile_visibility = TRUE)
+--
+-- OWNERS:
+--   • FREE TIER ("Free Lister"):
+--     - Can list properties for free
+--     - verification_tier = 'free'
+--     - is_verified = FALSE
+--     - Properties ranked at BOTTOM of search
+--     - NO lifestyle data calculated
+--
+--   • VERIFIED TIER (₹2,000 per property):
+--     - verification_tier = 'verified'
+--     - is_verified = TRUE
+--     - verification_fee_paid = TRUE
+--     - Properties ranked at TOP of search
+--     - Lifestyle data calculated and stored
+--     - Discoverable in lifestyle searches
+--     - Access to reverse marketplace (browse renters)
+-- =====================================================================
 
 -- Create database if not exists
 CREATE DATABASE IF NOT EXISTS homer_db 
