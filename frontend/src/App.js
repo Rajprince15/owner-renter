@@ -39,7 +39,13 @@ import RenterVerificationUpload from './pages/renter/VerificationUpload';
 import RenterPrivacySettings from './pages/renter/PrivacySettings';
 
 // Admin Pages
-import AdminVerificationReview from './pages/admin/VerificationReview';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import UserManagement from './pages/admin/UserManagement';
+import PropertyManagement from './pages/admin/PropertyManagement';
+import VerificationManagement from './pages/admin/VerificationManagement';
+import TransactionManagement from './pages/admin/TransactionManagement';
+import DatabaseTools from './pages/admin/DatabaseTools';
+import SystemSettings from './pages/admin/SystemSettings';
 
 // Payment Pages
 import PaymentSuccess from './pages/PaymentSuccess';
@@ -172,8 +178,40 @@ function App() {
               } />
               
               {/* Admin Routes */}
-              <Route path="/admin/verification-review" element={
-                <AdminVerificationReview />
+              <Route path="/admin" element={
+                <ProtectedRoute userType="admin">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/users" element={
+                <ProtectedRoute userType="admin">
+                  <UserManagement />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/properties" element={
+                <ProtectedRoute userType="admin">
+                  <PropertyManagement />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/verifications" element={
+                <ProtectedRoute userType="admin">
+                  <VerificationManagement />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/transactions" element={
+                <ProtectedRoute userType="admin">
+                  <TransactionManagement />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/database" element={
+                <ProtectedRoute userType="admin">
+                  <DatabaseTools />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/settings" element={
+                <ProtectedRoute userType="admin">
+                  <SystemSettings />
+                </ProtectedRoute>
               } />
               
               {/* Payment Result Pages */}
