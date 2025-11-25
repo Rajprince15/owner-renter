@@ -42,7 +42,8 @@ export const createProperty = async (propertyData) => {
 // =================================================================
 export const searchProperties = async (filters = {}) => {
   if (USE_MOCK) {
-    let results = [...mockProperties];
+    // Filter out deleted properties - matches database behavior
+    let results = mockProperties.filter(p => p.status !== 'deleted');
     
     // Apply filters
     if (filters.city) {

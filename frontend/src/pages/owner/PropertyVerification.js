@@ -80,13 +80,12 @@ const PropertyVerification = () => {
 
     try {
       // Create payment order
-      const orderResponse = await createPaymentOrder({
-        amount: 2000,
-        type: 'property_verification',
-        metadata: {
+      const orderResponse = await createPaymentOrder(
+        'property_verification',
+        {
           property_id: selectedProperty.property_id
         }
-      });
+      );
 
       setOrderData(orderResponse.data);
       setShowPaymentModal(true);
@@ -98,15 +97,17 @@ const PropertyVerification = () => {
     }
   };
 
-  const handlePaymentSuccess = async (paymentId) => {
+  const handlePaymentSuccess = async (paymentData) => {
     setLoading(true);
 
     try {
-      // Verify payment
-      await verifyPayment({
-        order_id: orderData.order_id,
-        payment_id: paymentId
-      });
+      // Verify payment - using correct parameter format
+      await verifyPayment(
+        paymentData.payment_id,
+        paymentData.order_id,
+        paymentData.signature,
+        'property_verification'
+      );
 
       // Submit verification request
       const verificationData = {
@@ -121,7 +122,7 @@ const PropertyVerification = () => {
             ...documents.ownership_proof
           }
         },
-        payment_id: paymentId,
+        payment_id: paymentData.payment_id,
         payment_status: 'success'
       };
 
@@ -371,6 +372,7 @@ const PropertyVerification = () => {
           isOpen={showPaymentModal}
           onClose={() => setShowPaymentModal(false)}
           orderData={orderData}
+          amount={orderData.amount || 2000}
           onSuccess={handlePaymentSuccess}
         />
       )}
