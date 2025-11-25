@@ -306,7 +306,41 @@ VALUES
 -- =====================================================================
 -- SAMPLE CHATS
 -- =====================================================================
+-- 
+-- IMPORTANT CHAT STRUCTURE NOTES:
+-- --------------------------------
+-- 1. Each chat has renter_id and owner_id to identify participants
+-- 2. Messages are stored as JSON array (native JSON support in MySQL 5.7+)
+-- 3. Each message has: message_id, sender_id, sender_type, message, message_type, timestamp, is_read, attachments
+-- 4. Message types: 'text', 'schedule_visit', 'document_request'
+-- 
+-- QUERIES FOR CHAT RETRIEVAL:
+-- ----------------------------
+-- Get all chats for a user (owner or renter):
+--   SELECT * FROM chats 
+--   WHERE renter_id = 'user_id' OR owner_id = 'user_id'
+--   ORDER BY last_message_at DESC;
+--
+-- Get specific chat with property and user details:
+--   SELECT c.*, p.title, p.images, p.rent, u.full_name 
+--   FROM chats c
+--   JOIN properties p ON c.property_id = p.property_id
+--   JOIN users u ON (CASE WHEN c.renter_id = 'current_user' THEN c.owner_id ELSE c.renter_id END) = u.user_id
+--   WHERE c.chat_id = 'chat_id';
+--
+-- Get unread message count for a user:
+--   SELECT chat_id, 
+--          JSON_LENGTH(JSON_EXTRACT(messages, '$[*].is_read')) as total_messages,
+--          (SELECT COUNT(*) FROM JSON_TABLE(
+--            messages, '$[*]' COLUMNS(
+--              sender_id VARCHAR(50) PATH '$.sender_id',
+--              is_read BOOLEAN PATH '$.is_read'
+--            )
+--          ) jt WHERE jt.sender_id != 'current_user_id' AND jt.is_read = false) as unread_count
+--   FROM chats WHERE renter_id = 'user_id' OR owner_id = 'user_id';
+--
 
+-- Chat 1: Premium renter inquiring about verified owner's luxury 3BHK
 INSERT INTO chats (
     chat_id, property_id, renter_id, owner_id, initiated_by,
     created_at, last_message_at, status, messages
@@ -316,8 +350,8 @@ INSERT INTO chats (
     'user_002_renter_premium',
     'user_004_owner_verified',
     'renter',
-    NOW(),
-    NOW(),
+    DATE_SUB(NOW(), INTERVAL 2 DAY),
+    DATE_SUB(NOW(), INTERVAL 1 HOUR),
     'active',
     '[
         {
@@ -325,6 +359,7 @@ INSERT INTO chats (
             "sender_id": "user_002_renter_premium",
             "sender_type": "renter",
             "message": "Hi, I am interested in this property. Is it still available?",
+            "message_type": "text",
             "timestamp": "2025-01-20T10:30:00",
             "is_read": true,
             "attachments": []
@@ -334,6 +369,7 @@ INSERT INTO chats (
             "sender_id": "user_004_owner_verified",
             "sender_type": "owner",
             "message": "Yes, it is available. Would you like to schedule a visit?",
+            "message_type": "text",
             "timestamp": "2025-01-20T11:15:00",
             "is_read": true,
             "attachments": []
@@ -342,8 +378,123 @@ INSERT INTO chats (
             "message_id": "msg_003",
             "sender_id": "user_002_renter_premium",
             "sender_type": "renter",
-            "message": "Yes, I would like to visit this weekend. Is Saturday 2 PM good?",
+            "message": "I would like to schedule a property visit. Please let me know your available time slots.",
+            "message_type": "schedule_visit",
             "timestamp": "2025-01-20T11:45:00",
+            "is_read": true,
+            "attachments": []
+        },
+        {
+            "message_id": "msg_004",
+            "sender_id": "user_004_owner_verified",
+            "sender_type": "owner",
+            "message": "Great! I am available this Saturday at 2 PM or Sunday at 11 AM. Which works better for you?",
+            "message_type": "text",
+            "timestamp": "2025-01-20T13:00:00",
+            "is_read": true,
+            "attachments": []
+        },
+        {
+            "message_id": "msg_005",
+            "sender_id": "user_002_renter_premium",
+            "sender_type": "renter",
+            "message": "Saturday 2 PM works perfectly for me.",
+            "message_type": "text",
+            "timestamp": "2025-01-20T14:30:00",
+            "is_read": false,
+            "attachments": []
+        }
+    ]'
+);
+
+-- Chat 2: Free renter inquiring about verified owner's Whitefield property
+INSERT INTO chats (
+    chat_id, property_id, renter_id, owner_id, initiated_by,
+    created_at, last_message_at, status, messages
+) VALUES (
+    'chat_002',
+    'prop_004_verified',
+    'user_001_renter_free',
+    'user_004_owner_verified',
+    'renter',
+    DATE_SUB(NOW(), INTERVAL 5 DAY),
+    DATE_SUB(NOW(), INTERVAL 3 DAY),
+    'active',
+    '[
+        {
+            "message_id": "msg_006",
+            "sender_id": "user_001_renter_free",
+            "sender_type": "renter",
+            "message": "Hello, is this property pet-friendly?",
+            "message_type": "text",
+            "timestamp": "2025-01-18T09:00:00",
+            "is_read": true,
+            "attachments": []
+        },
+        {
+            "message_id": "msg_007",
+            "sender_id": "user_004_owner_verified",
+            "sender_type": "owner",
+            "message": "Yes, pets are welcome! What kind of pet do you have?",
+            "message_type": "text",
+            "timestamp": "2025-01-18T10:30:00",
+            "is_read": true,
+            "attachments": []
+        },
+        {
+            "message_id": "msg_008",
+            "sender_id": "user_001_renter_free",
+            "sender_type": "renter",
+            "message": "I have a small dog. Is there a pet deposit?",
+            "message_type": "text",
+            "timestamp": "2025-01-18T15:00:00",
+            "is_read": false,
+            "attachments": []
+        }
+    ]'
+);
+
+-- Chat 3: Free renter inquiring about free owner's Koramangala property
+INSERT INTO chats (
+    chat_id, property_id, renter_id, owner_id, initiated_by,
+    created_at, last_message_at, status, messages
+) VALUES (
+    'chat_003',
+    'prop_001_free',
+    'user_001_renter_free',
+    'user_003_owner_free',
+    'renter',
+    DATE_SUB(NOW(), INTERVAL 4 DAY),
+    DATE_SUB(NOW(), INTERVAL 2 HOUR),
+    'active',
+    '[
+        {
+            "message_id": "msg_009",
+            "sender_id": "user_001_renter_free",
+            "sender_type": "renter",
+            "message": "Hi, I saw your 2BHK property in Koramangala. Is parking available?",
+            "message_type": "text",
+            "timestamp": "2025-01-19T10:00:00",
+            "is_read": true,
+            "attachments": []
+        },
+        {
+            "message_id": "msg_010",
+            "sender_id": "user_003_owner_free",
+            "sender_type": "owner",
+            "message": "Yes, there is covered parking for 1 car and 1 bike.",
+            "message_type": "text",
+            "timestamp": "2025-01-19T11:00:00",
+            "is_read": true,
+            "attachments": []
+        },
+        {
+            "message_id": "msg_011",
+            "sender_id": "user_001_renter_free",
+            "sender_type": "renter",
+            "message": "Can I schedule a visit this week?",
+            "message_type": "schedule_visit",
+            "timestamp": "2025-01-19T14:00:00",
             "is_read": false,
             "attachments": []
         }

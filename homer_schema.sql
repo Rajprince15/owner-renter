@@ -595,26 +595,94 @@ DESCRIBE admin_audit_logs;
 -- FILE UPLOAD ARCHITECTURE
 -- =====================================================================
 -- 
--- IMPORTANT: Files are NOT stored in MySQL!
+-- IMPORTANT: Files are NOT stored in MySQL database!
 -- 
--- FILE STORAGE APPROACH:
--- 1. Actual files stored on disk: /app/uploads/
---    - Verification documents: /app/uploads/verification/{user_id}/
---    - Property images: /app/uploads/properties/{property_id}/
+-- ══════════════════════════════════════════════════════════════════════
+-- FRONTEND-ONLY MODE (Current Implementation with Mock Data):
+-- ══════════════════════════════════════════════════════════════════════
 -- 
--- 2. MySQL stores only file metadata in JSON columns:
---    - users.renter_verification_documents (file URLs, names, sizes)
---    - properties.verification_documents (file URLs, names, sizes)
---    - properties.images (array of image URLs)
+-- Files are simulated with mock URLs - NO actual files saved to disk
 -- 
--- 3. File access control via backend API:
---    - GET /uploads/verification/{user_id}/{filename}
---      → User can view their own files
---      → Admin can view all files
---    - GET /uploads/properties/{property_id}/{filename}
---      → Public access for property images
+-- Mock file URL format:
+--   - Renter verification: /uploads/verification/mock_{timestamp}_{filename}
+--   - Owner verification: /uploads/verification/mock_{timestamp}_{filename}
+--   - Property images: Uses external URLs (Unsplash, etc.)
 -- 
--- 4. Example JSON structure in renter_verification_documents:
+-- File metadata stored in localStorage (via mockData.js):
+--   {
+--     "file_name": "aadhaar.pdf",
+--     "file_url": "/uploads/verification/mock_1737360000_aadhaar.pdf",
+--     "file_size": 245678,
+--     "file_type": "application/pdf",
+--     "uploaded_at": "2025-01-20T10:30:00Z"
+--   }
+-- 
+-- When user clicks on file URL:
+--   - Frontend shows placeholder or mock preview
+--   - No actual file download happens
+-- 
+-- ══════════════════════════════════════════════════════════════════════
+-- BACKEND MODE (When Backend is Implemented with Database):
+-- ══════════════════════════════════════════════════════════════════════
+-- 
+-- 1. FILE STORAGE ON DISK:
+--    /app/uploads/
+--    ├── verification/
+--    │   ├── {user_id}/
+--    │   │   ├── {unique_id}_{timestamp}_aadhaar.pdf
+--    │   │   └── {unique_id}_{timestamp}_salary_slip.pdf
+--    │   └── ...
+--    └── properties/
+--        ├── {property_id}/
+--        │   ├── {unique_id}_{timestamp}_image1.jpg
+--        │   └── {unique_id}_{timestamp}_image2.jpg
+--        └── ...
+-- 
+-- 2. MYSQL STORES ONLY FILE METADATA (Not actual files!):
+--    Tables with file metadata JSON columns:
+--    ├── users.renter_verification_documents
+--    ├── properties.verification_documents
+--    └── properties.images
+-- 
+-- 3. FILE UPLOAD WORKFLOW:
+--    Step 1: User uploads file via frontend
+--            → POST /api/verification/upload-document
+--    Step 2: Backend saves file to disk
+--            → Path: /app/uploads/verification/{user_id}/{unique_file_name}
+--    Step 3: Backend returns file metadata
+--            → {file_url, file_name, file_size, file_type, uploaded_at}
+--    Step 4: Frontend stores metadata in form state
+--    Step 5: User submits verification form
+--            → POST /api/verification/renter/submit
+--    Step 6: Backend saves file metadata to MySQL JSON column
+--            → users.renter_verification_documents
+-- 
+-- 4. FILE RETRIEVAL WORKFLOW:
+--    Step 1: Frontend fetches user/property data from backend
+--            → GET /api/users/me or GET /api/properties/:id
+--    Step 2: Backend returns data with file metadata from MySQL
+--    Step 3: User clicks file URL in frontend
+--            → GET /api/uploads/verification/{user_id}/{filename}
+--    Step 4: Backend checks authorization
+--            → User can view their own files
+--            → Admin can view all files
+--            → Owners can view files for properties they own
+--    Step 5: Backend serves file from disk
+--            → Reads file from /app/uploads/... and sends to frontend
+-- 
+-- 5. FILE ACCESS CONTROL:
+--    Endpoint: GET /api/uploads/verification/{user_id}/{filename}
+--    - Renter can view their own verification documents
+--    - Admin can view all verification documents
+--    - Unauthorized access returns 403 Forbidden
+--    
+--    Endpoint: GET /api/uploads/properties/{property_id}/{filename}
+--    - Public access for property images (anyone can view)
+--    - Owner verification documents require authentication
+-- 
+-- 6. EXAMPLE JSON STRUCTURE IN DATABASE:
+-- 
+--    users.renter_verification_documents:
 --    {
 --      "id_proof": {
 --        "file_name": "aadhaar_card.pdf",
@@ -628,24 +696,46 @@ DESCRIBE admin_audit_logs;
 --        "file_name": "salary_slip.pdf",
 --        "file_url": "/uploads/verification/user_123/def456_1737360100.pdf",
 --        "file_size": 189234,
+--        "file_type": "application/pdf",
 --        "uploaded_at": "2025-01-20T10:32:00Z",
 --        "verified": false
 --      }
 --    }
+--    
+--    properties.verification_documents:
+--    {
+--      "owner_id_proof": {
+--        "type": "aadhaar",
+--        "file_name": "owner_aadhaar.pdf",
+--        "file_url": "/uploads/verification/prop_002/owner_abc_1737360000.pdf",
+--        "file_size": 234567,
+--        "file_type": "application/pdf",
+--        "verified": true
+--      },
+--      "ownership_proof": {
+--        "type": "property_tax",
+--        "file_name": "tax_receipt.pdf",
+--        "file_url": "/uploads/verification/prop_002/tax_def_1737360100.pdf",
+--        "file_size": 198765,
+--        "file_type": "application/pdf",
+--        "verified": true
+--      }
+--    }
 -- 
--- 5. Workflow:
---    a. User uploads file → Backend saves to disk
---    b. Backend returns file URL
---    c. Frontend stores URL in form state
---    d. User submits form → URLs saved to MySQL JSON columns
---    e. Admin/User retrieves URLs from MySQL
---    f. Click URL → Backend serves file from disk (with auth check)
+-- 7. BENEFITS OF THIS APPROACH:
+--    ✓ Efficient: MySQL stores only small metadata, not large files
+--    ✓ Scalable: Easy to migrate to S3/cloud storage later
+--    ✓ Fast queries: JSON columns can be indexed for quick retrieval
+--    ✓ Secure: File access controlled by backend authorization
+--    ✓ Clean separation: Database for data, filesystem for files
+--    ✓ Flexible: Easy to add new file types or change storage location
 -- 
--- BENEFITS:
--- - Efficient: MySQL stores only small metadata, not large files
--- - Scalable: Easy to migrate to S3/cloud storage later
--- - Fast queries: JSON columns indexed for quick retrieval
--- - Secure: File access controlled by backend authorization
+-- 8. FUTURE MIGRATION TO CLOUD STORAGE (S3/Google Cloud):
+--    When scaling up, simply:
+--    a. Change backend upload logic to save to S3 instead of disk
+--    b. Update file_url to S3 URL (e.g., https://s3.amazonaws.com/bucket/...)
+--    c. No changes needed to MySQL schema or frontend code
+--    d. Database continues to store only file metadata
 -- 
 -- =====================================================================
 -- END OF SCHEMA

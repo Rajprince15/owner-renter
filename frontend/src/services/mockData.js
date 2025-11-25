@@ -714,8 +714,24 @@ export const mockProperties = [
 // =================================================================
 // MOCK CHATS DATA
 // =================================================================
+// 
+// IMPORTANT: These chats demonstrate different scenarios:
+// - user_004_owner_verified has 3 properties and receives inquiries from different renters
+// - user_003_owner_free has 1 property and receives inquiry from a renter
+// - user_001_renter_free contacts 2 different owners about 2 different properties
+// - user_002_renter_premium contacts 1 owner about 1 property
+// - user_005_both contacts 1 owner about 1 property
+//
+// This ensures that:
+// 1. When owners log in, they see chats about THEIR properties with different renters
+// 2. When renters log in, they see chats about different properties with different owners
+// 3. The chat list is properly filtered based on user_id and role
+//
+// Database Schema: chats table stores all messages in a JSON array
+// Backend will use this same structure when implemented
 
 export const mockChats = [
+  // Chat 1: Premium renter (user_002) inquiring about verified owner's (user_004) luxury 3BHK
   {
     chat_id: 'chat_001',
     property_id: 'prop_002_verified',
@@ -762,7 +778,7 @@ export const mockChats = [
         sender_type: 'owner',
         message: 'Great! I am available this Saturday at 2 PM or Sunday at 11 AM. Which works better for you?',
         message_type: 'text',
-        timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 + 90 * 60 * 1000).toISOString(),
+        timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 + 90 * 60 * 60 * 1000).toISOString(),
         is_read: true,
         attachments: []
       },
@@ -788,6 +804,7 @@ export const mockChats = [
       }
     ]
   },
+  // Chat 2: Free renter (user_001) inquiring about verified owner's (user_004) Whitefield 2BHK
   {
     chat_id: 'chat_002',
     property_id: 'prop_004_verified',
@@ -850,6 +867,7 @@ export const mockChats = [
       }
     ]
   },
+  // Chat 3: User with both roles (user_005) inquiring about verified owner's (user_004) HSR 1BHK
   {
     chat_id: 'chat_003',
     property_id: 'prop_003_verified',
@@ -907,6 +925,69 @@ export const mockChats = [
         message: 'Could you please share the property documents for verification? (Ownership proof, property tax receipts, etc.)',
         message_type: 'document_request',
         timestamp: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000 + 5 * 60 * 60 * 1000).toISOString(),
+        is_read: false,
+        attachments: []
+      }
+    ]
+  },
+  // Chat 4: Free renter (user_001) inquiring about free owner's (user_003) Koramangala 2BHK
+  {
+    chat_id: 'chat_004',
+    property_id: 'prop_001_free',
+    renter_id: 'user_001_renter_free',
+    owner_id: 'user_003_owner_free',
+    initiated_by: 'renter',
+    created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+    last_message_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    status: 'active',
+    messages: [
+      {
+        message_id: 'msg_017',
+        sender_id: 'user_001_renter_free',
+        sender_type: 'renter',
+        message: 'Hi, I saw your 2BHK property in Koramangala. Is parking available?',
+        message_type: 'text',
+        timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+        is_read: true,
+        attachments: []
+      },
+      {
+        message_id: 'msg_018',
+        sender_id: 'user_003_owner_free',
+        sender_type: 'owner',
+        message: 'Yes, there is covered parking for 1 car and 1 bike. The property is close to Sony Signal and Forum Mall.',
+        message_type: 'text',
+        timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000 + 1 * 60 * 60 * 1000).toISOString(),
+        is_read: true,
+        attachments: []
+      },
+      {
+        message_id: 'msg_019',
+        sender_id: 'user_001_renter_free',
+        sender_type: 'renter',
+        message: 'Great! What is the security deposit amount?',
+        message_type: 'text',
+        timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+        is_read: true,
+        attachments: []
+      },
+      {
+        message_id: 'msg_020',
+        sender_id: 'user_003_owner_free',
+        sender_type: 'owner',
+        message: 'Security deposit is ₹44,000 (2 months rent). Monthly rent is ₹22,000 plus ₹2,000 maintenance.',
+        message_type: 'text',
+        timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000 + 30 * 60 * 1000).toISOString(),
+        is_read: true,
+        attachments: []
+      },
+      {
+        message_id: 'msg_021',
+        sender_id: 'user_001_renter_free',
+        sender_type: 'renter',
+        message: 'Sounds reasonable. Can I schedule a visit this week?',
+        message_type: 'schedule_visit',
+        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
         is_read: false,
         attachments: []
       }
