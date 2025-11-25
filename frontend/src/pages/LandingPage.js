@@ -10,18 +10,53 @@ import {
   Star,
   ArrowRight,
   BadgeCheck,
-  MapPin
+  MapPin,
+  TrendingUp,
+  Award,
+  Zap
 } from 'lucide-react';
 import Button from '../components/common/Button';
+import { useAuth } from '../context/AuthContext';
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
   const [searchCity, setSearchCity] = useState('');
   const [searchBHK, setSearchBHK] = useState('');
 
   const handleQuickSearch = (e) => {
     e.preventDefault();
     navigate(`/search?city=${searchCity}&bhk=${searchBHK}`);
+  };
+
+  // Handle CTA button clicks based on authentication status
+  const handleGetStarted = () => {
+    if (isAuthenticated) {
+      // Redirect to appropriate dashboard based on user type
+      if (user?.user_type === 'admin') {
+        navigate('/admin');
+      } else if (user?.user_type === 'owner' || user?.user_type === 'both') {
+        navigate('/owner/dashboard');
+      } else {
+        navigate('/renter/dashboard');
+      }
+    } else {
+      navigate('/signup');
+    }
+  };
+
+  const handleListProperty = () => {
+    if (isAuthenticated) {
+      // If user is owner or both, go to add property
+      if (user?.user_type === 'owner' || user?.user_type === 'both') {
+        navigate('/owner/property/add');
+      } else {
+        // If renter, show dashboard
+        navigate('/renter/dashboard');
+      }
+    } else {
+      navigate('/signup');
+    }
   };
 
   return (
@@ -109,7 +144,7 @@ const LandingPage = () => {
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  to="/signup"
+                  onClick={handleListProperty}
                   className="bg-white/10 backdrop-blur-sm border-white text-white hover:bg-white hover:text-primary-600"
                   data-testid="list-property-btn"
                 >
@@ -707,23 +742,125 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Success Stories Section */}
+      <section className="py-20 bg-white">
+        <div className="container-custom">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+              Real Success Stories
+            </h2>
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+              See how Homer has transformed rental experiences across India
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Success Stat 1 */}
+            <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl p-8 text-center hover-lift">
+              <div className="w-16 h-16 bg-primary-600 text-white rounded-full flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-8 h-8" />
+              </div>
+              <div className="text-4xl font-bold text-primary-600 mb-2">92%</div>
+              <p className="text-slate-700 font-semibold mb-2">Match Success Rate</p>
+              <p className="text-sm text-slate-600">
+                Of verified renters found their ideal home within 2 weeks
+              </p>
+            </div>
+
+            {/* Success Stat 2 */}
+            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 text-center hover-lift">
+              <div className="w-16 h-16 bg-green-600 text-white rounded-full flex items-center justify-center mx-auto mb-4">
+                <Award className="w-8 h-8" />
+              </div>
+              <div className="text-4xl font-bold text-green-600 mb-2">Zero</div>
+              <p className="text-slate-700 font-semibold mb-2">Fraud Cases</p>
+              <p className="text-sm text-slate-600">
+                100% verified properties mean no scams, no fake listings
+              </p>
+            </div>
+
+            {/* Success Stat 3 */}
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-8 text-center hover-lift">
+              <div className="w-16 h-16 bg-purple-600 text-white rounded-full flex items-center justify-center mx-auto mb-4">
+                <Zap className="w-8 h-8" />
+              </div>
+              <div className="text-4xl font-bold text-purple-600 mb-2">3 Days</div>
+              <p className="text-slate-700 font-semibold mb-2">Average Time</p>
+              <p className="text-sm text-slate-600">
+                Verified owners find quality tenants 10X faster than traditional methods
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Platform Stats Section */}
+      <section className="py-20 bg-slate-900 text-white">
+        <div className="container-custom">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Growing Every Day
+            </h2>
+            <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+              Join India's fastest-growing trust-first rental marketplace
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="text-5xl font-bold mb-2 bg-gradient-to-r from-primary-400 to-primary-200 bg-clip-text text-transparent">
+                50,000+
+              </div>
+              <p className="text-slate-300">Active Users</p>
+              <p className="text-xs text-slate-400 mt-1">Renters & Owners</p>
+            </div>
+            <div className="text-center">
+              <div className="text-5xl font-bold mb-2 bg-gradient-to-r from-green-400 to-emerald-200 bg-clip-text text-transparent">
+                10,000+
+              </div>
+              <p className="text-slate-300">Verified Properties</p>
+              <p className="text-xs text-slate-400 mt-1">Across 50+ Cities</p>
+            </div>
+            <div className="text-center">
+              <div className="text-5xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-200 bg-clip-text text-transparent">
+                25,000+
+              </div>
+              <p className="text-slate-300">Successful Matches</p>
+              <p className="text-xs text-slate-400 mt-1">Happy Connections</p>
+            </div>
+            <div className="text-center">
+              <div className="text-5xl font-bold mb-2 bg-gradient-to-r from-yellow-400 to-orange-200 bg-clip-text text-transparent">
+                4.8★
+              </div>
+              <p className="text-slate-300">Average Rating</p>
+              <p className="text-xs text-slate-400 mt-1">From 12,000+ Reviews</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 bg-gradient-primary text-white" data-testid="cta-section">
         <div className="container-custom text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Ready to Find Your Perfect Home?
+            {isAuthenticated 
+              ? `Welcome Back, ${user?.full_name || 'User'}!` 
+              : 'Ready to Find Your Perfect Home?'}
           </h2>
           <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
-            Join Homer today and experience India's most trusted rental marketplace
+            {isAuthenticated
+              ? 'Continue your journey to finding or listing the perfect property'
+              : 'Join Homer today and experience India\'s most trusted rental marketplace'}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               variant="secondary" 
               size="lg" 
-              to="/signup"
+              onClick={handleGetStarted}
               data-testid="cta-signup-btn"
+              className="bg-white text-primary-600 hover:bg-primary-50"
             >
-              Get Started Free
+              {isAuthenticated ? 'Go to Dashboard' : 'Get Started Free'}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
             <Button 

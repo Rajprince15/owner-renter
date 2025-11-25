@@ -3284,9 +3284,588 @@ Before deployment:
 □ Set up SSL/HTTPS
 
 =================================================================
+10. TIER SYSTEM IMPLEMENTATION GUIDE
+=================================================================
+
+╔═══════════════════════════════════════════════════════════════╗
+║       FREEMIUM TIER SYSTEM - CORE BUSINESS LOGIC             ║
+║                                                               ║
+║  This section provides complete implementation details for    ║
+║  Homer's freemium tier system that monetizes trust & access   ║
+╚═══════════════════════════════════════════════════════════════╝
+
+=================================================================
+10.1 BUSINESS MODEL OVERVIEW
+=================================================================
+
+REVENUE STREAMS:
+1. Renter Premium Subscriptions: ₹750 for 90 days
+2. Property Verification Fees: ₹2,000 per property (one-time)
+
+CORE PRINCIPLE: We monetize TRUST and ACCESS, not ads.
+Platform is 100% ad-free and focused on quality.
+
+=================================================================
+10.2 RENTER TIERS
+=================================================================
+
+TIER 1: FREE BROWSER (Free Forever)
+-------------------------------------
+Target: Casual renter just starting their search
+
+Features:
+  ✅ Unlimited browsing of ALL property listings (verified + unverified)
+  ✅ Basic search filters ONLY:
+     - Price range
+     - BHK count (1BHK, 2BHK, 3BHK, 4BHK+)
+     - City/Location
+     - Property type (optional)
+
+Limitations (Pain Points):
+  ⚠️ STRICT 5-contact limit - Can only initiate chat with 5 properties max
+  ❌ NO access to advanced lifestyle search (AQI, noise, walkability filters)
+  ❌ NOT listed in reverse marketplace
+  ❌ NO verified renter badge
+
+Database Fields:
+  - subscription_tier = 'free'
+  - contacts_used = 0-5 (increments on each new chat)
+  - is_verified_renter = FALSE
+
+Backend Logic (Contact Limit Enforcement):
+```python
+# Before creating chat (CRITICAL - Server-side validation)
+@router.post("/api/chats/initiate")
+async def initiate_chat(property_id: str, current_user: User):
+    if current_user.subscription_tier == 'free':
+        if current_user.contacts_used >= 5:
+            raise HTTPException(
+                status_code=403,
+                detail="Contact limit reached. Upgrade to Premium for unlimited contacts."
+            )
+    
+    # Create chat...
+    
+    # After successful chat creation
+    if current_user.subscription_tier == 'free':
+        current_user.contacts_used += 1
+        db.commit()
+```
+
+Frontend Behavior:
+  - Show contact counter: "3/5 contacts used"
+  - Display upgrade modal when limit hit
+  - Lock lifestyle search filters with "Premium Only" overlay
+
+---
+
+TIER 2: PREMIUM RENTER (₹750 for 90 days)
+------------------------------------------
+Target: Serious renter who wants to find a house fast
+
+Payment: One-time ₹750 (valid for 90 days)
+
+Features (The Value Bundle):
+  1. ✅ Unlimited Contacts
+     - No limit on property contacts
+     - contacts_used field ignored for premium users
+
+  2. ✅ "Verified Renter" Badge (after document verification)
+     - Blue star badge visible to owners
+     - Shows in chats and profile
+     - Requires document upload and admin approval
+
+  3. ✅ Advanced "Lifestyle Search"
+     - Filter by AQI score (air quality)
+     - Filter by noise levels (dB)
+     - Filter by walkability score (0-100)
+     - Filter by proximity to parks/amenities
+     - Natural language search with AI
+
+  4. ✅ Reverse Marketplace Profile
+     - Automatically listed in "Owner-Finds-Renter" marketplace
+     - Anonymous profile format
+     - Can opt out via privacy settings
+
+  5. ✅ Priority Support
+     - Faster response times
+     - Dedicated support channel
+
+Database Fields:
+  - subscription_tier = 'premium'
+  - subscription_start = TIMESTAMP
+  - subscription_end = TIMESTAMP (start + 90 days)
+  - is_verified_renter = FALSE initially, TRUE after document approval
+  - renter_verification_status = 'pending' | 'verified' | 'rejected'
+  - profile_visibility = TRUE (for reverse marketplace)
+
+Backend Logic (Payment & Upgrade):
+```python
+# Payment verification
+@router.post("/api/payments/verify")
+async def upgrade_to_premium(payment_data: dict, current_user: User):
+    # Verify payment with Razorpay (or use mock)
+    payment_verified = verify_razorpay_payment(payment_data)
+    
+    if payment_verified:
+        current_user.subscription_tier = 'premium'
+        current_user.subscription_start = datetime.now()
+        current_user.subscription_end = datetime.now() + timedelta(days=90)
+        current_user.contacts_used = 0  # Reset counter
+        db.commit()
+        
+        return {"success": True, "tier": "premium"}
+```
+
+API Endpoints:
+  - POST /api/payments/renter-subscription - Initiate payment
+  - POST /api/verification/renter/upload - Upload verification docs
+  - GET  /api/search/lifestyle - Access lifestyle search (premium only)
+
+=================================================================
+10.3 OWNER TIERS
+=================================================================
+
+TIER 1: FREE LISTER (Free Forever)
+-----------------------------------
+Target: Owner who is skeptical or wants to "try" the platform
+
+Features:
+  ✅ Can list property for FREE
+  ✅ Property appears in search results
+  ✅ Can receive messages from renters
+
+Limitations (Pain Points):
+  ⚠️ Property marked with "Not Verified" warning badge (yellow/amber)
+  ⚠️ RANKED at BOTTOM of all search results (below every verified property)
+  ❌ NO lifestyle data calculated for the property
+  ❌ NOT discoverable in premium lifestyle searches
+  ❌ NO access to reverse marketplace (cannot browse renters)
+  ❌ Gets 90% fewer views compared to verified properties
+
+Database Fields:
+  - is_verified = FALSE
+  - verification_tier = 'free'
+  - verification_fee_paid = FALSE
+  - lifestyle_data = NULL
+
+Backend Logic (Search Ranking):
+```python
+# Search algorithm MUST implement this ranking
+@router.get("/api/properties/search")
+def search_properties(filters: dict):
+    query = session.query(Property)
+    
+    # Apply filters...
+    
+    # CRITICAL: Sort by verification status first
+    query = query.order_by(
+        Property.is_verified.desc(),  # Verified first
+        Property.created_at.desc()     # Then by recency
+    )
+    
+    return query.all()
+```
+
+Frontend Display:
+  - Show yellow "⚠ Not Verified" badge on property card
+  - Add warning text on property detail page
+  - Show upsell message on owner dashboard
+
+---
+
+TIER 2: VERIFIED LISTER (₹2,000 per property)
+----------------------------------------------
+Target: Serious owner who wants a high-quality tenant fast
+
+Payment: One-time ₹2,000 per property
+
+Features (The Value Bundle):
+  1. ✅ "Verified Property" Badge 🏆
+     - Green checkmark badge
+     - The #1 trust signal for renters
+     - Displayed prominently on all listings
+
+  2. ✅ Top Search Ranking
+     - ALWAYS ranked above free listings
+     - Priority placement in search results
+     - Higher visibility
+
+  3. ✅ Lifestyle Data Enrichment
+     - Automatic calculation of:
+       * AQI (Air Quality Index) score
+       * Noise level estimate (dB)
+       * Walkability score (0-100)
+       * Nearby amenities (parks, hospitals, schools)
+       * Public transport score
+       * Safety score
+     - Data refreshed periodically
+
+  4. ✅ Discoverable in Lifestyle Searches
+     - Property appears in premium lifestyle search results
+     - Attracts higher-quality, better-matched tenants
+
+  5. ✅ Full Reverse Marketplace Access
+     - Can browse verified premium renters
+     - See anonymous renter profiles with:
+       * Employment type and income range
+       * Preferences and requirements
+       * Move-in dates
+     - Can initiate contact with renters
+
+  6. ✅ 5-10X More Inquiries
+     - Proven increased visibility
+     - Higher quality leads
+
+Database Fields:
+  - is_verified = TRUE
+  - verification_tier = 'verified'
+  - verification_fee_paid = TRUE
+  - payment_id = 'txn_xxxxx'
+  - verification_date = TIMESTAMP
+  - lifestyle_data = JSON with calculated scores
+
+Backend Logic (Verification Flow):
+```python
+# After payment verification
+@router.post("/api/payments/verify")
+async def verify_property(property_id: str, payment_data: dict):
+    property = get_property(property_id)
+    
+    # Verify payment
+    payment_verified = verify_razorpay_payment(payment_data, amount=2000)
+    
+    if payment_verified:
+        property.verification_fee_paid = True
+        property.payment_id = payment_data['payment_id']
+        property.verification_tier = 'pending'  # Awaiting admin review
+        db.commit()
+        
+        # Notify admin for document review
+        notify_admin_for_verification(property_id)
+        
+        return {"success": True, "status": "pending_review"}
+
+# After admin approval
+@router.post("/api/admin/verifications/{id}/approve")
+async def approve_property_verification(property_id: str):
+    property = get_property(property_id)
+    
+    property.is_verified = True
+    property.verification_date = datetime.now()
+    property.verification_tier = 'verified'
+    
+    # Calculate lifestyle data (mock or real API calls)
+    lifestyle_data = calculate_lifestyle_data(property.location)
+    property.lifestyle_data = lifestyle_data
+    
+    db.commit()
+    
+    # Notify owner
+    notify_owner_verification_approved(property.owner_id, property_id)
+    
+    return {"success": True, "verified": True}
+```
+
+API Endpoints:
+  - POST /api/payments/property-verification - Initiate payment
+  - POST /api/verification/property/{id}/upload - Upload verification docs
+  - POST /api/admin/verifications/{id}/approve - Admin approval
+  - GET  /api/properties/{id}/lifestyle-data - Get lifestyle data
+
+=================================================================
+10.4 REVERSE MARKETPLACE
+=================================================================
+
+How It Works:
+
+For Premium Renters:
+  - Automatically listed after subscribing + verification
+  - Profile is ANONYMOUS:
+    * Format: "Renter #1024"
+    * Shows: Employment type, income range, preferences, budget
+    * Hides: Name, email, phone, exact salary
+  - Can opt out via privacy settings
+
+For Verified Owners:
+  - Can browse all verified premium renters
+  - Filter by:
+    * Budget range
+    * BHK preference
+    * Preferred locations
+    * Employment type
+    * Move-in date
+  - Can initiate contact (creates chat)
+
+Backend Implementation:
+```python
+@router.get("/api/reverse-marketplace/renters")
+def get_anonymous_renters(filters: dict, current_user: User):
+    # Check if owner is verified
+    if not current_user.is_verified_owner:
+        raise HTTPException(403, "Only verified owners can access reverse marketplace")
+    
+    query = session.query(User).filter(
+        User.subscription_tier == 'premium',
+        User.is_verified_renter == True,
+        User.profile_visibility == True
+    )
+    
+    # Apply filters
+    if filters.get('budget_min'):
+        query = query.filter(
+            User.renter_preferences['budget_min'] >= filters['budget_min']
+        )
+    
+    # Return anonymized profiles
+    renters = query.all()
+    return [anonymize_renter_profile(r) for r in renters]
+
+def anonymize_renter_profile(renter):
+    return {
+        "renter_id": renter.user_id,
+        "anonymous_id": f"RENTER-{renter.user_id[:4]}",
+        "employment_type": renter.employment_info.get('employment_type'),
+        "income_range": get_income_range(renter.employment_info.get('annual_income')),
+        "bhk_preference": renter.renter_preferences.get('bhk_preference'),
+        "budget_range": {
+            "min": renter.renter_preferences.get('budget_min'),
+            "max": renter.renter_preferences.get('budget_max')
+        },
+        "preferred_locations": renter.renter_preferences.get('preferred_locations'),
+        "move_in_date": renter.renter_preferences.get('move_in_date'),
+        "is_verified": renter.is_verified_renter
+    }
+```
+
+=================================================================
+10.5 LIFESTYLE SEARCH IMPLEMENTATION
+=================================================================
+
+Access Control:
+  - Premium renters only can use lifestyle filters
+  - Free renters see locked filters with upgrade CTA
+
+Filters Available:
+  1. AQI (Air Quality Index)
+     - Range: 0-500
+     - Filter: max_aqi (e.g., only show properties with AQI < 60)
+
+  2. Noise Level
+     - Range: 0-100 dB
+     - Filter: max_noise_level (e.g., only show < 60 dB)
+
+  3. Walkability Score
+     - Range: 0-100
+     - Filter: min_walkability_score (e.g., only show > 70)
+
+  4. Nearby Amenities
+     - Parks, hospitals, schools, malls
+     - Filter: near_parks=true, near_metro=true, etc.
+
+Backend Query:
+```python
+@router.get("/api/properties/lifestyle-search")
+async def lifestyle_search(filters: dict, current_user: User):
+    # Check premium access
+    if current_user.subscription_tier != 'premium':
+        raise HTTPException(403, "Premium subscription required for lifestyle search")
+    
+    # Only verified properties with lifestyle data
+    query = session.query(Property).filter(
+        Property.is_verified == True,
+        Property.lifestyle_data != None
+    )
+    
+    # Apply lifestyle filters
+    if filters.get('max_aqi'):
+        query = query.filter(
+            Property.lifestyle_data['aqi_score'].astext.cast(Integer) <= filters['max_aqi']
+        )
+    
+    if filters.get('max_noise_level'):
+        query = query.filter(
+            Property.lifestyle_data['noise_level'].astext.cast(Integer) <= filters['max_noise_level']
+        )
+    
+    if filters.get('min_walkability_score'):
+        query = query.filter(
+            Property.lifestyle_data['walkability_score'].astext.cast(Integer) >= filters['min_walkability_score']
+        )
+    
+    # Sort by match score
+    properties = query.all()
+    return calculate_match_scores(properties, filters)
+```
+
+=================================================================
+10.6 PAYMENT FLOWS
+=================================================================
+
+RENTER PREMIUM SUBSCRIPTION (₹750):
+
+1. Frontend: User clicks "Upgrade to Premium"
+2. Backend: Create payment order
+   POST /api/payments/create-order
+   Body: {"type": "renter_subscription", "amount": 750, "currency": "INR"}
+
+3. Mock Payment (if no Razorpay keys):
+   - Return mock order immediately
+   - Frontend shows mock payment modal
+   - Always succeeds after 2 seconds
+
+4. Real Payment (with Razorpay keys):
+   - Create Razorpay order
+   - Frontend opens Razorpay checkout
+   - User completes payment
+
+5. Verify Payment:
+   POST /api/payments/verify
+   Body: {"payment_id": "pay_xxx", "order_id": "order_xxx", "signature": "xxx"}
+
+6. Update User:
+   - Set subscription_tier = 'premium'
+   - Set subscription_start and subscription_end
+   - Reset contacts_used = 0
+   - Create transaction record
+
+PROPERTY VERIFICATION (₹2,000):
+Same flow as above, but:
+  - Amount: ₹2,000
+  - Type: "property_verification"
+  - Updates property record instead of user
+  - Sets verification_fee_paid = TRUE
+  - Status becomes 'pending' for admin review
+
+=================================================================
+10.7 FRONTEND BADGE DISPLAY
+=================================================================
+
+Verified Property Badge:
+```jsx
+{property.is_verified && property.verification_tier === 'verified' && (
+  <div className="absolute top-2 right-2 bg-green-600 text-white px-3 py-1 rounded-full flex items-center space-x-1">
+    <CheckCircle className="w-4 h-4" />
+    <span className="text-sm font-semibold">Verified</span>
+  </div>
+)}
+```
+
+Not Verified Warning:
+```jsx
+{!property.is_verified && (
+  <div className="absolute top-2 right-2 bg-amber-500 text-white px-3 py-1 rounded-full flex items-center space-x-1">
+    <AlertCircle className="w-4 h-4" />
+    <span className="text-sm font-semibold">Not Verified</span>
+  </div>
+)}
+```
+
+Verified Renter Badge:
+```jsx
+{user.is_verified_renter && (
+  <div className="inline-flex items-center bg-primary-100 text-primary-600 px-3 py-1 rounded-full">
+    <BadgeCheck className="w-4 h-4 mr-1" />
+    <span className="text-sm font-semibold">Verified Renter</span>
+  </div>
+)}
+```
+
+=================================================================
+10.8 SECURITY & VALIDATION
+=================================================================
+
+Contact Limit Enforcement:
+  - Server-side validation only (never trust frontend)
+  - Check on every chat initiation
+  - Return 403 with clear error message
+  - Frontend shows upgrade modal on 403
+
+Subscription Expiry:
+  - Check on every protected endpoint
+  - Auto-downgrade if expired:
+```python
+if user.subscription_tier == 'premium':
+    if datetime.now() > user.subscription_end:
+        user.subscription_tier = 'free'
+        db.commit()
+```
+
+Verification Status:
+  - Only admin can approve/reject verifications
+  - Document upload triggers 'pending' status
+  - Payment required before admin review (for properties)
+
+=================================================================
+10.9 ANALYTICS & UPSELL
+=================================================================
+
+For Free Owners - Show Performance Comparison:
+```
+Your unverified listing performance:
+• Views: 150 (90% below average)
+• Contacts: 2
+• Shortlists: 8
+
+Verified properties in your area:
+• Average views: 1,500 (10X more)
+• Average contacts: 25
+• Average shortlists: 85
+
+💡 Get verified to rank higher and get 5-10X more inquiries!
+```
+
+For Free Renters - Show Contact Counter:
+```
+Contacts used: 4/5
+[Upgrade to Premium for unlimited contacts]
+```
+
+=================================================================
+10.10 IMPLEMENTATION CHECKLIST
+=================================================================
+
+Backend Tasks:
+  ✓ Implement contact limit check in chat creation
+  ✓ Implement search ranking algorithm (verified first)
+  ✓ Implement lifestyle search endpoint (premium only)
+  ✓ Implement reverse marketplace endpoints (verified only)
+  ✓ Implement payment verification flows
+  ✓ Implement admin verification approval
+  ✓ Calculate lifestyle data on property verification
+  ✓ Auto-downgrade expired subscriptions
+  ✓ Create transaction records for all payments
+
+Frontend Tasks:
+  ✓ Display verification badges correctly
+  ✓ Show "Not Verified" warnings on free listings
+  ✓ Lock lifestyle filters for free users
+  ✓ Show contact counter for free renters
+  ✓ Display upgrade modals at right moments
+  ✓ Implement payment flows (mock + real)
+  ✓ Hide reverse marketplace for unverified users
+  ✓ Show upsell messages on dashboards
+
+Database:
+  ✓ Ensure all tier-related fields exist (see homer_schema.sql)
+  ✓ Create indexes for search ranking
+  ✓ Set up JSON field validation
+
+=================================================================
+END OF TIER SYSTEM IMPLEMENTATION
+=================================================================
+
+=================================================================
 END OF BACKEND WORKFLOW
 =================================================================
 
 This backend is designed to integrate seamlessly with frontend
 defined in frontend_workflow.txt. All API contracts match exactly.
+
+TIER IMPLEMENTATION NOTES:
+- All tier logic is server-side enforced
+- Frontend displays only - never trusts client
+- Database schema supports all tier features
+- Payment system supports both mock and real modes
+- Admin approval required for all verifications
 ```

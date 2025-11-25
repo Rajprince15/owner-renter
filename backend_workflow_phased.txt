@@ -1086,6 +1086,119 @@ TOTAL BACKEND CREDITS: ~49-55
 =================================================================
 
 =================================================================
+TIER SYSTEM IMPLEMENTATION SUMMARY (INTEGRATED IN PHASES)
+=================================================================
+
+The tier system is the CORE of Homer's business model and is 
+integrated throughout all phases above. Here's a quick reference:
+
+RENTER TIERS:
+-------------
+FREE BROWSER (₹0 forever):
+  ✓ Unlimited browsing
+  ✓ Basic filters only
+  ⚠️ 5 contact limit (enforced in Phase 4 - Chat APIs)
+  ❌ No lifestyle search
+  ❌ Not in reverse marketplace
+
+PREMIUM RENTER (₹750/90 days):
+  ✓ Unlimited contacts
+  ✓ Verified Renter badge (after document upload)
+  ✓ Advanced lifestyle search (Phase 7)
+  ✓ Reverse marketplace profile (Phase 8)
+  ✓ Natural language AI search
+
+OWNER TIERS:
+-----------
+FREE LISTER (₹0 forever):
+  ✓ Can list property for free
+  ⚠️ "Not Verified" warning badge
+  ⚠️ Ranked at BOTTOM of search (Phase 3)
+  ❌ No lifestyle data
+  ❌ Not in lifestyle search
+  ❌ No reverse marketplace access
+
+VERIFIED LISTER (₹2,000 per property):
+  ✓ "Verified Property" badge 🏆
+  ✓ TOP search ranking (Phase 3)
+  ✓ Lifestyle data enrichment (Phase 7)
+  ✓ Discoverable in lifestyle searches
+  ✓ Reverse marketplace access (Phase 8)
+  ✓ 5-10X more inquiries
+
+KEY IMPLEMENTATION POINTS:
+-------------------------
+1. Contact Limit (Phase 4):
+   - Check user.subscription_tier before chat creation
+   - Enforce 5-contact limit for free renters server-side
+   - Increment contacts_used after successful chat
+
+2. Search Ranking (Phase 3):
+   - ALWAYS sort by is_verified DESC first
+   - Then by created_at DESC
+   - Verified properties ALWAYS appear first
+
+3. Lifestyle Search (Phase 7):
+   - Check subscription_tier == 'premium' before access
+   - Only return properties with lifestyle_data != NULL
+   - Only verified properties have lifestyle_data
+
+4. Reverse Marketplace (Phase 8):
+   - Only premium + verified renters visible
+   - Only verified owners can browse
+   - Anonymous profiles (RENTER-XXXX format)
+
+5. Payment Flows (Phase 5):
+   - Support both mock and real Razorpay
+   - Renter subscription: ₹750 → premium tier + 90 days
+   - Property verification: ₹2,000 → pending → admin approval
+
+6. Verification (Phase 6):
+   - File upload IMMEDIATELY when selected (not on submit)
+   - URLs stored in MySQL JSON columns
+   - Admin approval required for verification
+   - Lifestyle data calculated after approval
+
+7. Subscription Expiry:
+   - Check on every protected endpoint
+   - Auto-downgrade to free if expired:
+     ```python
+     if user.subscription_tier == 'premium':
+         if datetime.now() > user.subscription_end:
+             user.subscription_tier = 'free'
+     ```
+
+8. Analytics & Upsell (Phase 9):
+   - Track views, contacts, shortlists
+   - Show performance comparison for free owners
+   - Display contact counter for free renters
+
+SECURITY RULES:
+--------------
+✓ All tier checks are SERVER-SIDE (never trust frontend)
+✓ Frontend only displays UI based on tier (locked filters, etc.)
+✓ Return 403 errors with clear upgrade messages
+✓ Payment verification before tier upgrades
+✓ Admin-only verification approval
+
+DATABASE FIELDS (from homer_schema.sql):
+---------------------------------------
+Users table:
+  - subscription_tier (free/premium)
+  - subscription_start, subscription_end
+  - contacts_used (for free tier)
+  - is_verified_renter (TRUE after verification)
+  - renter_verification_status (none/pending/verified/rejected)
+  - profile_visibility (for reverse marketplace)
+
+Properties table:
+  - is_verified (TRUE for verified properties)
+  - verification_tier (free/verified)
+  - verification_fee_paid (TRUE after payment)
+  - lifestyle_data (JSON - calculated for verified only)
+  - analytics (JSON - tracks performance)
+
+=================================================================
 DEPLOYMENT: MARIADB → MySQL
 =================================================================
 
@@ -1105,6 +1218,22 @@ After completing all phases:
    sudo supervisorctl restart backend
 
 ✅ ZERO CODE CHANGES REQUIRED!
+
+=================================================================
+CRITICAL TIER SYSTEM REMINDERS
+=================================================================
+
+1. CONTACT LIMIT: Enforce server-side in chat creation
+2. SEARCH RANKING: Verified properties ALWAYS first
+3. LIFESTYLE SEARCH: Premium users only
+4. REVERSE MARKETPLACE: Verified users only (both sides)
+5. PAYMENT VERIFICATION: Before tier upgrades
+6. SUBSCRIPTION EXPIRY: Auto-downgrade on expiry
+7. BADGES: Display correctly based on verification status
+8. UPSELL: Show upgrade CTAs at right moments
+
+These tier features are integrated into phases 1-11 above.
+Refer to main backend_workflow.txt for detailed implementation.
 
 =================================================================
 END OF BACKEND WORKFLOW (PHASED)
