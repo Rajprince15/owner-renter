@@ -181,27 +181,45 @@ const UserManagement = () => {
         <div className="mb-6">
           <button
             onClick={() => navigate('/admin')}
-            className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
+            className="flex items-center text-gray-600 hover:text-gray-900 mb-4 font-medium"
             data-testid="back-to-admin-button"
           >
             <ChevronLeft className="w-5 h-5 mr-1" />
-            Back to Dashboard
+            Back to Admin Dashboard
           </button>
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-              <p className="text-gray-600 mt-1">
-                Manage all users, renters, and owners ({users.length} total)
-              </p>
+          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-600">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                  User Management
+                  <span className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-semibold">
+                    {users.length} Users
+                  </span>
+                </h1>
+                <p className="text-gray-600 mt-2">
+                  Manage all users, renters, and property owners with full administrative control
+                </p>
+                <div className="flex gap-4 mt-3 text-sm">
+                  <span className="text-gray-700">
+                    <span className="font-semibold text-purple-600">{users.filter(u => u.subscription_tier === 'premium').length}</span> Premium Users
+                  </span>
+                  <span className="text-gray-700">
+                    <span className="font-semibold text-green-600">{users.filter(u => u.is_verified_renter).length}</span> Verified Renters
+                  </span>
+                  <span className="text-gray-700">
+                    <span className="font-semibold text-blue-600">{users.filter(u => u.is_verified_owner).length}</span> Verified Owners
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={exportToCSV}
+                className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all hover:scale-105 shadow-md"
+                data-testid="export-csv-button"
+              >
+                <Download className="w-5 h-5" />
+                Export CSV
+              </button>
             </div>
-            <button
-              onClick={exportToCSV}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-              data-testid="export-csv-button"
-            >
-              <Download className="w-4 h-4" />
-              Export CSV
-            </button>
           </div>
         </div>
 

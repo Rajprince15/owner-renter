@@ -58,6 +58,7 @@ const Navbar = () => {
 
   const getDashboardLink = () => {
     if (!user) return '/';
+    if (user.is_admin) return '/admin';
     if (user.user_type === 'renter') return '/renter/dashboard';
     if (user.user_type === 'owner') return '/owner/dashboard';
     return '/';
@@ -65,6 +66,7 @@ const Navbar = () => {
 
   const getChatsLink = () => {
     if (!user) return '/';
+    if (user.is_admin) return null; // Admin users don't have chats
     if (user.user_type === 'renter') return '/renter/chats';
     if (user.user_type === 'owner') return '/owner/chats';
     return '/';
@@ -137,22 +139,24 @@ const Navbar = () => {
                   </Link>
                 )}
                 
-                <Link 
-                  to={getChatsLink()}
-                  className="relative flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
-                  data-testid="navbar-chats-link"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>Messages</span>
-                  {unreadCount > 0 && (
-                    <span 
-                      className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
-                      data-testid="navbar-unread-badge"
-                    >
-                      {unreadCount > 9 ? '9+' : unreadCount}
-                    </span>
-                  )}
-                </Link>
+                {!user?.is_admin && (
+                  <Link 
+                    to={getChatsLink()}
+                    className="relative flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                    data-testid="navbar-chats-link"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Messages</span>
+                    {unreadCount > 0 && (
+                      <span 
+                        className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+                        data-testid="navbar-unread-badge"
+                      >
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </Link>
+                )}
                 <Link 
                   to={getDashboardLink()}
                   className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
@@ -258,19 +262,21 @@ const Navbar = () => {
                       </Link>
                     )}
                     
-                    <Link
-                      to={getChatsLink()}
-                      onClick={() => setIsMenuOpen(false)}
-                      className="relative flex items-center justify-center space-x-2 w-full px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                      <span>Messages</span>
-                      {unreadCount > 0 && (
-                        <span className="ml-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                          {unreadCount > 9 ? '9+' : unreadCount}
-                        </span>
-                      )}
-                    </Link>
+                    {!user?.is_admin && (
+                      <Link
+                        to={getChatsLink()}
+                        onClick={() => setIsMenuOpen(false)}
+                        className="relative flex items-center justify-center space-x-2 w-full px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        <span>Messages</span>
+                        {unreadCount > 0 && (
+                          <span className="ml-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                          </span>
+                        )}
+                      </Link>
+                    )}
                     <Link
                       to={getDashboardLink()}
                       onClick={() => setIsMenuOpen(false)}

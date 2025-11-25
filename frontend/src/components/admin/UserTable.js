@@ -151,31 +151,54 @@ const UserTable = ({ users, onEdit, onDelete, onVerify, onViewDocuments }) => {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {user.subscription_tier ? (
-                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      user.subscription_tier === 'premium' 
-                        ? 'bg-purple-100 text-purple-800' 
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {user.subscription_tier}
-                    </span>
-                  ) : (
-                    <span className="text-sm text-gray-500">-</span>
-                  )}
+                  <div className="flex flex-col gap-1">
+                    {user.subscription_tier ? (
+                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        user.subscription_tier === 'premium' 
+                          ? 'bg-purple-100 text-purple-800' 
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {user.subscription_tier}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-gray-500">-</span>
+                    )}
+                    {user.subscription_tier === 'premium' && hasVerificationDocuments(user) && (
+                      <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-700">
+                        📄 Docs Available
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    {user.is_active ? (
-                      <CheckCircle className="w-5 h-5 text-green-500" />
-                    ) : (
-                      <XCircle className="w-5 h-5 text-red-500" />
-                    )}
-                    {user.is_verified_renter && (
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Verified R</span>
-                    )}
-                    {user.is_verified_owner && (
-                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Verified O</span>
-                    )}
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      {user.is_active ? (
+                        <CheckCircle className="w-5 h-5 text-green-500" />
+                      ) : (
+                        <XCircle className="w-5 h-5 text-red-500" />
+                      )}
+                      <span className="text-xs text-gray-600">
+                        {user.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {user.is_verified_renter && (
+                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded font-semibold">
+                          ✓ Verified Renter
+                        </span>
+                      )}
+                      {user.is_verified_owner && (
+                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-semibold">
+                          ✓ Verified Owner
+                        </span>
+                      )}
+                      {user.subscription_tier === 'premium' && user.is_verified_renter && (
+                        <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded font-semibold">
+                          ⭐ Premium + Verified
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
