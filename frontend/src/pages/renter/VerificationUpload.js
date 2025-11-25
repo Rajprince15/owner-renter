@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, CheckCircle, Briefcase, DollarSign, User } from 'lucide-react';
+import { Shield, CheckCircle, Briefcase, DollarSign, User, Eye } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import DocumentUpload from '../../components/verification/DocumentUpload';
 import VerificationStatusTracker from '../../components/verification/VerificationStatusTracker';
+import UploadStatusIndicator from '../../components/verification/UploadStatusIndicator';
+import VerificationSteps from '../../components/verification/VerificationSteps';
+import DocumentPreview from '../../components/verification/DocumentPreview';
 import Button from '../../components/common/Button';
 import { 
   submitRenterVerification, 
@@ -27,10 +30,29 @@ const VerificationUpload = () => {
     annual_income: '',
     years_of_experience: ''
   });
+  const [previewDocument, setPreviewDocument] = useState(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   useEffect(() => {
     fetchVerificationStatus();
   }, []);
+
+  // Warn user before leaving if files are uploaded but not submitted
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      const uploadedCount = Object.values(documents).filter(doc => doc !== null).length;
+      
+      if (uploadedCount > 0 && hasUnsavedChanges) {
+        const message = 'You have uploaded documents that haven\'t been submitted yet. Are you sure you want to leave?';
+        e.preventDefault();
+        e.returnValue = message;
+        return message;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [documents, hasUnsavedChanges]);
 
   const fetchVerificationStatus = async () => {
     try {
@@ -51,10 +73,32 @@ const VerificationUpload = () => {
         [documentType]: uploadedFile
       }));
 
+      // Mark as having unsaved changes once files are uploaded
+      setHasUnsavedChanges(true);
+
       return uploadedFile;
     } catch (error) {
       throw new Error('Failed to upload document');
     }
+  };
+
+  const handlePreviewDocument = (documentType) => {
+    const document = documents[documentType];
+    if (document) {
+      setPreviewDocument(document);
+    }
+  };
+
+  const handleClosePreview = () => {
+    setPreviewDocument(null);
+  };
+
+  const handleReupload = (documentType) => {
+    setDocuments(prev => ({
+      ...prev,
+      [documentType]: null
+    }));
+    setPreviewDocument(null);
   };
 
   const handleEmploymentChange = (field, value) => {
@@ -121,6 +165,9 @@ const VerificationUpload = () => {
 
       await submitRenterVerification(verificationData);
 
+      // Clear unsaved changes flag
+      setHasUnsavedChanges(false);
+
       // Update user context
       await updateUser({
         ...user,
@@ -140,6 +187,15 @@ const VerificationUpload = () => {
   const isVerified = user?.is_verified_renter;
   const status = verificationStatus?.status || 'none';
   const canSubmit = status === 'none' || status === 'rejected';
+  
+  // Calculate current step
+  const uploadedCount = Object.values(documents).filter(doc => doc !== null).length;
+  const totalRequired = Object.keys(documents).length;
+  const documentsComplete = uploadedCount === totalRequired;
+  const getCurrentStep = () => {
+    if (!documentsComplete) return 1;
+    return 2; // Employment details step
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8" data-testid="renter-verification-page">
@@ -158,6 +214,19 @@ const VerificationUpload = () => {
             </div>
           </div>
         </div>
+
+        {/* Progress Steps - Show only during verification process */}
+        {canSubmit && (
+          <VerificationSteps 
+            currentStep={getCurrentStep()} 
+            documents={documents}
+          />
+        )}
+
+        {/* Upload Status Indicator - Show after any document is uploaded */}
+        {canSubmit && uploadedCount > 0 && (
+          <UploadStatusIndicator documents={documents} />
+        )}
 
         {/* Benefits Section */}
         {!isVerified && status === 'none' && (
@@ -223,23 +292,49 @@ const VerificationUpload = () => {
               </h2>
 
               <div className="space-y-6">
-                <DocumentUpload
-                  label="ID Proof (Aadhaar Card)"
-                  documentType="id_proof"
-                  onUpload={handleDocumentUpload}
-                  acceptedFormats=".pdf,.jpg,.jpeg,.png"
-                  required={true}
-                  existingFile={documents.id_proof}
-                />
+                <div>
+                  <DocumentUpload
+                    label="ID Proof (Aadhaar Card)"
+                    documentType="id_proof"
+                    onUpload={handleDocumentUpload}
+                    acceptedFormats=".pdf,.jpg,.jpeg,.png"
+                    required={true}
+                    existingFile={documents.id_proof}
+                  />
+                  {documents.id_proof && (
+                    <button
+                      type="button"
+                      onClick={() => handlePreviewDocument('id_proof')}
+                      className="mt-2 flex items-center space-x-2 text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                      data-testid="preview-id-proof-button"
+                    >
+                      <Eye className="w-4 h-4" />
+                      <span>Preview Document</span>
+                    </button>
+                  )}
+                </div>
 
-                <DocumentUpload
-                  label="Income Proof (Salary Slip / Bank Statement)"
-                  documentType="income_proof"
-                  onUpload={handleDocumentUpload}
-                  acceptedFormats=".pdf,.jpg,.jpeg,.png"
-                  required={true}
-                  existingFile={documents.income_proof}
-                />
+                <div>
+                  <DocumentUpload
+                    label="Income Proof (Salary Slip / Bank Statement)"
+                    documentType="income_proof"
+                    onUpload={handleDocumentUpload}
+                    acceptedFormats=".pdf,.jpg,.jpeg,.png"
+                    required={true}
+                    existingFile={documents.income_proof}
+                  />
+                  {documents.income_proof && (
+                    <button
+                      type="button"
+                      onClick={() => handlePreviewDocument('income_proof')}
+                      className="mt-2 flex items-center space-x-2 text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                      data-testid="preview-income-proof-button"
+                    >
+                      <Eye className="w-4 h-4" />
+                      <span>Preview Document</span>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -367,6 +462,23 @@ const VerificationUpload = () => {
               <Button onClick={() => navigate('/renter/dashboard')}>Go to Dashboard</Button>
             </div>
           </div>
+        )}
+
+        {/* Document Preview Modal */}
+        {previewDocument && (
+          <DocumentPreview
+            document={previewDocument}
+            onClose={handleClosePreview}
+            onReupload={() => {
+              // Find which document type this is
+              const documentType = Object.keys(documents).find(
+                key => documents[key] === previewDocument
+              );
+              if (documentType) {
+                handleReupload(documentType);
+              }
+            }}
+          />
         )}
       </div>
     </div>
