@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Edit, Trash2, Eye, Users, AlertCircle, CheckCircle, BarChart3 } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, Users, AlertCircle, CheckCircle, BarChart3, Shield } from 'lucide-react';
 import { getMyProperties, deleteProperty } from '../../services/propertyService';
 import Button from '../../components/common/Button';
 
@@ -234,14 +234,28 @@ const PropertyCard = ({ property, onDelete }) => {
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
-          <Link
-            to={`/owner/property/${property.property_id}/analytics`}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition text-sm font-medium"
-            data-testid={`analytics-btn-${property.property_id}`}
-          >
-            <BarChart3 className="w-4 h-4" />
-            View Analytics
-          </Link>
+          
+          {/* Show Verify button for unverified properties */}
+          {!property.is_verified ? (
+            <Link
+              to="/owner/verification"
+              state={{ propertyId: property.property_id }}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition text-sm font-semibold shadow-md"
+              data-testid={`verify-btn-${property.property_id}`}
+            >
+              <CheckCircle className="w-4 h-4" />
+              Verify Property (₹2,000)
+            </Link>
+          ) : (
+            <Link
+              to={`/owner/property/${property.property_id}/analytics`}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition text-sm font-medium"
+              data-testid={`analytics-btn-${property.property_id}`}
+            >
+              <BarChart3 className="w-4 h-4" />
+              View Analytics
+            </Link>
+          )}
         </div>
       </div>
     </div>

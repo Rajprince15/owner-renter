@@ -4,6 +4,7 @@ import { Plus, Home, TrendingUp, Eye, Users, AlertCircle, MessageCircle } from '
 import { useAuth } from '../../context/AuthContext';
 import { getMyProperties } from '../../services/propertyService';
 import Button from '../../components/common/Button';
+import VerificationStatusWidget from '../../components/owner/VerificationStatusWidget';
 
 const OwnerDashboard = () => {
   const { user } = useAuth();
@@ -56,6 +57,11 @@ const OwnerDashboard = () => {
             Welcome back, {user?.full_name}!
           </h1>
           <p className="text-slate-600">Manage your properties and track performance</p>
+        </div>
+
+        {/* Verification Status Widget */}
+        <div className="mb-8">
+          <VerificationStatusWidget properties={properties} user={user} />
         </div>
 
         {/* Stats Grid */}

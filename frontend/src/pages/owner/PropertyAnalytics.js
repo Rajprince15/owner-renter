@@ -9,13 +9,15 @@ import {
   CheckCircle,
   AlertCircle,
   ArrowLeft,
-  BarChart3
+  BarChart3,
+  Shield
 } from 'lucide-react';
 import AnalyticsChart from '../../components/analytics/AnalyticsChart';
 import PerformanceCard from '../../components/analytics/PerformanceCard';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { getPropertyAnalytics, getComparisonStats } from '../../services/analyticsService';
 import { getPropertyDetail } from '../../services/propertyService';
+import Button from '../../components/common/Button';
 
 const PropertyAnalytics = () => {
   const { propertyId } = useParams();
@@ -236,6 +238,66 @@ const PropertyAnalytics = () => {
             <p className="text-sm text-gray-500">Most recent activity</p>
           </div>
         </div>
+
+        {/* Verification CTA for Unverified Properties */}
+        {!property?.is_verified && (
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-xl p-8 mb-8 shadow-lg">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <div className="flex items-center mb-4">
+                  <div className="p-3 bg-amber-100 rounded-full mr-4">
+                    <AlertCircle className="w-8 h-8 text-amber-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-amber-900 mb-1">
+                      Unlock 5X More Views
+                    </h3>
+                    <p className="text-amber-700">
+                      Your property is currently unverified and getting limited visibility
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="bg-white rounded-lg p-4 border border-amber-200">
+                    <div className="text-sm text-gray-600 mb-1">Your Current Views</div>
+                    <div className="text-3xl font-bold text-gray-900">{analytics?.analytics?.total_views || 0}</div>
+                    <div className="text-xs text-gray-500 mt-1">Unverified listing</div>
+                  </div>
+                  <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg p-4 text-white">
+                    <div className="text-sm text-green-100 mb-1">Potential with Verification</div>
+                    <div className="text-3xl font-bold">{(analytics?.analytics?.total_views || 0) * 5}+</div>
+                    <div className="text-xs text-green-100 mt-1">Estimated views (5X boost)</div>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 border border-amber-200">
+                    <div className="text-sm text-gray-600 mb-1">Additional Benefits</div>
+                    <ul className="text-xs text-gray-700 space-y-1">
+                      <li>✓ Top search ranking</li>
+                      <li>✓ Lifestyle data</li>
+                      <li>✓ Premium renters</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-4">
+                  <Button 
+                    to="/owner/verification"
+                    state={{ propertyId: propertyId }}
+                    variant="primary"
+                    size="lg"
+                    className="bg-amber-600 hover:bg-amber-700"
+                  >
+                    <Shield className="w-5 h-5 mr-2" />
+                    Verify Property Now (₹2,000)
+                  </Button>
+                  <div className="text-sm text-amber-700">
+                    <strong>Limited Time:</strong> Get verified within 24-48 hours
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Views Chart */}
         <div className="mb-8">

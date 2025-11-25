@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Home, Search, User, LogOut, MessageCircle } from 'lucide-react';
+import { Menu, X, Home, Search, User, LogOut, MessageCircle, Shield } from 'lucide-react';
 import Button from '../common/Button';
 import { useAuth } from '../../context/AuthContext';
 import { getUnreadCount } from '../../services/chatService';
@@ -114,6 +114,18 @@ const Navbar = () => {
                 {/* Notification Panel */}
                 <NotificationPanel />
                 
+                {/* Owner Verification Link */}
+                {(user?.user_type === 'owner' || user?.user_type === 'both') && (
+                  <Link 
+                    to="/owner/verification"
+                    className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium bg-green-50 text-green-700 hover:bg-green-100 transition border border-green-200"
+                    data-testid="navbar-verify-link"
+                  >
+                    <Shield className="w-4 h-4" />
+                    <span>Verify Property</span>
+                  </Link>
+                )}
+                
                 <Link 
                   to={getChatsLink()}
                   className="relative flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100 transition"
@@ -192,6 +204,18 @@ const Navbar = () => {
               <div className="border-t border-slate-200 pt-4 px-4 space-y-3">
                 {isAuthenticated ? (
                   <>
+                    {/* Owner Verification Link */}
+                    {(user?.user_type === 'owner' || user?.user_type === 'both') && (
+                      <Link
+                        to="/owner/verification"
+                        onClick={() => setIsMenuOpen(false)}
+                        className="flex items-center justify-center space-x-2 w-full px-4 py-2 rounded-lg text-sm font-medium bg-green-50 text-green-700 border border-green-200"
+                      >
+                        <Shield className="w-4 h-4" />
+                        <span>Verify Property</span>
+                      </Link>
+                    )}
+                    
                     <Link
                       to={getChatsLink()}
                       onClick={() => setIsMenuOpen(false)}

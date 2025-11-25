@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Save } from 'lucide-react';
+import { useNavigate, useParams, Link } from 'react-router-dom';
+import { ArrowLeft, Save, Shield, TrendingUp, AlertCircle } from 'lucide-react';
 import { getPropertyDetail, updateProperty } from '../../services/propertyService';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
@@ -98,6 +98,45 @@ const EditProperty = () => {
   return (
     <div className="min-h-screen bg-slate-50" data-testid="edit-property-page">
       <div className="container-custom py-8">
+        
+        {/* Verification Banner for Unverified Properties */}
+        {!formData.is_verified && (
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-500 rounded-lg p-6 mb-6 shadow-md">
+            <div className="flex items-start justify-between">
+              <div className="flex items-start space-x-4 flex-1">
+                <div className="p-2 bg-amber-100 rounded-full">
+                  <AlertCircle className="w-6 h-6 text-amber-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-amber-900 mb-1">
+                    This Property is Not Verified
+                  </h3>
+                  <p className="text-sm text-amber-700 mb-3">
+                    Unverified properties get 90% fewer views and appear at the bottom of search results. 
+                    Get verified to unlock 5X more views, lifestyle data, and premium renter access.
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <Link
+                      to="/owner/verification"
+                      state={{ propertyId: formData.property_id }}
+                      className="inline-flex items-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-semibold transition"
+                    >
+                      <Shield className="w-4 h-4 mr-2" />
+                      Verify Now for ₹2,000
+                    </Link>
+                    <a
+                      href="#benefits"
+                      className="inline-flex items-center px-4 py-2 bg-white border border-amber-300 text-amber-700 rounded-lg font-medium hover:bg-amber-50 transition"
+                    >
+                      <TrendingUp className="w-4 h-4 mr-2" />
+                      See Benefits
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Header */}
         <div className="mb-8">
           <Button
