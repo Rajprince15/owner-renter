@@ -16,6 +16,8 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import PropertyTable from '../../components/admin/PropertyTable';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
+import DocumentViewer from '../../components/admin/DocumentViewer';
+import ImageGallery from '../../components/admin/ImageGallery';
 import { useToast } from '../../context/ToastContext';
 
 const PropertyManagement = () => {
@@ -39,6 +41,12 @@ const PropertyManagement = () => {
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [propertyToChangeStatus, setPropertyToChangeStatus] = useState(null);
   const [newStatus, setNewStatus] = useState('');
+  const [showDocumentViewer, setShowDocumentViewer] = useState(false);
+  const [viewingDocuments, setViewingDocuments] = useState(null);
+  const [documentViewerTitle, setDocumentViewerTitle] = useState('');
+  const [showImageGallery, setShowImageGallery] = useState(false);
+  const [viewingImages, setViewingImages] = useState([]);
+  const [imageGalleryTitle, setImageGalleryTitle] = useState('');
 
   useEffect(() => {
     if (!user?.is_admin) {
@@ -99,6 +107,22 @@ const PropertyManagement = () => {
     setPropertyToChangeStatus(property);
     setNewStatus(status);
     setShowStatusModal(true);
+  };
+
+  const handleViewDocuments = (property) => {
+    if (property.verification_documents) {
+      setViewingDocuments(property.verification_documents);
+      setDocumentViewerTitle(`${property.title} - Verification Documents`);
+      setShowDocumentViewer(true);
+    }
+  };
+
+  const handleViewImages = (property) => {
+    if (property.images && property.images.length > 0) {
+      setViewingImages(property.images);
+      setImageGalleryTitle(`${property.title} - Property Images`);
+      setShowImageGallery(true);
+    }
   };
 
   const confirmChangeStatus = async () => {
@@ -344,6 +368,8 @@ const PropertyManagement = () => {
               onDelete={handleDeleteProperty}
               onForceVerify={handleForceVerify}
               onChangeStatus={handleChangeStatus}
+              onViewImages={handleViewImages}
+              onViewDocuments={handleViewDocuments}
             />
           )}
         </div>
@@ -390,6 +416,30 @@ const PropertyManagement = () => {
           }}
         />
       )}
+
+      {/* Document Viewer */}
+      <DocumentViewer
+        isOpen={showDocumentViewer}
+        onClose={() => {
+          setShowDocumentViewer(false);
+          setViewingDocuments(null);
+          setDocumentViewerTitle('');
+        }}
+        documents={viewingDocuments}
+        title={documentViewerTitle}
+      />
+
+      {/* Image Gallery */}
+      <ImageGallery
+        isOpen={showImageGallery}
+        onClose={() => {
+          setShowImageGallery(false);
+          setViewingImages([]);
+          setImageGalleryTitle('');
+        }}
+        images={viewingImages}
+        title={imageGalleryTitle}
+      />
     </div>
   );
 };

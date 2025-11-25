@@ -15,6 +15,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import UserTable from '../../components/admin/UserTable';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
+import DocumentViewer from '../../components/admin/DocumentViewer';
 import { useToast } from '../../context/ToastContext';
 
 const UserManagement = () => {
@@ -36,6 +37,9 @@ const UserManagement = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+  const [showDocumentViewer, setShowDocumentViewer] = useState(false);
+  const [viewingDocuments, setViewingDocuments] = useState(null);
+  const [documentViewerTitle, setDocumentViewerTitle] = useState('');
 
   useEffect(() => {
     if (!user?.is_admin) {
@@ -136,6 +140,14 @@ const UserManagement = () => {
     } catch (error) {
       console.error('Error bulk deleting users:', error);
       showToast('Failed to delete users', 'error');
+    }
+  };
+
+  const handleViewDocuments = (user) => {
+    if (user.renter_verification_documents) {
+      setViewingDocuments(user.renter_verification_documents);
+      setDocumentViewerTitle(`${user.full_name} - Verification Documents`);
+      setShowDocumentViewer(true);
     }
   };
 
@@ -329,7 +341,8 @@ const UserManagement = () => {
               }}
               onEdit={handleEditUser}
               onDelete={handleDeleteUser}
-              onForceVerify={handleForceVerify}
+              onVerify={handleForceVerify}
+              onViewDocuments={handleViewDocuments}
             />
           )}
         </div>
@@ -456,6 +469,18 @@ const UserManagement = () => {
           onCancel={() => setShowBulkDeleteConfirm(false)}
         />
       )}
+
+      {/* Document Viewer */}
+      <DocumentViewer
+        isOpen={showDocumentViewer}
+        onClose={() => {
+          setShowDocumentViewer(false);
+          setViewingDocuments(null);
+          setDocumentViewerTitle('');
+        }}
+        documents={viewingDocuments}
+        title={documentViewerTitle}
+      />
     </div>
   );
 };

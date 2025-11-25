@@ -39,6 +39,7 @@ import RenterPrivacySettings from './pages/renter/PrivacySettings';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminAnalytics from './pages/admin/AdminAnalytics';
 import UserManagement from './pages/admin/UserManagement';
 import PropertyManagement from './pages/admin/PropertyManagement';
 import VerificationManagement from './pages/admin/VerificationManagement';
@@ -180,6 +181,11 @@ function App() {
               <Route path="/admin" element={
                 <ProtectedRoute userType="admin">
                   <AdminDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/analytics" element={
+                <ProtectedRoute userType="admin">
+                  <AdminAnalytics />
                 </ProtectedRoute>
               } />
               <Route path="/admin/users" element={

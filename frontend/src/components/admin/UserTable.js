@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Edit2, Trash2, CheckCircle, XCircle, User } from 'lucide-react';
+import { Edit2, Trash2, CheckCircle, XCircle, User, FileText } from 'lucide-react';
 
-const UserTable = ({ users, onEdit, onDelete, onVerify }) => {
+const UserTable = ({ users, onEdit, onDelete, onVerify, onViewDocuments }) => {
   const [sortBy, setSortBy] = useState('created_at');
   const [sortOrder, setSortOrder] = useState('desc');
   const [selectedUsers, setSelectedUsers] = useState([]);
@@ -41,6 +41,11 @@ const UserTable = ({ users, onEdit, onDelete, onVerify }) => {
     setSelectedUsers(prev => 
       prev.length === users.length ? [] : users.map(u => u.user_id)
     );
+  };
+
+  const hasVerificationDocuments = (user) => {
+    return user.renter_verification_documents && 
+           Object.keys(user.renter_verification_documents).length > 0;
   };
 
   return (
@@ -178,6 +183,16 @@ const UserTable = ({ users, onEdit, onDelete, onVerify }) => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex items-center justify-end gap-2">
+                    {hasVerificationDocuments(user) && (
+                      <button
+                        onClick={() => onViewDocuments?.(user)}
+                        className="text-indigo-600 hover:text-indigo-900"
+                        title="View verification documents"
+                        data-testid={`view-docs-${user.user_id}`}
+                      >
+                        <FileText className="w-4 h-4" />
+                      </button>
+                    )}
                     <button
                       onClick={() => onEdit(user)}
                       className="text-blue-600 hover:text-blue-900"
