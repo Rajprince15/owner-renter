@@ -13,7 +13,6 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Search from './pages/Search';
 import PropertyDetail from './pages/PropertyDetail';
-import LifestyleSearch from './pages/LifestyleSearch';
 import Pricing from './pages/Pricing';
 
 // Owner Pages
@@ -74,7 +73,6 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/search" element={<Search />} />
-              <Route path="/lifestyle-search" element={<LifestyleSearch />} />
               <Route path="/property/:id" element={<PropertyDetail />} />
               <Route path="/pricing" element={<Pricing />} />
               

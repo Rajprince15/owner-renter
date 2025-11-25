@@ -19,11 +19,6 @@ const Navbar = () => {
       { name: 'Search', path: '/search', icon: Search },
     ];
     
-    // Add Lifestyle Search for premium users
-    if (user && user.subscription_tier === 'premium') {
-      links.push({ name: 'Lifestyle Search', path: '/lifestyle-search', icon: Search, badge: 'Premium' });
-    }
-    
     // Static pages
     links.push({ name: 'Pricing', path: '/pricing', icon: null });
     
