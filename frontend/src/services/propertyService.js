@@ -3,7 +3,7 @@
 // Handles all property-related API calls with mock/real switchability
 // =================================================================
 
-import { USE_MOCK, mockApiCall, mockApiError } from './mockApi';
+import { USE_MOCK, mockApiCall, mockApiError, getUserIdFromToken } from './mockApi';
 import axios from 'axios';
 import {
   mockProperties,
@@ -22,7 +22,8 @@ export const createProperty = async (propertyData) => {
       return mockApiError('Not authenticated', 401);
     }
     
-    const userId = token.split('_')[2];
+    // Extract user_id from token
+    const userId = getUserIdFromToken(token);
     
     const newProperty = generateMockProperty(propertyData, userId);
     mockProperties.push(newProperty);
@@ -202,9 +203,10 @@ export const updateProperty = async (propertyId, propertyData) => {
     
     // Check ownership (token-based check in real app)
     const token = localStorage.getItem('token');
-    const userId = token.split('_')[2];
+    const parts = token.split('_');
+    const userId = parts.slice(2, -1).join('_');
     
-    if (!mockProperties[index].owner_id.includes(userId)) {
+    if (mockProperties[index].owner_id !== userId) {
       return mockApiError('Not authorized', 403);
     }
     
@@ -233,9 +235,10 @@ export const deleteProperty = async (propertyId) => {
     
     // Check ownership
     const token = localStorage.getItem('token');
-    const userId = token.split('_')[2];
+    const parts = token.split('_');
+    const userId = parts.slice(2, -1).join('_');
     
-    if (!mockProperties[index].owner_id.includes(userId)) {
+    if (mockProperties[index].owner_id !== userId) {
       return mockApiError('Not authorized', 403);
     }
     
@@ -258,7 +261,9 @@ export const getMyProperties = async () => {
       return mockApiError('Not authenticated', 401);
     }
     
-    const userId = token.split('_')[2];
+    // Extract user_id from token: mock_jwt_user_004_owner_verified_timestamp
+    // Join from index 2 to second-to-last element
+    const userId = getUserIdFromToken(token);
     const myProperties = getPropertiesByOwner(userId);
     
     return mockApiCall(myProperties);
@@ -304,9 +309,10 @@ export const getPropertyAnalytics = async (propertyId) => {
     
     // Check ownership
     const token = localStorage.getItem('token');
-    const userId = token.split('_')[2];
+    const parts = token.split('_');
+    const userId = parts.slice(2, -1).join('_');
     
-    if (!property.owner_id.includes(userId)) {
+    if (property.owner_id !== userId) {
       return mockApiError('Not authorized', 403);
     }
     

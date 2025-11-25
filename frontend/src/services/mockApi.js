@@ -24,4 +24,13 @@ const mockApiError = (message, status = 400, delay = MOCK_DELAY) => {
   });
 };
 
-export { USE_MOCK, API_BASE_URL, mockApiCall, mockApiError };
+// Helper to extract user_id from mock token
+// Token format: mock_jwt_user_004_owner_verified_1234567890
+const getUserIdFromToken = (token) => {
+  if (!token) return null;
+  const parts = token.split('_');
+  // Extract everything from index 2 to second-to-last
+  return parts.slice(2, -1).join('_');
+};
+
+export { USE_MOCK, API_BASE_URL, mockApiCall, mockApiError, getUserIdFromToken };

@@ -1,4 +1,4 @@
-import { USE_MOCK, mockApiCall, mockApiError } from './mockApi';
+import { USE_MOCK, mockApiCall, mockApiError, getUserIdFromToken } from './mockApi';
 import axios from 'axios';
 
 // MOCK DATA STORE (in-memory for testing)
@@ -153,9 +153,9 @@ export const getCurrentUser = async () => {
       return mockApiError('Not authenticated', 401);
     }
     
-    // Extract user_id from mock token
-    const userId = token.split('_')[2];
-    const user = mockUsers.find(u => u.user_id.includes(userId));
+    // Extract user_id from mock token: mock_jwt_user_004_owner_verified_timestamp
+    const userId = getUserIdFromToken(token);
+    const user = mockUsers.find(u => u.user_id === userId);
     
     if (!user) {
       return mockApiError('User not found', 404);
