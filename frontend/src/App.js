@@ -6,6 +6,7 @@ import './App.css';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { ToastProvider } from './context/ToastContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 // Pages
 import LandingPage from './pages/LandingPage';
@@ -61,14 +62,15 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 function App() {
   return (
     <Router>
-      <AuthProvider>
-        <NotificationProvider>
-          <ToastProvider>
-            <div className="min-h-screen flex flex-col">
-              <Navbar />
-              
-              <main className="flex-grow">
-                <Routes>
+      <ThemeProvider>
+        <AuthProvider>
+          <NotificationProvider>
+            <ToastProvider>
+              <div className="min-h-screen flex flex-col bg-white dark:bg-slate-900 transition-colors duration-200">
+                <Navbar />
+                
+                <main className="flex-grow">
+                  <Routes>
               {/* Public routes */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
@@ -232,11 +234,12 @@ function App() {
             </Routes>
           </main>
           
-          <Footer />
-        </div>
-          </ToastProvider>
-        </NotificationProvider>
-      </AuthProvider>
+            <Footer />
+          </div>
+            </ToastProvider>
+          </NotificationProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </Router>
   );
 }

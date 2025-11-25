@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Home, Search, User, LogOut, MessageCircle, Shield } from 'lucide-react';
+import { Menu, X, Home, Search, User, LogOut, MessageCircle, Shield, Sun, Moon } from 'lucide-react';
 import Button from '../common/Button';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { getUnreadCount } from '../../services/chatService';
 import NotificationPanel from '../notifications/NotificationPanel';
 
@@ -12,6 +13,7 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
+  const { theme, toggleTheme, isDark } = useTheme();
 
   const getNavLinks = () => {
     const links = [
@@ -69,7 +71,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
+    <nav className="bg-white dark:bg-slate-800 shadow-md sticky top-0 z-50 transition-colors duration-200">
       <div className="container-custom">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -77,7 +79,7 @@ const Navbar = () => {
             <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
               <Home className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold text-slate-900">Homer</span>
+            <span className="text-2xl font-bold text-slate-900 dark:text-white">Homer</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -88,8 +90,8 @@ const Navbar = () => {
                 to={link.path}
                 className={`text-sm font-medium transition-colors relative ${
                   isActive(link.path)
-                    ? 'text-primary-600'
-                    : 'text-slate-600 hover:text-primary-600'
+                    ? 'text-primary-600 dark:text-primary-400'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400'
                 }`}
               >
                 {link.name}
@@ -109,6 +111,20 @@ const Navbar = () => {
                 {/* Notification Panel */}
                 <NotificationPanel />
                 
+                {/* Theme Toggle Button */}
+                <button
+                  onClick={toggleTheme}
+                  className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  aria-label="Toggle theme"
+                  data-testid="theme-toggle-btn"
+                >
+                  {isDark ? (
+                    <Sun className="w-5 h-5" />
+                  ) : (
+                    <Moon className="w-5 h-5" />
+                  )}
+                </button>
+                
                 {/* Owner Verification Link */}
                 {(user?.user_type === 'owner' || user?.user_type === 'both') && (
                   <Link 
@@ -123,7 +139,7 @@ const Navbar = () => {
                 
                 <Link 
                   to={getChatsLink()}
-                  className="relative flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100 transition"
+                  className="relative flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
                   data-testid="navbar-chats-link"
                 >
                   <MessageCircle className="w-4 h-4" />
@@ -139,7 +155,7 @@ const Navbar = () => {
                 </Link>
                 <Link 
                   to={getDashboardLink()}
-                  className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100 transition"
+                  className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
                   data-testid="navbar-dashboard-link"
                 >
                   <User className="w-4 h-4" />
@@ -157,6 +173,19 @@ const Navbar = () => {
               </>
             ) : (
               <>
+                {/* Theme Toggle Button for non-authenticated users */}
+                <button
+                  onClick={toggleTheme}
+                  className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  aria-label="Toggle theme"
+                  data-testid="theme-toggle-btn"
+                >
+                  {isDark ? (
+                    <Sun className="w-5 h-5" />
+                  ) : (
+                    <Moon className="w-5 h-5" />
+                  )}
+                </button>
                 <Button variant="ghost" to="/login" size="sm" data-testid="navbar-login-btn">
                   <User className="w-4 h-4 mr-2" />
                   Login
@@ -171,7 +200,7 @@ const Navbar = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100"
+            className="md:hidden p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
             data-testid="mobile-menu-toggle"
           >
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -180,7 +209,7 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-slate-200" data-testid="mobile-menu">
+          <div className="md:hidden py-4 border-t border-slate-200 dark:border-slate-700" data-testid="mobile-menu">
             <div className="flex flex-col space-y-4">
               {navLinks.map((link) => (
                 <Link
@@ -189,14 +218,32 @@ const Navbar = () => {
                   onClick={() => setIsMenuOpen(false)}
                   className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                     isActive(link.path)
-                      ? 'bg-primary-50 text-primary-600'
-                      : 'text-slate-600 hover:bg-slate-100'
+                      ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400'
+                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
                   }`}
                 >
                   {link.name}
                 </Link>
               ))}
-              <div className="border-t border-slate-200 pt-4 px-4 space-y-3">
+              <div className="border-t border-slate-200 dark:border-slate-700 pt-4 px-4 space-y-3">
+                {/* Theme Toggle in Mobile Menu */}
+                <button
+                  onClick={toggleTheme}
+                  className="flex items-center justify-center space-x-2 w-full px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                  data-testid="mobile-theme-toggle-btn"
+                >
+                  {isDark ? (
+                    <>
+                      <Sun className="w-4 h-4" />
+                      <span>Light Mode</span>
+                    </>
+                  ) : (
+                    <>
+                      <Moon className="w-4 h-4" />
+                      <span>Dark Mode</span>
+                    </>
+                  )}
+                </button>
                 {isAuthenticated ? (
                   <>
                     {/* Owner Verification Link */}
@@ -214,7 +261,7 @@ const Navbar = () => {
                     <Link
                       to={getChatsLink()}
                       onClick={() => setIsMenuOpen(false)}
-                      className="relative flex items-center justify-center space-x-2 w-full px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 text-slate-700"
+                      className="relative flex items-center justify-center space-x-2 w-full px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
                     >
                       <MessageCircle className="w-4 h-4" />
                       <span>Messages</span>
@@ -227,7 +274,7 @@ const Navbar = () => {
                     <Link
                       to={getDashboardLink()}
                       onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center justify-center space-x-2 w-full px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 text-slate-700"
+                      className="flex items-center justify-center space-x-2 w-full px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
                     >
                       <User className="w-4 h-4" />
                       <span>{user?.full_name || 'Dashboard'}</span>
