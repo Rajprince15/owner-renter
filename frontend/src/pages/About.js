@@ -9,11 +9,11 @@ const About = () => {
   return (
     <div className="about-page">
       {/* Hero Section */}
-      <section className="bg-gradient-primary text-white py-20" data-testid="about-hero">
+      <section className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 text-white py-20" data-testid="about-hero">
         <div className="container-custom">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">About Homer</h1>
-            <p className="text-xl text-primary-100 mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">About Homer</h1>
+            <p className="text-xl text-white opacity-90 mb-8">
               India's first trust-first rental marketplace. We're revolutionizing how people find homes by putting trust, transparency, and lifestyle compatibility at the center of everything we do.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -276,12 +276,12 @@ const About = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-primary text-white">
+      <section className="py-20 bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 text-white">
         <div className="container-custom text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
             Join the Trust Revolution
           </h2>
-          <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-white opacity-90 mb-8 max-w-2xl mx-auto">
             Be part of India's first trust-first rental marketplace. Whether you're looking for a home or listing a property, Homer is built for you.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

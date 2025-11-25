@@ -23,12 +23,12 @@ const Pricing = () => {
   return (
     <div className="pricing-page">
       {/* Hero Section */}
-      <section className="bg-gradient-primary text-white py-20" data-testid="pricing-hero">
+      <section className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 text-white py-20" data-testid="pricing-hero">
         <div className="container-custom">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">Transparent Pricing</h1>
-            <p className="text-xl text-primary-100 mb-8">
-              We monetize <span className="font-bold">trust and access</span>, not ads. Start free, upgrade when you see the value. No hidden fees, no surprises.
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">Transparent Pricing</h1>
+            <p className="text-xl text-white opacity-90 mb-8">
+              We monetize <span className="font-bold text-white">trust and access</span>, not ads. Start free, upgrade when you see the value. No hidden fees, no surprises.
             </p>
           </div>
         </div>
@@ -525,12 +525,12 @@ const Pricing = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-primary text-white">
+      <section className="py-20 bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 text-white">
         <div className="container-custom text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
             Ready to Get Started?
           </h2>
-          <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-white opacity-90 mb-8 max-w-2xl mx-auto">
             Start free today. Upgrade when you see the value. No commitment, no credit card required.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

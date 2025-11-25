@@ -47,7 +47,7 @@ const RenterChats = () => {
     }
   };
 
-  const handleSendMessage = async (messageText) => {
+  const handleSendMessage = async (messageText, attachments = [], messageType = 'text') => {
     if (!selectedChat) return;
     
     try {

@@ -78,12 +78,12 @@ const LandingPage = () => {
                 <span className="text-sm font-medium">Trusted by 50,000+ Renters & Owners</span>
               </div>
               
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 text-white">
                 India's First
-                <span className="block text-primary-200">Trust-First Rental Marketplace</span>
+                <span className="block text-white opacity-90">Trust-First Rental Marketplace</span>
               </h1>
               
-              <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto lg:mx-0">
+              <p className="text-xl text-white opacity-90 mb-8 max-w-2xl mx-auto lg:mx-0">
                 No scams. No fake listings. Verified properties + Lifestyle search + Reverse marketplace. 
                 <span className="block mt-2 font-semibold text-white">We monetize trust, not ads.</span>
               </p>
@@ -377,188 +377,95 @@ const LandingPage = () => {
       </section>
 
       {/* Pricing Preview Section */}
+      {/* Pricing Preview Section */}
       <section className="py-20 bg-white" data-testid="pricing-section">
         <div className="container-custom">
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-              Freemium Pricing: Free & Limited vs. Paid & Powerful
+              Simple, Transparent Pricing
             </h2>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto">
               We monetize <span className="font-bold text-primary-600">trust and access</span>, not ads. 
-              Start free, upgrade when ready.
+              Start free, upgrade when you see the value.
             </p>
           </div>
 
-          {/* RENTER PRICING */}
-          <div className="mb-16">
-            <h3 className="text-2xl font-bold text-slate-900 mb-8 text-center flex items-center justify-center">
-              <Search className="w-6 h-6 mr-2 text-primary-600" />
-              For Renters
-            </h3>
-            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              {/* Free Renter */}
-              <div className="bg-slate-50 rounded-2xl p-8 border-2 border-slate-200">
-                <div className="text-center mb-6">
-                  <h4 className="text-2xl font-bold text-slate-900 mb-2">Free Browser</h4>
-                  <div className="text-4xl font-bold text-slate-900 mb-2">₹0</div>
-                  <p className="text-slate-600">Forever Free</p>
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-12">
+            {/* For Renters */}
+            <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl p-8 border-2 border-primary-200">
+              <div className="flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-primary-600 rounded-lg flex items-center justify-center">
+                  <Search className="w-6 h-6 text-white" />
                 </div>
-                <ul className="space-y-3 mb-8">
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-600 mr-3 flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-700">Unlimited browsing of all listings</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-600 mr-3 flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-700">Basic filters (Price, BHK, Location)</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-600 mr-3 flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-700 font-semibold">5 property contacts maximum</span>
-                  </li>
-                  <li className="flex items-start text-slate-400">
-                    <span className="mr-3">✗</span>
-                    <span>No lifestyle search</span>
-                  </li>
-                  <li className="flex items-start text-slate-400">
-                    <span className="mr-3">✗</span>
-                    <span>No reverse marketplace profile</span>
-                  </li>
-                </ul>
-                <Button variant="outline" className="w-full" to="/signup">
-                  Start Free
-                </Button>
               </div>
-
-              {/* Premium Renter - Highlighted */}
-              <div className="bg-gradient-primary rounded-2xl p-8 border-2 border-primary-600 relative shadow-2xl">
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-yellow-400 text-slate-900 px-4 py-1 rounded-full text-sm font-bold">
-                    MOST POPULAR
-                  </span>
+              <h3 className="text-2xl font-bold text-slate-900 text-center mb-4">For Renters</h3>
+              <div className="space-y-4 mb-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-slate-900">₹0 - ₹750</div>
+                  <p className="text-sm text-slate-600">Forever free or one-time payment</p>
                 </div>
-                <div className="text-center mb-6 text-white">
-                  <h4 className="text-2xl font-bold mb-2">Premium Renter</h4>
-                  <div className="text-4xl font-bold mb-2">₹750</div>
-                  <p className="text-primary-100">One-time • 90 days</p>
-                </div>
-                <ul className="space-y-3 mb-8 text-white">
+                <ul className="space-y-2 text-slate-700">
                   <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
-                    <span className="font-semibold">Unlimited property contacts</span>
+                    <CheckCircle className="w-5 h-5 text-primary-600 mr-2 flex-shrink-0 mt-0.5" />
+                    <span>Free: 5 property contacts</span>
                   </li>
                   <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
-                    <span><strong>Verified Renter badge</strong> (after document upload)</span>
+                    <CheckCircle className="w-5 h-5 text-primary-600 mr-2 flex-shrink-0 mt-0.5" />
+                    <span>Premium: Unlimited contacts + lifestyle search</span>
                   </li>
                   <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
-                    <span><strong>Advanced Lifestyle Search</strong> (AQI, noise, walkability)</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
-                    <span><strong>Reverse Marketplace</strong> - Let owners find you</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Natural language search with AI</span>
+                    <CheckCircle className="w-5 h-5 text-primary-600 mr-2 flex-shrink-0 mt-0.5" />
+                    <span>Get verified renter badge</span>
                   </li>
                 </ul>
-                <Button variant="secondary" className="w-full bg-white text-primary-600 hover:bg-primary-50" to="/signup">
-                  Upgrade to Premium
-                </Button>
+              </div>
+            </div>
+
+            {/* For Owners */}
+            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 border-2 border-green-200">
+              <div className="flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                  <Home className="w-6 h-6 text-white" />
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 text-center mb-4">For Property Owners</h3>
+              <div className="space-y-4 mb-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-slate-900">₹0 - ₹2,000</div>
+                  <p className="text-sm text-slate-600">Free listing or one-time verification</p>
+                </div>
+                <ul className="space-y-2 text-slate-700">
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
+                    <span>Free: List with "Not Verified" badge</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
+                    <span>Verified: Top ranking + 5-10X more inquiries</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
+                    <span>Access reverse marketplace</span>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
 
-          {/* OWNER PRICING */}
-          <div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-8 text-center flex items-center justify-center">
-              <Home className="w-6 h-6 mr-2 text-green-600" />
-              For Property Owners
-            </h3>
-            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              {/* Free Owner */}
-              <div className="bg-slate-50 rounded-2xl p-8 border-2 border-slate-200">
-                <div className="text-center mb-6">
-                  <h4 className="text-2xl font-bold text-slate-900 mb-2">Free Lister</h4>
-                  <div className="text-4xl font-bold text-slate-900 mb-2">₹0</div>
-                  <p className="text-slate-600">List for Free</p>
-                </div>
-                <ul className="space-y-3 mb-8">
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-600 mr-3 flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-700">List property for free</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-600 mr-3 flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-700">Visible in search results</span>
-                  </li>
-                  <li className="flex items-start text-amber-600">
-                    <span className="mr-3 font-bold">⚠</span>
-                    <span className="font-semibold">"Not Verified" warning badge</span>
-                  </li>
-                  <li className="flex items-start text-slate-400">
-                    <span className="mr-3">✗</span>
-                    <span>Ranked at bottom of search</span>
-                  </li>
-                  <li className="flex items-start text-slate-400">
-                    <span className="mr-3">✗</span>
-                    <span>No lifestyle data</span>
-                  </li>
-                  <li className="flex items-start text-slate-400">
-                    <span className="mr-3">✗</span>
-                    <span>Not discoverable in lifestyle search</span>
-                  </li>
-                </ul>
-                <Button variant="outline" className="w-full" to="/signup">
-                  List Free
-                </Button>
-              </div>
-
-              {/* Verified Owner - Highlighted */}
-              <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-8 border-2 border-green-600 relative shadow-2xl">
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-yellow-400 text-slate-900 px-4 py-1 rounded-full text-sm font-bold">
-                    RECOMMENDED
-                  </span>
-                </div>
-                <div className="text-center mb-6 text-white">
-                  <h4 className="text-2xl font-bold mb-2">Verified Lister</h4>
-                  <div className="text-4xl font-bold mb-2">₹2,000</div>
-                  <p className="text-green-100">One-time per property</p>
-                </div>
-                <ul className="space-y-3 mb-8 text-white">
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
-                    <span className="font-semibold">"Verified Property" badge 🏆</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
-                    <span><strong>Top search ranking</strong> (above all free listings)</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
-                    <span><strong>Lifestyle data enrichment</strong> (AQI, noise, walkability)</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Discoverable in premium lifestyle searches</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
-                    <span><strong>Reverse Marketplace access</strong> - Browse verified renters</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
-                    <span>5-10X more inquiries</span>
-                  </li>
-                </ul>
-                <Button variant="secondary" className="w-full bg-white text-green-600 hover:bg-green-50" to="/signup">
-                  Get Verified
-                </Button>
-              </div>
-            </div>
+          {/* View Full Pricing Button */}
+          <div className="text-center">
+            <Button 
+              variant="primary" 
+              size="lg" 
+              to="/pricing"
+              className="bg-primary-600 text-white hover:bg-primary-700"
+            >
+              View Complete Pricing Details
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+            <p className="text-sm text-slate-500 mt-4">
+              No hidden fees • No commissions • Fully transparent
+            </p>
           </div>
         </div>
       </section>
@@ -840,14 +747,14 @@ const LandingPage = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-primary text-white" data-testid="cta-section">
+      <section className="py-20 bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 text-white" data-testid="cta-section">
         <div className="container-custom text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
             {isAuthenticated 
               ? `Welcome Back, ${user?.full_name || 'User'}!` 
               : 'Ready to Find Your Perfect Home?'}
           </h2>
-          <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-white opacity-90 mb-8 max-w-2xl mx-auto">
             {isAuthenticated
               ? 'Continue your journey to finding or listing the perfect property'
               : 'Join Homer today and experience India\'s most trusted rental marketplace'}
