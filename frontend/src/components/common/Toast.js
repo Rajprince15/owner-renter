@@ -14,28 +14,28 @@ const Toast = ({ message, type = 'info', onClose, duration = 3000 }) => {
 
   const typeConfig = {
     success: {
-      bgColor: 'bg-green-50',
-      borderColor: 'border-green-500',
-      textColor: 'text-green-800',
-      icon: <CheckCircle className="w-5 h-5 text-green-500" />
+      bgColor: 'bg-green-50 dark:bg-green-900/20',
+      borderColor: 'border-green-500 dark:border-green-500',
+      textColor: 'text-green-800 dark:text-green-300',
+      icon: <CheckCircle className="w-5 h-5 text-green-500 dark:text-green-400" />
     },
     error: {
-      bgColor: 'bg-red-50',
-      borderColor: 'border-red-500',
-      textColor: 'text-red-800',
-      icon: <AlertCircle className="w-5 h-5 text-red-500" />
+      bgColor: 'bg-red-50 dark:bg-red-900/20',
+      borderColor: 'border-red-500 dark:border-red-500',
+      textColor: 'text-red-800 dark:text-red-300',
+      icon: <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400" />
     },
     warning: {
-      bgColor: 'bg-yellow-50',
-      borderColor: 'border-yellow-500',
-      textColor: 'text-yellow-800',
-      icon: <AlertTriangle className="w-5 h-5 text-yellow-500" />
+      bgColor: 'bg-yellow-50 dark:bg-yellow-900/20',
+      borderColor: 'border-yellow-500 dark:border-yellow-500',
+      textColor: 'text-yellow-800 dark:text-yellow-300',
+      icon: <AlertTriangle className="w-5 h-5 text-yellow-500 dark:text-yellow-400" />
     },
     info: {
-      bgColor: 'bg-blue-50',
-      borderColor: 'border-blue-500',
-      textColor: 'text-blue-800',
-      icon: <Info className="w-5 h-5 text-blue-500" />
+      bgColor: 'bg-blue-50 dark:bg-blue-900/20',
+      borderColor: 'border-blue-500 dark:border-blue-500',
+      textColor: 'text-blue-800 dark:text-blue-300',
+      icon: <Info className="w-5 h-5 text-blue-500 dark:text-blue-400" />
     }
   };
 
