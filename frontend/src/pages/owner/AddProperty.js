@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { createProperty } from '../../services/propertyService';
+import { getMyProperties } from '../../services/propertyService';
 import PropertyForm from '../../components/property/PropertyForm';
 import Button from '../../components/common/Button';
+import VerificationBenefitsModal from '../../components/owner/VerificationBenefitsModal';
 
 const STEPS = [
   { id: 1, name: 'Basic Info', description: 'Property details' },
@@ -16,6 +18,7 @@ const STEPS = [
 const AddProperty = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [formData, setFormData] = useState({
     // Basic Info
     title: '',
@@ -137,12 +140,35 @@ const AddProperty = () => {
     window.scrollTo(0, 0);
   };
 
+  const checkIfFirstProperty = async () => {
+    try {
+      const response = await getMyProperties();
+      const properties = response.data || [];
+      
+      // Check if this is the first property
+      if (properties.length === 0) {
+        // Check if modal was shown before
+        const modalShown = localStorage.getItem('verification_modal_shown');
+        if (!modalShown) {
+          setShowVerificationModal(true);
+          localStorage.setItem('verification_modal_shown', 'true');
+        }
+      }
+    } catch (error) {
+      console.error('Error checking properties:', error);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!validateStep(4)) return;
     
     try {
       setSubmitting(true);
       await createProperty(formData);
+      
+      // Check if this is the first property and show modal
+      await checkIfFirstProperty();
+      
       alert('Property added successfully!');
       navigate('/owner/properties');
     } catch (error) {
@@ -151,6 +177,10 @@ const AddProperty = () => {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleVerifyNow = () => {
+    navigate('/owner/verification');
   };
 
   return (
@@ -255,6 +285,13 @@ const AddProperty = () => {
           </div>
         </div>
       </div>
+
+      {/* Verification Benefits Modal */}
+      <VerificationBenefitsModal
+        isOpen={showVerificationModal}
+        onClose={() => setShowVerificationModal(false)}
+        onVerifyNow={handleVerifyNow}
+      />
     </div>
   );
 };

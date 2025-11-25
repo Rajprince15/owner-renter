@@ -32,7 +32,6 @@ import RenterSubscription from './pages/renter/Subscription';
 
 // Owner Pages - Additional
 import OwnerVerification from './pages/owner/Verification';
-import PropertyVerification from './pages/owner/PropertyVerification';
 import ReverseMarketplace from './pages/owner/ReverseMarketplace';
 
 // Renter Pages - Additional
@@ -151,17 +150,17 @@ function App() {
                 </ProtectedRoute>
               } />
               
-              {/* Owner Verification */}
+              {/* Owner Verification - Unified Route */}
               <Route path="/owner/verification" element={
                 <ProtectedRoute userType="owner">
                   <OwnerVerification />
                 </ProtectedRoute>
               } />
               
-              {/* Property Verification */}
+              {/* Legacy redirect for old property-verification route */}
               <Route path="/owner/property-verification" element={
                 <ProtectedRoute userType="owner">
-                  <PropertyVerification />
+                  <OwnerVerification />
                 </ProtectedRoute>
               } />
               

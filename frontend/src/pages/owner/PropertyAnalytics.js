@@ -396,7 +396,8 @@ const PropertyAnalytics = () => {
                   </ul>
                   {!analytics?.verification_status && (
                     <Link
-                      to="/owner/property-verification"
+                      to="/owner/verification"
+                      state={{ propertyId: propertyId }}
                       className="inline-block mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
                     >
                       Verify This Property

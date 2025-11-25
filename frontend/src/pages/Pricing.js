@@ -13,7 +13,7 @@ const Pricing = () => {
       if (plan === 'renter') {
         navigate('/renter/subscription');
       } else if (plan === 'owner') {
-        navigate('/owner/property-verification');
+        navigate('/owner/verification');
       }
     } else {
       navigate('/signup');

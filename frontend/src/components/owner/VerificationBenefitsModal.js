@@ -1,186 +1,138 @@
 import React from 'react';
-import { X, CheckCircle, TrendingUp, Shield, Zap, Eye, Award } from 'lucide-react';
+import { X, Shield, TrendingUp, Eye, Users, CheckCircle } from 'lucide-react';
 import Button from '../common/Button';
 
 const VerificationBenefitsModal = ({ isOpen, onClose, onVerifyNow }) => {
   if (!isOpen) return null;
 
-  const benefits = [
-    {
-      icon: TrendingUp,
-      title: '5X More Views',
-      description: 'Verified properties appear at the top of search results',
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100'
-    },
-    {
-      icon: Shield,
-      title: 'Verified Badge',
-      description: 'Green verified badge builds instant trust with renters',
-      color: 'text-green-600',
-      bgColor: 'bg-green-100'
-    },
-    {
-      icon: Zap,
-      title: 'Lifestyle Data',
-      description: 'AQI, noise levels, walkability scores automatically calculated',
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100'
-    },
-    {
-      icon: Eye,
-      title: 'Premium Visibility',
-      description: 'Appear in advanced lifestyle searches by premium renters',
-      color: 'text-indigo-600',
-      bgColor: 'bg-indigo-100'
-    },
-    {
-      icon: Award,
-      title: 'Quality Tenants',
-      description: 'Attract verified renters with higher income and better profiles',
-      color: 'text-amber-600',
-      bgColor: 'bg-amber-100'
-    }
-  ];
-
-  const stats = [
-    { label: 'Avg. Time to Find Tenant', unverified: '45 days', verified: '7 days', improvement: '84% faster' },
-    { label: 'Monthly Views', unverified: '50', verified: '250+', improvement: '5X more' },
-    { label: 'Quality Inquiries', unverified: '20%', verified: '80%', improvement: '4X better' }
-  ];
-
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto" data-testid="verification-benefits-modal">
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        {/* Overlay */}
+        {/* Background overlay */}
         <div 
           className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" 
           onClick={onClose}
-        ></div>
+        />
 
-        {/* Modal */}
-        <div className="inline-block w-full max-w-4xl my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
-          {/* Header */}
-          <div className="relative bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-8 text-white">
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 text-white hover:text-gray-200 transition"
-              data-testid="close-modal-btn"
-            >
-              <X className="w-6 h-6" />
-            </button>
-            <h2 className="text-3xl font-bold mb-2">Supercharge Your Property Listing! 🚀</h2>
-            <p className="text-green-100 text-lg">Get verified and reach quality tenants 5X faster</p>
+        {/* Center modal */}
+        <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+
+        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+          {/* Header with gradient */}
+          <div className="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-8 text-white">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center">
+                <div className="p-3 bg-white/20 rounded-full mr-4">
+                  <Shield className="w-8 h-8" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold mb-1">Verify Your Properties!</h2>
+                  <p className="text-green-100">Get 5X more views & find tenants faster</p>
+                </div>
+              </div>
+              <button
+                onClick={onClose}
+                className="text-white/80 hover:text-white transition"
+                data-testid="close-modal-button"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
           </div>
 
           {/* Content */}
           <div className="px-6 py-6">
-            {/* Benefits Grid */}
-            <div className="mb-8">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Why Owners Choose Verification</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {benefits.map((benefit, index) => (
-                  <div key={index} className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg">
-                    <div className={`p-3 rounded-lg ${benefit.bgColor}`}>
-                      <benefit.icon className={`w-6 h-6 ${benefit.color}`} />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900 mb-1">{benefit.title}</h4>
-                      <p className="text-sm text-gray-600">{benefit.description}</p>
-                    </div>
-                  </div>
-                ))}
+            {/* Key Benefits */}
+            <div className="space-y-4 mb-6">
+              <div className="flex items-start space-x-4">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Eye className="w-6 h-6 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 mb-1">5X More Views</h3>
+                  <p className="text-sm text-gray-600">
+                    Verified properties appear at the top of search results and get dramatically more visibility
+                  </p>
+                </div>
               </div>
-            </div>
 
-            {/* Comparison Stats */}
-            <div className="mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Verified vs Unverified - Real Numbers</h3>
-              <div className="space-y-4">
-                {stats.map((stat, index) => (
-                  <div key={index} className="bg-white rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-700">{stat.label}</span>
-                      <span className="text-xs font-semibold text-green-600 bg-green-100 px-2 py-1 rounded-full">
-                        {stat.improvement}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="flex-1">
-                        <div className="text-xs text-gray-500 mb-1">Unverified</div>
-                        <div className="text-lg font-bold text-gray-400">{stat.unverified}</div>
-                      </div>
-                      <div className="text-gray-300">→</div>
-                      <div className="flex-1">
-                        <div className="text-xs text-gray-500 mb-1">Verified</div>
-                        <div className="text-lg font-bold text-green-600">{stat.verified}</div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <div className="flex items-start space-x-4">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <TrendingUp className="w-6 h-6 text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 mb-1">Find Tenants Faster</h3>
+                  <p className="text-sm text-gray-600">
+                    Verified listings attract quality renters in 7-10 days vs 45 days for unverified
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-4">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Users className="w-6 h-6 text-purple-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 mb-1">Premium Renters Access</h3>
+                  <p className="text-sm text-gray-600">
+                    Get discovered by verified renters and access the reverse marketplace
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-4">
+                <div className="p-2 bg-amber-100 rounded-lg">
+                  <CheckCircle className="w-6 h-6 text-amber-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 mb-1">Lifestyle Data Enrichment</h3>
+                  <p className="text-sm text-gray-600">
+                    Automatic AQI, noise level, and walkability scores make your listing stand out
+                  </p>
+                </div>
               </div>
             </div>
 
             {/* Pricing */}
-            <div className="bg-gray-50 rounded-xl p-6 mb-6">
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg p-4 mb-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-1">₹2,000 <span className="text-base font-normal text-gray-600">one-time per property</span></h3>
-                  <p className="text-sm text-gray-600">No subscription • No hidden fees • Lifetime verification</p>
+                  <p className="text-sm text-gray-600 mb-1">One-time fee per property</p>
+                  <p className="text-3xl font-bold text-gray-900">₹2,000</p>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm text-gray-600 line-through">₹5,000</div>
-                  <div className="text-green-600 font-semibold">Save 60%</div>
+                  <p className="text-sm text-gray-600 mb-1">Average ROI</p>
+                  <p className="text-2xl font-bold text-green-600">12X</p>
                 </div>
               </div>
             </div>
 
-            {/* What You Get */}
-            <div className="mb-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-3">What's Included:</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {[
-                  'Manual document verification by our team',
-                  'Green verified badge on your listing',
-                  'Priority ranking in all searches',
-                  'Automatic lifestyle data calculation',
-                  'Access to reverse marketplace',
-                  'Dedicated support from verification team',
-                  'Property analytics dashboard',
-                  'Verification within 24-48 hours'
-                ].map((item, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* CTA */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button 
-                onClick={onVerifyNow}
-                variant="primary" 
-                size="lg"
-                className="flex-1 bg-green-600 hover:bg-green-700"
-                data-testid="verify-now-btn"
-              >
-                <Shield className="w-5 h-5 mr-2" />
-                Verify My Property Now
-              </Button>
-              <Button 
+            {/* CTA Buttons */}
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
                 onClick={onClose}
-                variant="outline" 
-                size="lg"
                 className="flex-1"
+                data-testid="maybe-later-button"
               >
                 Maybe Later
               </Button>
+              <Button
+                onClick={() => {
+                  onClose();
+                  onVerifyNow();
+                }}
+                className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                data-testid="verify-now-button"
+              >
+                <Shield className="w-4 h-4 mr-2" />
+                Verify Now
+              </Button>
             </div>
 
+            {/* Footer Note */}
             <p className="text-xs text-center text-gray-500 mt-4">
-              🔒 Secure payment • 100% refund if verification fails • Questions? Contact support@homer.com
+              Verification takes 24-48 hours. You can verify anytime from your dashboard.
             </p>
           </div>
         </div>

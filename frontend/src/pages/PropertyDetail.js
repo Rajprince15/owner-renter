@@ -8,6 +8,7 @@ import {
 import PropertyGallery from '../components/property/PropertyGallery';
 import Button from '../components/common/Button';
 import UpgradeModal from '../components/upsell/UpgradeModal';
+import OwnerVerificationBanner from '../components/property/OwnerVerificationBanner';
 import { getPropertyDetail } from '../services/propertyService';
 import { addToShortlist, removeFromShortlistByPropertyId, isPropertyShortlisted } from '../services/shortlistService';
 import { initiateChat } from '../services/chatService';
@@ -159,6 +160,11 @@ const PropertyDetail = () => {
         <div className="mb-8">
           <PropertyGallery images={property.images} title={property.title} />
         </div>
+
+        {/* Owner Verification Banner (only show if user is the owner) */}
+        {user && user.user_id === property.owner_id && !property.is_verified && (
+          <OwnerVerificationBanner property={property} />
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
