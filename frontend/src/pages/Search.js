@@ -133,20 +133,20 @@ const Search = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3" data-testid="search-page-title">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-3" data-testid="search-page-title">
             Find Your Perfect Home
             {user && user.subscription_tier === 'premium' && (
-              <span className="text-lg text-blue-600 flex items-center gap-1">
+              <span className="text-lg text-blue-600 dark:text-blue-400 flex items-center gap-1">
                 <Sparkles className="w-5 h-5" />
                 Premium Search
               </span>
             )}
           </h1>
-          <p className="text-gray-600">
+          <p className="text-slate-600 dark:text-slate-400">
             {totalCount} properties available in {filters.city}
           </p>
         </div>
@@ -163,17 +163,17 @@ const Search = () => {
 
         {/* Upgrade Banner for Free Users */}
         {user && user.subscription_tier === 'free' && (
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6 mb-6">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-6 transition-colors duration-200">
             <div className="flex items-start gap-3">
-              <Sparkles className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+              <Sparkles className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-blue-900 mb-2">
+                <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-300 mb-2">
                   🌟 Unlock Premium Lifestyle Search Features
                 </h3>
-                <p className="text-sm text-blue-800 mb-3">
+                <p className="text-sm text-blue-800 dark:text-blue-300 mb-3">
                   Get access to AI-powered natural language search, advanced lifestyle filters (air quality, noise levels, walkability), and see detailed lifestyle scores for each property!
                 </p>
-                <ul className="text-sm text-blue-700 mb-4 space-y-1 ml-5 list-disc">
+                <ul className="text-sm text-blue-700 dark:text-blue-400 mb-4 space-y-1 ml-5 list-disc">
                   <li>Natural Language Search - describe your ideal home in plain English</li>
                   <li>Filter by Air Quality, Noise Levels, and Walkability Scores</li>
                   <li>View detailed lifestyle metrics on every property</li>
@@ -181,7 +181,7 @@ const Search = () => {
                 </ul>
                 <button
                   onClick={() => navigate('/renter/subscription')}
-                  className="text-sm font-medium px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="text-sm font-medium px-6 py-2.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-lg transition-colors"
                   data-testid="upgrade-to-premium-btn"
                 >
                   Upgrade to Premium - ₹750 / 90 days
@@ -196,22 +196,22 @@ const Search = () => {
           <div className="mb-6">
             <button
               onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className="w-full bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 hover:from-blue-100 hover:to-indigo-100 transition-colors"
+              className="w-full bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/40 dark:hover:to-indigo-900/40 transition-colors"
               data-testid="toggle-advanced-filters-btn"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Sparkles className="w-5 h-5 text-blue-600" />
+                  <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   <div className="text-left">
-                    <h3 className="text-sm font-semibold text-blue-900">
+                    <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-300">
                       Advanced Lifestyle Filters
                     </h3>
-                    <p className="text-xs text-blue-700">
+                    <p className="text-xs text-blue-700 dark:text-blue-400">
                       Fine-tune your search with air quality, noise, and walkability filters
                     </p>
                   </div>
                 </div>
-                <span className="text-sm font-medium text-blue-600">
+                <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
                   {showAdvancedFilters ? 'Hide' : 'Show'}
                 </span>
               </div>
@@ -248,25 +248,25 @@ const Search = () => {
               </div>
             ) : error ? (
               /* Error State */
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-                <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
-                <p className="text-red-800 font-medium mb-2">Oops! Something went wrong</p>
-                <p className="text-red-600 text-sm mb-4">{error}</p>
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-center transition-colors duration-200">
+                <AlertCircle className="w-12 h-12 text-red-500 dark:text-red-400 mx-auto mb-3" />
+                <p className="text-red-800 dark:text-red-300 font-medium mb-2">Oops! Something went wrong</p>
+                <p className="text-red-600 dark:text-red-400 text-sm mb-4">{error}</p>
                 <button
                   onClick={() => fetchProperties(filters)}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white rounded-md transition-colors"
                 >
                   Try Again
                 </button>
               </div>
             ) : properties.length === 0 ? (
               /* No Results */
-              <div className="bg-white rounded-lg shadow-md p-12 text-center">
-                <SearchIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-md p-12 text-center transition-colors duration-200">
+                <SearchIcon className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
                   No properties found
                 </h3>
-                <p className="text-gray-600 mb-6">
+                <p className="text-slate-600 dark:text-slate-400 mb-6">
                   Try adjusting your filters to see more results
                 </p>
                 <button
@@ -286,7 +286,7 @@ const Search = () => {
                     setFilters(resetFilters);
                     fetchProperties(resetFilters);
                   }}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md transition-colors"
                 >
                   Reset Filters
                 </button>
@@ -304,8 +304,8 @@ const Search = () => {
                       />
                       {/* Lifestyle Scores for Premium Users */}
                       {user && user.subscription_tier === 'premium' && property.lifestyle_data && (
-                        <div className="mt-3 bg-white rounded-lg p-3 shadow-sm border border-gray-200">
-                          <p className="text-xs font-medium text-gray-700 mb-2">Lifestyle Scores:</p>
+                        <div className="mt-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 shadow-sm transition-colors duration-200">
+                          <p className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">Lifestyle Scores:</p>
                           <div className="flex flex-wrap gap-2">
                             {property.lifestyle_data.aqi_score && (
                               <LifestyleScoreBadge
@@ -345,7 +345,7 @@ const Search = () => {
                 {/* Pagination Info */}
                 {hasMore && (
                   <div className="mt-8 text-center">
-                    <p className="text-gray-600 mb-4">
+                    <p className="text-slate-600 dark:text-slate-400 mb-4">
                       Showing {properties.length} of {totalCount} properties
                     </p>
                     <button
@@ -354,7 +354,7 @@ const Search = () => {
                         setFilters(nextFilters);
                         fetchProperties(nextFilters);
                       }}
-                      className="px-6 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-gray-700 font-medium"
+                      className="px-6 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium transition-colors"
                     >
                       Load More
                     </button>

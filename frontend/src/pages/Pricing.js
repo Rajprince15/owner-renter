@@ -35,14 +35,14 @@ const Pricing = () => {
       </section>
 
       {/* Pricing Philosophy */}
-      <section className="py-12 bg-white">
+      <section className="py-12 bg-white dark:bg-slate-900 transition-colors duration-200">
         <div className="container-custom">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl p-8">
-              <h3 className="text-2xl font-bold text-slate-900 mb-4">Why Our Pricing Model Works</h3>
-              <p className="text-lg text-slate-700 leading-relaxed">
+            <div className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/30 border border-primary-200 dark:border-primary-800 rounded-2xl p-8 transition-colors duration-200">
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Why Our Pricing Model Works</h3>
+              <p className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed">
                 Traditional platforms monetize through ads, creating perverse incentives—fake listings pay better than real ones. 
-                <strong className="text-primary-600"> Homer flips this model.</strong> We charge for trust (verification) and access (premium features). 
+                <strong className="text-primary-600 dark:text-primary-400"> Homer flips this model.</strong> We charge for trust (verification) and access (premium features). 
                 This means verified properties always rank higher, and our success is tied to yours.
               </p>
             </div>
@@ -51,7 +51,7 @@ const Pricing = () => {
       </section>
 
       {/* Renter Pricing */}
-      <section className="py-20 bg-slate-50">
+      <section className="py-20 bg-slate-50 dark:bg-slate-800 transition-colors duration-200">
         <div className="container-custom">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center mb-4">
@@ -65,44 +65,44 @@ const Pricing = () => {
 
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {/* Free Renter */}
-            <div className="bg-white rounded-2xl p-8 border-2 border-slate-200 shadow-lg">
+            <div className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-8 shadow-lg transition-colors duration-200">
               <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-slate-900 mb-2">Free Browser</h3>
-                <div className="text-5xl font-bold text-slate-900 mb-2">₹0</div>
-                <p className="text-slate-600">Forever Free • No Credit Card</p>
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Free Browser</h3>
+                <div className="text-5xl font-bold text-slate-900 dark:text-white mb-2">₹0</div>
+                <p className="text-slate-600 dark:text-slate-400">Forever Free • No Credit Card</p>
               </div>
 
               <ul className="space-y-4 mb-8">
                 <li className="flex items-start">
-                  <CheckCircle className="w-5 h-5 text-green-600 mr-3 flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mr-3 flex-shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-medium text-slate-900">Unlimited browsing</span>
-                    <p className="text-sm text-slate-600">View all property listings</p>
+                    <span className="font-medium text-slate-900 dark:text-white">Unlimited browsing</span>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">View all property listings</p>
                   </div>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="w-5 h-5 text-green-600 mr-3 flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mr-3 flex-shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-medium text-slate-900">Basic filters</span>
-                    <p className="text-sm text-slate-600">Price, BHK, Location</p>
+                    <span className="font-medium text-slate-900 dark:text-white">Basic filters</span>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Price, BHK, Location</p>
                   </div>
                 </li>
                 <li className="flex items-start">
-                  <div className="w-5 h-5 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0 mt-0.5 text-xs font-bold">5</div>
+                  <div className="w-5 h-5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-full flex items-center justify-center mr-3 flex-shrink-0 mt-0.5 text-xs font-bold">5</div>
                   <div>
-                    <span className="font-semibold text-amber-600">5 property contacts maximum</span>
-                    <p className="text-sm text-slate-600">Contact up to 5 owners</p>
+                    <span className="font-semibold text-amber-600 dark:text-amber-400">5 property contacts maximum</span>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Contact up to 5 owners</p>
                   </div>
                 </li>
-                <li className="flex items-start text-slate-400">
+                <li className="flex items-start text-slate-400 dark:text-slate-600">
                   <X className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
                   <span>No lifestyle search</span>
                 </li>
-                <li className="flex items-start text-slate-400">
+                <li className="flex items-start text-slate-400 dark:text-slate-600">
                   <X className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
                   <span>No reverse marketplace profile</span>
                 </li>
-                <li className="flex items-start text-slate-400">
+                <li className="flex items-start text-slate-400 dark:text-slate-600">
                   <X className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
                   <span>No verified renter badge</span>
                 </li>
@@ -182,25 +182,25 @@ const Pricing = () => {
       </section>
 
       {/* Owner Pricing */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white dark:bg-slate-900 transition-colors duration-200">
         <div className="container-custom">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center mb-4">
-              <Home className="w-8 h-8 text-green-600 mr-3" />
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900">For Property Owners</h2>
+              <Home className="w-8 h-8 text-green-600 dark:text-green-400 mr-3" />
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">For Property Owners</h2>
             </div>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+            <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
               Find verified tenants faster with trust and visibility
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {/* Free Owner */}
-            <div className="bg-white rounded-2xl p-8 border-2 border-slate-200 shadow-lg">
+            <div className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-8 shadow-lg transition-colors duration-200">
               <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-slate-900 mb-2">Free Lister</h3>
-                <div className="text-5xl font-bold text-slate-900 mb-2">₹0</div>
-                <p className="text-slate-600">List for Free • Forever</p>
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Free Lister</h3>
+                <div className="text-5xl font-bold text-slate-900 dark:text-white mb-2">₹0</div>
+                <p className="text-slate-600 dark:text-slate-400">List for Free • Forever</p>
               </div>
 
               <ul className="space-y-4 mb-8">

@@ -65,14 +65,14 @@ const PaymentSuccess = () => {
   const IconComponent = successData.icon;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 py-12 px-4" data-testid="payment-success-page">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 py-12 px-4 transition-colors duration-200" data-testid="payment-success-page">
       <div className="max-w-2xl mx-auto">
         {/* Success Card */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden transition-colors duration-200">
           {/* Header with Animation */}
           <div className="bg-gradient-to-r from-green-500 to-green-600 p-8 text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full mb-4 animate-bounce">
-              <CheckCircle className="w-12 h-12 text-green-600" />
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-white dark:bg-slate-800 rounded-full mb-4 animate-bounce">
+              <CheckCircle className="w-12 h-12 text-green-600 dark:text-green-400" />
             </div>
             <h1 className="text-3xl font-bold text-white mb-2" data-testid="success-title">
               {successData.title}
@@ -82,14 +82,14 @@ const PaymentSuccess = () => {
 
           {/* Payment Details */}
           <div className="p-8">
-            <div className="bg-gray-50 rounded-lg p-6 mb-6">
+            <div className="bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg p-6 mb-6 transition-colors duration-200">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-gray-600">Amount Paid:</span>
-                <span className="text-2xl font-bold text-gray-900">₹{amount || 'N/A'}</span>
+                <span className="text-slate-600 dark:text-slate-400">Amount Paid:</span>
+                <span className="text-2xl font-bold text-slate-900 dark:text-white">₹{amount || 'N/A'}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Payment Status:</span>
-                <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-semibold rounded-full">
+                <span className="text-slate-600 dark:text-slate-400">Payment Status:</span>
+                <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-sm font-semibold rounded-full">
                   Success
                 </span>
               </div>
@@ -98,15 +98,15 @@ const PaymentSuccess = () => {
             {/* Benefits/Next Steps */}
             {successData.benefits.length > 0 && (
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <IconComponent className={`w-6 h-6 ${successData.iconColor} mr-2`} />
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center">
+                  <IconComponent className={`w-6 h-6 ${successData.iconColor} dark:opacity-80 mr-2`} />
                   What's Next?
                 </h3>
                 <ul className="space-y-3">
                   {successData.benefits.map((benefit, index) => (
                     <li key={index} className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-600 mr-3 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">{benefit}</span>
+                      <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mr-3 flex-shrink-0 mt-0.5" />
+                      <span className="text-slate-700 dark:text-slate-300">{benefit}</span>
                     </li>
                   ))}
                 </ul>
@@ -135,8 +135,8 @@ const PaymentSuccess = () => {
             </div>
 
             {/* Additional Info */}
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-900 text-center">
+            <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg transition-colors duration-200">
+              <p className="text-sm text-blue-900 dark:text-blue-300 text-center">
                 📧 A confirmation email has been sent to your registered email address
               </p>
             </div>
@@ -145,9 +145,9 @@ const PaymentSuccess = () => {
 
         {/* Support */}
         <div className="text-center mt-6">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
             Need help?{' '}
-            <a href="mailto:support@homer.com" className="text-blue-600 hover:underline">
+            <a href="mailto:support@homer.com" className="text-blue-600 dark:text-blue-400 hover:underline">
               Contact Support
             </a>
           </p>
