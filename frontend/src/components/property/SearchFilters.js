@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import Button from '../common/Button';
+import { CITIES, PROPERTY_TYPES, BHK_TYPES, FURNISHING_TYPES } from '../../constants/propertyConstants';
 
 const SearchFilters = ({ onFilterChange, initialFilters = {} }) => {
   const [filters, setFilters] = useState({
@@ -87,10 +88,9 @@ const SearchFilters = ({ onFilterChange, initialFilters = {} }) => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               data-testid="filter-city"
             >
-              <option value="Bangalore">Bangalore</option>
-              <option value="Mumbai">Mumbai</option>
-              <option value="Delhi">Delhi</option>
-              <option value="Pune">Pune</option>
+              {CITIES.map(city => (
+                <option key={city.value} value={city.value}>{city.label}</option>
+              ))}
             </select>
           </div>
 
@@ -146,10 +146,9 @@ const SearchFilters = ({ onFilterChange, initialFilters = {} }) => {
               data-testid="filter-bhk-type"
             >
               <option value="">All</option>
-              <option value="1BHK">1 BHK</option>
-              <option value="2BHK">2 BHK</option>
-              <option value="3BHK">3 BHK</option>
-              <option value="4BHK+">4+ BHK</option>
+              {BHK_TYPES.map(bhk => (
+                <option key={bhk.value} value={bhk.value}>{bhk.label}</option>
+              ))}
             </select>
           </div>
 
@@ -165,10 +164,9 @@ const SearchFilters = ({ onFilterChange, initialFilters = {} }) => {
               data-testid="filter-property-type"
             >
               <option value="">All</option>
-              <option value="apartment">Apartment</option>
-              <option value="villa">Villa</option>
-              <option value="independent_house">Independent House</option>
-              <option value="pg">PG</option>
+              {PROPERTY_TYPES.map(type => (
+                <option key={type.value} value={type.value}>{type.label}</option>
+              ))}
             </select>
           </div>
 
@@ -184,9 +182,9 @@ const SearchFilters = ({ onFilterChange, initialFilters = {} }) => {
               data-testid="filter-furnishing"
             >
               <option value="">All</option>
-              <option value="furnished">Furnished</option>
-              <option value="semi-furnished">Semi-Furnished</option>
-              <option value="unfurnished">Unfurnished</option>
+              {FURNISHING_TYPES.map(type => (
+                <option key={type.value} value={type.value}>{type.label}</option>
+              ))}
             </select>
           </div>
 

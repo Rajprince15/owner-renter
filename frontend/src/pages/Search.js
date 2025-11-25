@@ -24,9 +24,16 @@ const Search = () => {
     property_type: searchParams.get('property_type') || '',
     furnishing: searchParams.get('furnishing') || '',
     sort_by: searchParams.get('sort_by') || 'default',
+    // Lifestyle filters (premium only)
+    max_aqi: searchParams.get('max_aqi') || '',
+    max_noise: searchParams.get('max_noise') || '',
+    min_walkability: searchParams.get('min_walkability') || '',
+    near_parks: searchParams.get('near_parks') === 'true',
+    pet_friendly: searchParams.get('pet_friendly') === 'true',
     page: 1,
     limit: 20
   });
+  const [showLifestyleFilters, setShowLifestyleFilters] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [shortlistedProperties, setShortlistedProperties] = useState(new Set());
@@ -102,28 +109,109 @@ const Search = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2" data-testid="search-page-title">
-              Find Your Perfect Home
-            </h1>
-            <p className="text-gray-600">
-              {totalCount} properties available in {filters.city}
-            </p>
-          </div>
-          
-          {/* Premium Lifestyle Search Button */}
-          {user && user.subscription_tier === 'premium' && (
-            <button
-              onClick={() => navigate('/lifestyle-search')}
-              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all flex items-center gap-2"
-              data-testid="lifestyle-search-btn"
-            >
-              <SearchIcon className="w-4 h-4" />
-              Lifestyle Search
-            </button>
-          )}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2" data-testid="search-page-title">
+            Find Your Perfect Home
+          </h1>
+          <p className="text-gray-600">
+            {totalCount} properties available in {filters.city}
+            {user && user.subscription_tier === 'premium' && ' • Use lifestyle filters below for advanced search'}
+          </p>
         </div>
+
+        {/* Lifestyle Filters Section for Premium Users */}
+        {user && user.subscription_tier === 'premium' && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <SearchIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold text-blue-900">
+                    🌟 Lifestyle Filters (Premium)
+                  </h3>
+                  <button
+                    onClick={() => setShowLifestyleFilters(!showLifestyleFilters)}
+                    className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                  >
+                    {showLifestyleFilters ? 'Hide' : 'Show'} Advanced Filters
+                  </button>
+                </div>
+                
+                {showLifestyleFilters && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    {/* AQI Filter */}
+                    <div>
+                      <label className="block text-xs font-medium text-blue-900 mb-1">
+                        Max Air Quality Index (AQI)
+                      </label>
+                      <input
+                        type="number"
+                        value={filters.max_aqi}
+                        onChange={(e) => handleFilterChange({ max_aqi: e.target.value })}
+                        placeholder="e.g., 60"
+                        className="w-full px-3 py-2 text-sm border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <p className="text-xs text-blue-700 mt-1">Lower is better (0-50: Good)</p>
+                    </div>
+
+                    {/* Noise Level Filter */}
+                    <div>
+                      <label className="block text-xs font-medium text-blue-900 mb-1">
+                        Max Noise Level (dB)
+                      </label>
+                      <input
+                        type="number"
+                        value={filters.max_noise}
+                        onChange={(e) => handleFilterChange({ max_noise: e.target.value })}
+                        placeholder="e.g., 65"
+                        className="w-full px-3 py-2 text-sm border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <p className="text-xs text-blue-700 mt-1">Lower is quieter (&lt; 60: Quiet)</p>
+                    </div>
+
+                    {/* Walkability Filter */}
+                    <div>
+                      <label className="block text-xs font-medium text-blue-900 mb-1">
+                        Min Walkability Score
+                      </label>
+                      <input
+                        type="number"
+                        value={filters.min_walkability}
+                        onChange={(e) => handleFilterChange({ min_walkability: e.target.value })}
+                        placeholder="e.g., 70"
+                        className="w-full px-3 py-2 text-sm border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <p className="text-xs text-blue-700 mt-1">Higher is better (70+: Good)</p>
+                    </div>
+
+                    {/* Checkboxes */}
+                    <div className="flex items-center gap-4 md:col-span-3">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={filters.near_parks}
+                          onChange={(e) => handleFilterChange({ near_parks: e.target.checked })}
+                          className="w-4 h-4 text-blue-600 border-blue-300 rounded focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-blue-900">Near Parks/Green Spaces</span>
+                      </label>
+                      
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={filters.pet_friendly}
+                          onChange={(e) => handleFilterChange({ pet_friendly: e.target.checked })}
+                          className="w-4 h-4 text-blue-600 border-blue-300 rounded focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-blue-900">Pet Friendly</span>
+                      </label>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Upgrade Banner for Free Users */}
         {user && user.subscription_tier === 'free' && (
@@ -137,20 +225,12 @@ const Search = () => {
                 <p className="text-sm text-blue-800 mb-2">
                   Search by air quality, noise levels, walkability, and more! Plus unlimited contacts and verified badge.
                 </p>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => navigate('/lifestyle-search')}
-                    className="text-sm font-medium text-blue-600 hover:text-blue-700 underline"
-                  >
-                    Learn More →
-                  </button>
-                  <button
-                    onClick={() => navigate('/renter/subscription')}
-                    className="text-sm font-medium px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-                  >
-                    Upgrade Now
-                  </button>
-                </div>
+                <button
+                  onClick={() => navigate('/renter/subscription')}
+                  className="text-sm font-medium px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Upgrade to Premium - ₹750 / 90 days
+                </button>
               </div>
             </div>
           </div>

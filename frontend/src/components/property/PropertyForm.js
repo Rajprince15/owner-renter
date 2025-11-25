@@ -1,6 +1,7 @@
 import React from 'react';
 import Input from '../common/Input';
 import { Upload, X } from 'lucide-react';
+import { CITIES, PROPERTY_TYPES } from '../../constants/propertyConstants';
 
 const PropertyForm = ({ formData, errors, currentStep, onInputChange, onNestedChange }) => {
   
@@ -52,10 +53,9 @@ const PropertyForm = ({ formData, errors, currentStep, onInputChange, onNestedCh
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               data-testid="property-type-select"
             >
-              <option value="apartment">Apartment</option>
-              <option value="villa">Villa</option>
-              <option value="independent_house">Independent House</option>
-              <option value="pg">PG</option>
+              {PROPERTY_TYPES.map(type => (
+                <option key={type.value} value={type.value}>{type.label}</option>
+              ))}
             </select>
           </div>
           
@@ -137,15 +137,24 @@ const PropertyForm = ({ formData, errors, currentStep, onInputChange, onNestedCh
           </div>
           
           <div>
-            <Input
-              label="City"
-              placeholder="Bangalore"
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              City <span className="text-red-500">*</span>
+            </label>
+            <select
               value={formData.location.city}
               onChange={(e) => onNestedChange('location', 'city', e.target.value)}
-              error={errors['location.city']}
-              required
-              data-testid="city-input"
-            />
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                errors['location.city'] ? 'border-red-500' : 'border-slate-300'
+              }`}
+              data-testid="city-select"
+            >
+              {CITIES.map(city => (
+                <option key={city.value} value={city.value}>{city.label}</option>
+              ))}
+            </select>
+            {errors['location.city'] && (
+              <p className="text-red-500 text-sm mt-1">{errors['location.city']}</p>
+            )}
           </div>
           
           <div>
@@ -527,7 +536,7 @@ const PropertyForm = ({ formData, errors, currentStep, onInputChange, onNestedCh
         
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-sm text-blue-800">
-            <strong>Note:</strong> Your property will be listed as "Unverified" initially. 
+            <strong>Note:</strong> Your property will be listed as &ldquo;Unverified&rdquo; initially. 
             You can get it verified by paying ₹2000 to unlock lifestyle data and 5X more views.
           </p>
         </div>

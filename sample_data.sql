@@ -210,6 +210,89 @@ INSERT INTO properties (
     NOW()
 );
 
+-- Property 4: Villa in Mumbai
+INSERT INTO properties (
+    property_id, owner_id, title, description, property_type, bhk_type,
+    rent, security_deposit, maintenance_charges,
+    location, details, images,
+    is_verified, verification_tier, verification_date, verification_fee_paid,
+    lifestyle_data, status, created_at
+) VALUES (
+    'prop_004_verified',
+    'user_004_owner_verified',
+    'Luxury 4BHK Villa in Bandra',
+    'Stunning 4BHK villa with sea view, private garden, and modern amenities. Perfect for executives.',
+    'villa',
+    '4BHK+',
+    85000.00,
+    170000.00,
+    8000.00,
+    '{"address": "567, Hill Road, Bandra West", "city": "Mumbai", "state": "Maharashtra", "pincode": "400050", "latitude": 19.0596, "longitude": 72.8295, "locality": "Bandra West", "landmarks": ["Bandstand", "Linking Road", "Bandra Station"]}',
+    '{"carpet_area": 2800, "total_floors": 3, "floor_number": 1, "furnishing": "furnished", "parking": {"car": 3, "bike": 2}, "amenities": ["gym", "swimming_pool", "security", "power_backup", "garden", "club_house"], "bathrooms": 4, "balconies": 3, "facing": "west", "age_of_property": 1, "available_from": "2025-02-05", "preferred_tenants": ["family"], "pets_allowed": true, "vegetarian_only": false}',
+    '["https://example.com/images/prop4_img1.jpg", "https://example.com/images/prop4_img2.jpg"]',
+    TRUE,
+    'verified',
+    NOW(),
+    TRUE,
+    '{"aqi_score": 72, "noise_level": 68, "walkability_score": 78, "nearby_parks": [{"name": "Bandra Fort", "distance": 0.5}], "nearby_hospitals": [{"name": "Lilavati Hospital", "distance": 1.8}], "nearby_schools": [{"name": "St. Stanislaus High School", "distance": 0.9}], "nearby_malls": [{"name": "Palladium Mall", "distance": 2.1}], "public_transport_score": 88, "safety_score": 85, "calculated_at": "2025-01-17T10:00:00", "is_mock": true}',
+    'active',
+    NOW()
+);
+
+-- Property 5: Independent House in Delhi
+INSERT INTO properties (
+    property_id, owner_id, title, description, property_type, bhk_type,
+    rent, security_deposit, maintenance_charges,
+    location, details, images,
+    is_verified, verification_tier, verification_date, verification_fee_paid,
+    lifestyle_data, status, created_at
+) VALUES (
+    'prop_005_verified',
+    'user_003_owner_free',
+    'Spacious 3BHK Independent House in South Delhi',
+    'Beautiful independent house with garden, terrace, and ample parking. Ideal for families.',
+    'independent_house',
+    '3BHK',
+    55000.00,
+    110000.00,
+    4000.00,
+    '{"address": "89, Defence Colony", "city": "Delhi", "state": "Delhi", "pincode": "110024", "latitude": 28.5672, "longitude": 77.2364, "locality": "Defence Colony", "landmarks": ["Lajpat Nagar Metro", "Nehru Place", "INA Market"]}',
+    '{"carpet_area": 2100, "total_floors": 2, "floor_number": 1, "furnishing": "semi-furnished", "parking": {"car": 2, "bike": 2}, "amenities": ["power_backup", "security", "water_supply", "park"], "bathrooms": 3, "balconies": 2, "facing": "north", "age_of_property": 5, "available_from": "2025-03-01", "preferred_tenants": ["family"], "pets_allowed": true, "vegetarian_only": false}',
+    '["https://example.com/images/prop5_img1.jpg"]',
+    TRUE,
+    'verified',
+    NOW(),
+    TRUE,
+    '{"aqi_score": 95, "noise_level": 75, "walkability_score": 65, "nearby_parks": [{"name": "Nehru Park", "distance": 1.5}], "nearby_hospitals": [{"name": "Max Hospital", "distance": 2.3}], "nearby_schools": [{"name": "Modern School", "distance": 1.8}], "nearby_malls": [{"name": "Select Citywalk", "distance": 3.5}], "public_transport_score": 80, "safety_score": 78, "calculated_at": "2025-01-18T10:00:00", "is_mock": true}',
+    'active',
+    NOW()
+);
+
+-- Property 6: PG in Pune
+INSERT INTO properties (
+    property_id, owner_id, title, description, property_type, bhk_type,
+    rent, security_deposit, maintenance_charges,
+    location, details, images,
+    is_verified, verification_tier, status, created_at
+) VALUES (
+    'prop_006_free',
+    'user_003_owner_free',
+    'Comfortable PG for Working Professionals in Koregaon Park',
+    'Clean and well-maintained PG with all amenities. Food included. Close to IT parks.',
+    'pg',
+    '1BHK',
+    8500.00,
+    17000.00,
+    0.00,
+    '{"address": "34, North Main Road, Koregaon Park", "city": "Pune", "state": "Maharashtra", "pincode": "411001", "latitude": 18.5362, "longitude": 73.8958, "locality": "Koregaon Park", "landmarks": ["Osho Ashram", "Seasons Mall", "Pune Airport"]}',
+    '{"carpet_area": 350, "total_floors": 3, "floor_number": 2, "furnishing": "furnished", "parking": {"car": 0, "bike": 1}, "amenities": ["wifi", "power_backup", "security", "water_supply"], "bathrooms": 1, "balconies": 0, "facing": "east", "age_of_property": 3, "available_from": "2025-02-10", "preferred_tenants": ["bachelor"], "pets_allowed": false, "vegetarian_only": true}',
+    '["https://example.com/images/prop6_img1.jpg"]',
+    FALSE,
+    'free',
+    'active',
+    NOW()
+);
+
 -- =====================================================================
 -- SAMPLE SHORTLISTS
 -- =====================================================================
