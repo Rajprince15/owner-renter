@@ -12,6 +12,7 @@ import {
 } from '../../services/adminService';
 import { useAuth } from '../../context/AuthContext';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
+import DocumentViewer from '../../components/admin/DocumentViewer';
 import { useToast } from '../../context/ToastContext';
 
 const VerificationManagement = () => {
@@ -30,6 +31,9 @@ const VerificationManagement = () => {
   const [rejectionReason, setRejectionReason] = useState('');
   const [showApproveConfirm, setShowApproveConfirm] = useState(false);
   const [verificationToApprove, setVerificationToApprove] = useState(null);
+  const [showDocumentViewer, setShowDocumentViewer] = useState(false);
+  const [viewingDocuments, setViewingDocuments] = useState(null);
+  const [documentViewerTitle, setDocumentViewerTitle] = useState('');
 
   useEffect(() => {
     if (!user?.is_admin) {
@@ -145,6 +149,20 @@ const VerificationManagement = () => {
       </div>
 
       <div className="flex gap-3">
+        {verification.documents && Object.keys(verification.documents).length > 0 && (
+          <button
+            onClick={() => {
+              setViewingDocuments(verification.documents);
+              setDocumentViewerTitle(`${type === 'property' ? verification.property_title : verification.user_name} - Documents`);
+              setShowDocumentViewer(true);
+            }}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            data-testid="view-documents-button"
+          >
+            <Eye className="w-4 h-4" />
+            View Documents
+          </button>
+        )}
         <button
           onClick={() => handleApprove(verification, type)}
           className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
@@ -325,6 +343,18 @@ const VerificationManagement = () => {
           </div>
         </div>
       )}
+
+      {/* Document Viewer */}
+      <DocumentViewer
+        isOpen={showDocumentViewer}
+        onClose={() => {
+          setShowDocumentViewer(false);
+          setViewingDocuments(null);
+          setDocumentViewerTitle('');
+        }}
+        documents={viewingDocuments}
+        title={documentViewerTitle}
+      />
     </div>
   );
 };

@@ -1,12 +1,22 @@
 import React, { useState } from 'react';
-import { Edit2, Trash2, CheckCircle, Home, Eye } from 'lucide-react';
+import { Edit2, Trash2, CheckCircle, Home, Eye, Image as ImageIcon, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const PropertyTable = ({ properties, onEdit, onDelete, onVerify, onChangeStatus }) => {
+const PropertyTable = ({ 
+  properties, 
+  selectedProperties,
+  onSelectProperty,
+  onSelectAll,
+  onView,
+  onDelete, 
+  onForceVerify, 
+  onChangeStatus,
+  onViewImages,
+  onViewDocuments
+}) => {
   const navigate = useNavigate();
   const [sortBy, setSortBy] = useState('created_at');
   const [sortOrder, setSortOrder] = useState('desc');
-  const [selectedProperties, setSelectedProperties] = useState([]);
 
   const handleSort = (field) => {
     if (sortBy === field) {
@@ -34,20 +44,6 @@ const PropertyTable = ({ properties, onEdit, onDelete, onVerify, onChangeStatus 
     return 0;
   });
 
-  const toggleSelectProperty = (propertyId) => {
-    setSelectedProperties(prev => 
-      prev.includes(propertyId) 
-        ? prev.filter(id => id !== propertyId)
-        : [...prev, propertyId]
-    );
-  };
-
-  const toggleSelectAll = () => {
-    setSelectedProperties(prev => 
-      prev.length === properties.length ? [] : properties.map(p => p.property_id)
-    );
-  };
-
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden" data-testid="property-table">
       {selectedProperties.length > 0 && (
@@ -57,7 +53,7 @@ const PropertyTable = ({ properties, onEdit, onDelete, onVerify, onChangeStatus 
               {selectedProperties.length} property(ies) selected
             </span>
             <button
-              onClick={() => onDelete(selectedProperties)}
+              onClick={() => {/* Bulk delete handled by parent */}}
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium"
               data-testid="bulk-delete-properties"
             >
@@ -74,8 +70,8 @@ const PropertyTable = ({ properties, onEdit, onDelete, onVerify, onChangeStatus 
               <th className="px-6 py-3 text-left">
                 <input
                   type="checkbox"
-                  checked={selectedProperties.length === properties.length && properties.length > 0}
-                  onChange={toggleSelectAll}
+                  checked={selectedProperties?.length === properties.length && properties.length > 0}
+                  onChange={onSelectAll}
                   className="rounded border-gray-300"
                 />
               </th>
@@ -117,8 +113,8 @@ const PropertyTable = ({ properties, onEdit, onDelete, onVerify, onChangeStatus 
                 <td className="px-6 py-4 whitespace-nowrap">
                   <input
                     type="checkbox"
-                    checked={selectedProperties.includes(property.property_id)}
-                    onChange={() => toggleSelectProperty(property.property_id)}
+                    checked={selectedProperties?.includes(property.property_id)}
+                    onChange={() => onSelectProperty(property.property_id)}
                     className="rounded border-gray-300"
                   />
                 </td>
@@ -158,12 +154,13 @@ const PropertyTable = ({ properties, onEdit, onDelete, onVerify, onChangeStatus 
                 <td className="px-6 py-4 whitespace-nowrap">
                   <select
                     value={property.status}
-                    onChange={(e) => onChangeStatus(property.property_id, e.target.value)}
+                    onChange={(e) => onChangeStatus?.(property, e.target.value)}
                     className={`px-2 py-1 text-xs leading-5 font-semibold rounded-full border-0 focus:ring-2 ${
                       property.status === 'active' ? 'bg-green-100 text-green-800' :
                       property.status === 'rented' ? 'bg-blue-100 text-blue-800' :
                       'bg-gray-100 text-gray-800'
                     }`}
+                    data-testid={`status-select-${property.property_id}`}
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
@@ -182,31 +179,45 @@ const PropertyTable = ({ properties, onEdit, onDelete, onVerify, onChangeStatus 
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex items-center justify-end gap-2">
                     <button
-                      onClick={() => navigate(`/property/${property.property_id}`)}
+                      onClick={() => onView?.(property.property_id)}
                       className="text-gray-600 hover:text-gray-900"
                       title="View property"
+                      data-testid={`view-property-${property.property_id}`}
                     >
                       <Eye className="w-4 h-4" />
                     </button>
-                    <button
-                      onClick={() => onEdit(property)}
-                      className="text-blue-600 hover:text-blue-900"
-                      title="Edit property"
-                      data-testid={`edit-property-${property.property_id}`}
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
+                    {property.images && property.images.length > 0 && (
+                      <button
+                        onClick={() => onViewImages?.(property)}
+                        className="text-purple-600 hover:text-purple-900"
+                        title="View images"
+                        data-testid={`view-images-${property.property_id}`}
+                      >
+                        <ImageIcon className="w-4 h-4" />
+                      </button>
+                    )}
+                    {property.verification_documents && (
+                      <button
+                        onClick={() => onViewDocuments?.(property)}
+                        className="text-indigo-600 hover:text-indigo-900"
+                        title="View documents"
+                        data-testid={`view-documents-${property.property_id}`}
+                      >
+                        <FileText className="w-4 h-4" />
+                      </button>
+                    )}
                     {!property.is_verified && (
                       <button
-                        onClick={() => onVerify(property.property_id)}
+                        onClick={() => onForceVerify?.(property.property_id)}
                         className="text-green-600 hover:text-green-900"
                         title="Force verify"
+                        data-testid={`verify-property-${property.property_id}`}
                       >
                         <CheckCircle className="w-4 h-4" />
                       </button>
                     )}
                     <button
-                      onClick={() => onDelete([property.property_id])}
+                      onClick={() => onDelete?.(property.property_id)}
                       className="text-red-600 hover:text-red-900"
                       title="Delete property"
                       data-testid={`delete-property-${property.property_id}`}
