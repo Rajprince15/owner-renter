@@ -40,7 +40,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-slate-900 text-slate-300" data-testid="footer">
+    <footer className="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-t border-slate-200 dark:border-slate-800 transition-colors duration-200" data-testid="footer">
       <div className="container-custom py-12">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
@@ -50,9 +50,9 @@ const Footer = () => {
               <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
                 <Home className="w-6 h-6 text-white" />
               </div>
-              <span className="text-2xl font-bold text-white">Homer</span>
+              <span className="text-2xl font-bold text-slate-900 dark:text-white">Homer</span>
             </Link>
-            <p className="text-sm text-slate-400 mb-4">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               Find your perfect rental home with verified properties, lifestyle search, and trusted connections.
             </p>
             <div className="flex space-x-3">
@@ -62,7 +62,7 @@ const Footer = () => {
                   href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-9 h-9 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-primary-600 transition-colors"
+                  className="w-9 h-9 bg-slate-200 dark:bg-slate-800 rounded-lg flex items-center justify-center hover:bg-primary-600 dark:hover:bg-primary-600 hover:text-white transition-colors"
                   aria-label={social.name}
                 >
                   <social.icon className="w-4 h-4" />
@@ -73,13 +73,13 @@ const Footer = () => {
 
           {/* Company Links */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Company</h3>
+            <h3 className="text-slate-900 dark:text-white font-semibold mb-4">Company</h3>
             <ul className="space-y-2">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.path}
-                    className="text-sm hover:text-primary-400 transition-colors"
+                    className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -90,13 +90,13 @@ const Footer = () => {
 
           {/* For Renters */}
           <div>
-            <h3 className="text-white font-semibold mb-4">For Renters</h3>
+            <h3 className="text-slate-900 dark:text-white font-semibold mb-4">For Renters</h3>
             <ul className="space-y-2">
               {footerLinks.renters.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.path}
-                    className="text-sm hover:text-primary-400 transition-colors"
+                    className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -107,13 +107,13 @@ const Footer = () => {
 
           {/* For Owners */}
           <div>
-            <h3 className="text-white font-semibold mb-4">For Owners</h3>
+            <h3 className="text-slate-900 dark:text-white font-semibold mb-4">For Owners</h3>
             <ul className="space-y-2">
               {footerLinks.owners.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.path}
-                    className="text-sm hover:text-primary-400 transition-colors"
+                    className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -124,13 +124,13 @@ const Footer = () => {
 
           {/* Legal */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Legal</h3>
+            <h3 className="text-slate-900 dark:text-white font-semibold mb-4">Legal</h3>
             <ul className="space-y-2">
               {footerLinks.legal.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.path}
-                    className="text-sm hover:text-primary-400 transition-colors"
+                    className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -141,30 +141,30 @@ const Footer = () => {
         </div>
 
         {/* Contact Info */}
-        <div className="border-t border-slate-800 pt-8 mb-8">
+        <div className="border-t border-slate-200 dark:border-slate-800 pt-8 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div className="flex items-center space-x-2">
-              <Mail className="w-5 h-5 text-primary-400" />
-              <span>support@homer.com</span>
+              <Mail className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              <span className="text-slate-600 dark:text-slate-400">support@homer.com</span>
             </div>
             <div className="flex items-center space-x-2">
-              <Phone className="w-5 h-5 text-primary-400" />
-              <span>+91 1800-123-4567</span>
+              <Phone className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              <span className="text-slate-600 dark:text-slate-400">+91 1800-123-4567</span>
             </div>
             <div className="flex items-center space-x-2">
-              <MapPin className="w-5 h-5 text-primary-400" />
-              <span>Bangalore, Karnataka, India</span>
+              <MapPin className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              <span className="text-slate-600 dark:text-slate-400">Bangalore, Karnataka, India</span>
             </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-slate-800 pt-8">
+        <div className="border-t border-slate-200 dark:border-slate-800 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
               © {currentYear} Homer. All rights reserved.
             </p>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
               Made with ❤️ for renters and property owners
             </p>
           </div>

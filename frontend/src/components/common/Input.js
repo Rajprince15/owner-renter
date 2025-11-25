@@ -3,41 +3,45 @@ import React from 'react';
 const Input = ({ 
   label, 
   type = 'text', 
-  name, 
+  placeholder, 
   value, 
   onChange, 
   error, 
-  placeholder, 
   required = false,
+  disabled = false,
   className = '',
   ...props 
 }) => {
   return (
-    <div className="mb-4">
+    <div className="w-full">
       {label && (
-        <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
       <input
-        id={name}
-        name={name}
         type={type}
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        required={required}
+        disabled={disabled}
         className={`
-          w-full px-4 py-2 border rounded-lg
-          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-          ${error ? 'border-red-500' : 'border-gray-300'}
+          w-full px-4 py-2 rounded-lg border
+          bg-white dark:bg-slate-800
+          border-slate-300 dark:border-slate-600
+          text-slate-900 dark:text-slate-100
+          placeholder-slate-400 dark:placeholder-slate-500
+          focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent
+          disabled:opacity-50 disabled:cursor-not-allowed
+          transition-colors duration-200
+          ${error ? 'border-red-500 dark:border-red-500' : ''}
           ${className}
         `}
         {...props}
       />
       {error && (
-        <p className="mt-1 text-sm text-red-500">{error}</p>
+        <p className="text-red-500 dark:text-red-400 text-sm mt-1">{error}</p>
       )}
     </div>
   );

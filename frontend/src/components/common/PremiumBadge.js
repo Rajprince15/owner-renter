@@ -1,27 +1,28 @@
 import React from 'react';
-import { Star } from 'lucide-react';
+import { Crown } from 'lucide-react';
 
-const PremiumBadge = ({ size = 'medium', showText = true, className = '' }) => {
-  const sizeClasses = {
-    small: 'text-xs px-2 py-0.5',
-    medium: 'text-sm px-3 py-1',
-    large: 'text-base px-4 py-2'
+const PremiumBadge = ({ size = 'md', showText = true, className = '' }) => {
+  const sizes = {
+    sm: 'w-4 h-4',
+    md: 'w-5 h-5',
+    lg: 'w-6 h-6'
   };
 
-  const iconSizes = {
-    small: 'w-3 h-3',
-    medium: 'w-4 h-4',
-    large: 'w-5 h-5'
+  const textSizes = {
+    sm: 'text-xs',
+    md: 'text-sm',
+    lg: 'text-base'
   };
 
   return (
-    <span 
-      data-testid="premium-badge"
-      className={`inline-flex items-center gap-1 bg-blue-100 text-blue-700 font-semibold rounded-full ${sizeClasses[size]} ${className}`}
-    >
-      <Star className={`${iconSizes[size]} fill-blue-500 text-blue-500`} />
-      {showText && 'Premium'}
-    </span>
+    <div className={`inline-flex items-center space-x-1 ${className}`}>
+      <Crown className={`${sizes[size]} text-yellow-600 dark:text-yellow-400`} />
+      {showText && (
+        <span className={`${textSizes[size]} font-medium text-yellow-700 dark:text-yellow-400`}>
+          Premium
+        </span>
+      )}
+    </div>
   );
 };
 

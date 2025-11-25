@@ -34,7 +34,7 @@ const Modal = ({ isOpen, onClose, title, children, size = 'medium' }) => {
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+        className="fixed inset-0 bg-black/50 dark:bg-black/70 transition-opacity"
         onClick={onClose}
       />
 
@@ -42,18 +42,19 @@ const Modal = ({ isOpen, onClose, title, children, size = 'medium' }) => {
       <div className="flex min-h-screen items-center justify-center p-4">
         <div 
           className={`
-            relative bg-white rounded-lg shadow-xl w-full ${sizeClasses[size]}
-            transform transition-all
+            relative bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full ${sizeClasses[size]}
+            transform transition-all border border-slate-200 dark:border-slate-700
           `}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           {title && (
-            <div className="flex items-center justify-between p-6 border-b">
-              <h3 className="text-xl font-semibold text-gray-900">{title}</h3>
+            <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
+              <h3 className="text-xl font-semibold text-slate-900 dark:text-white">{title}</h3>
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 transition"
+                className="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition"
+                data-testid="modal-close-btn"
               >
                 <X className="w-6 h-6" />
               </button>

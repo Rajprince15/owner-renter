@@ -98,31 +98,31 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
             Welcome Back
           </h2>
-          <p className="text-gray-600">
+          <p className="text-slate-600 dark:text-slate-400">
             Sign in to your account to continue
           </p>
         </div>
 
         {/* Login Form */}
-        <div className="bg-white rounded-xl shadow-lg p-8">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-8 border border-slate-200 dark:border-slate-700 transition-colors duration-200">
           {/* API Error */}
           {apiError && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start" data-testid="login-error-message">
-              <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
-              <p className="text-sm text-red-700">{apiError}</p>
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start" data-testid="login-error-message">
+              <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 mt-0.5 mr-3 flex-shrink-0" />
+              <p className="text-sm text-red-700 dark:text-red-300">{apiError}</p>
             </div>
           )}
 
           {/* Quick Login Buttons */}
-          <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-900 font-semibold mb-3">🚀 Quick Login (Demo Accounts)</p>
+          <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <p className="text-sm text-blue-900 dark:text-blue-300 font-semibold mb-3">🚀 Quick Login (Demo Accounts)</p>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
@@ -161,7 +161,7 @@ const Login = () => {
                 <span>Owner</span>
               </button>
             </div>
-            <p className="text-xs text-blue-700 mt-3 text-center">
+            <p className="text-xs text-blue-700 dark:text-blue-400 mt-3 text-center">
               Click any button to auto-fill credentials
             </p>
           </div>
@@ -169,12 +169,12 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email/Phone Input */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Email or Phone
                 <span className="text-red-500 ml-1">*</span>
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 w-5 h-5" />
                 <input
                   id="email"
                   name="email"
@@ -184,25 +184,29 @@ const Login = () => {
                   placeholder="Enter your email or phone"
                   className={`
                     w-full pl-11 pr-4 py-2.5 border rounded-lg
-                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                    ${errors.email ? 'border-red-500' : 'border-gray-300'}
+                    bg-white dark:bg-slate-700
+                    text-slate-900 dark:text-slate-100
+                    placeholder-slate-400 dark:placeholder-slate-500
+                    focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent
+                    transition-colors duration-200
+                    ${errors.email ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'}
                   `}
                   data-testid="login-email-input"
                 />
               </div>
               {errors.email && (
-                <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+                <p className="mt-1 text-sm text-red-500 dark:text-red-400">{errors.email}</p>
               )}
             </div>
 
             {/* Password Input */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Password
                 <span className="text-red-500 ml-1">*</span>
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 w-5 h-5" />
                 <input
                   id="password"
                   name="password"
@@ -212,15 +216,19 @@ const Login = () => {
                   placeholder="Enter your password"
                   className={`
                     w-full pl-11 pr-11 py-2.5 border rounded-lg
-                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                    ${errors.password ? 'border-red-500' : 'border-gray-300'}
+                    bg-white dark:bg-slate-700
+                    text-slate-900 dark:text-slate-100
+                    placeholder-slate-400 dark:placeholder-slate-500
+                    focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent
+                    transition-colors duration-200
+                    ${errors.password ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'}
                   `}
                   data-testid="login-password-input"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                   data-testid="login-password-toggle"
                 >
                   {showPassword ? (
@@ -231,7 +239,7 @@ const Login = () => {
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+                <p className="mt-1 text-sm text-red-500 dark:text-red-400">{errors.password}</p>
               )}
             </div>
 
@@ -240,7 +248,7 @@ const Login = () => {
               <div className="text-sm">
                 <Link 
                   to="/forgot-password" 
-                  className="font-medium text-blue-600 hover:text-blue-500"
+                  className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300"
                 >
                   Forgot password?
                 </Link>
@@ -251,7 +259,7 @@ const Login = () => {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-semibold"
+              className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white py-2.5 rounded-lg font-semibold transition-colors duration-200"
               data-testid="login-submit-button"
             >
               {loading ? (
@@ -270,11 +278,11 @@ const Login = () => {
 
           {/* Sign Up Link */}
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
               Don't have an account?{' '}
               <Link 
                 to="/signup" 
-                className="font-semibold text-blue-600 hover:text-blue-500"
+                className="font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300"
               >
                 Sign up now
               </Link>

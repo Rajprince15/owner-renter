@@ -89,16 +89,16 @@ const LandingPage = () => {
               </p>
 
               {/* Quick Search Bar */}
-              <div className="bg-white rounded-2xl shadow-2xl p-4 mb-8" data-testid="quick-search-bar">
+              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl p-4 mb-8 transition-colors duration-200" data-testid="quick-search-bar">
                 <form onSubmit={handleQuickSearch} className="flex flex-col sm:flex-row gap-3">
                   <div className="flex-1 relative">
-                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 w-5 h-5" />
                     <input
                       type="text"
                       placeholder="Enter city (e.g., Bangalore)"
                       value={searchCity}
                       onChange={(e) => setSearchCity(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none text-slate-900"
+                      className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:focus:ring-primary-400 outline-none transition-colors duration-200"
                       data-testid="search-city-input"
                     />
                   </div>
@@ -106,7 +106,7 @@ const LandingPage = () => {
                   <select
                     value={searchBHK}
                     onChange={(e) => setSearchBHK(e.target.value)}
-                    className="px-4 py-3 rounded-lg border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none text-slate-900"
+                    className="px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:focus:ring-primary-400 outline-none transition-colors duration-200"
                     data-testid="search-bhk-select"
                   >
                     <option value="">BHK Type</option>
@@ -194,7 +194,7 @@ const LandingPage = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-white dark:bg-slate-900" data-testid="features-section">
+      <section className="py-20 bg-white dark:bg-slate-900 transition-colors duration-200" data-testid="features-section">
         <div className="container-custom">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
@@ -207,7 +207,7 @@ const LandingPage = () => {
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* Feature 1 - Trust & Verification */}
-            <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-8 hover-lift" data-testid="feature-trust">
+            <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 hover-lift transition-colors duration-200" data-testid="feature-trust">
               <div className="w-16 h-16 bg-gradient-primary rounded-xl flex items-center justify-center mb-6">
                 <Shield className="w-8 h-8 text-white" />
               </div>
@@ -234,7 +234,7 @@ const LandingPage = () => {
             </div>
 
             {/* Feature 2 - Lifestyle Search */}
-            <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-8 hover-lift" data-testid="feature-lifestyle">
+            <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 hover-lift transition-colors duration-200" data-testid="feature-lifestyle">
               <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mb-6">
                 <Leaf className="w-8 h-8 text-white" />
               </div>
@@ -261,7 +261,7 @@ const LandingPage = () => {
             </div>
 
             {/* Feature 3 - Reverse Marketplace */}
-            <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-8 hover-lift" data-testid="feature-marketplace">
+            <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 hover-lift transition-colors duration-200" data-testid="feature-marketplace">
               <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mb-6">
                 <Users className="w-8 h-8 text-white" />
               </div>
@@ -291,7 +291,7 @@ const LandingPage = () => {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20 bg-slate-50 dark:bg-slate-800" id="how-it-works" data-testid="how-it-works-section">
+      <section className="py-20 bg-slate-50 dark:bg-slate-800 transition-colors duration-200" id="how-it-works" data-testid="how-it-works-section">
         <div className="container-custom">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
@@ -306,7 +306,7 @@ const LandingPage = () => {
           <div className="mb-16">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-8 text-center">For Renters</h3>
             <div className="grid md:grid-cols-3 gap-8">
-              <div className="bg-white dark:bg-slate-700 rounded-2xl p-8 shadow-lg text-center">
+              <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl p-8 shadow-lg text-center transition-colors duration-200">
                 <div className="w-16 h-16 bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-300 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
                   1
                 </div>
@@ -316,7 +316,7 @@ const LandingPage = () => {
                 </p>
               </div>
 
-              <div className="bg-white dark:bg-slate-700 rounded-2xl p-8 shadow-lg text-center">
+              <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl p-8 shadow-lg text-center transition-colors duration-200">
                 <div className="w-16 h-16 bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-300 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
                   2
                 </div>
@@ -326,7 +326,7 @@ const LandingPage = () => {
                 </p>
               </div>
 
-              <div className="bg-white dark:bg-slate-700 rounded-2xl p-8 shadow-lg text-center">
+              <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl p-8 shadow-lg text-center transition-colors duration-200">
                 <div className="w-16 h-16 bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-300 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
                   3
                 </div>
@@ -342,7 +342,7 @@ const LandingPage = () => {
           <div>
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-8 text-center">For Property Owners</h3>
             <div className="grid md:grid-cols-3 gap-8">
-              <div className="bg-white dark:bg-slate-700 rounded-2xl p-8 shadow-lg text-center">
+              <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl p-8 shadow-lg text-center transition-colors duration-200">
                 <div className="w-16 h-16 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
                   1
                 </div>
@@ -352,7 +352,7 @@ const LandingPage = () => {
                 </p>
               </div>
 
-              <div className="bg-white dark:bg-slate-700 rounded-2xl p-8 shadow-lg text-center">
+              <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl p-8 shadow-lg text-center transition-colors duration-200">
                 <div className="w-16 h-16 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
                   2
                 </div>
@@ -362,7 +362,7 @@ const LandingPage = () => {
                 </p>
               </div>
 
-              <div className="bg-white dark:bg-slate-700 rounded-2xl p-8 shadow-lg text-center">
+              <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl p-8 shadow-lg text-center transition-colors duration-200">
                 <div className="w-16 h-16 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
                   3
                 </div>
@@ -378,7 +378,7 @@ const LandingPage = () => {
 
       {/* Pricing Preview Section */}
       {/* Pricing Preview Section */}
-      <section className="py-20 bg-white dark:bg-slate-900" data-testid="pricing-section">
+      <section className="py-20 bg-white dark:bg-slate-900 transition-colors duration-200" data-testid="pricing-section">
         <div className="container-custom">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
@@ -392,7 +392,7 @@ const LandingPage = () => {
 
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-12">
             {/* For Renters */}
-            <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl p-8 border-2 border-primary-200">
+            <div className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/30 rounded-2xl p-8 border-2 border-primary-200 dark:border-primary-800 transition-colors duration-200">
               <div className="flex items-center justify-center mb-4">
                 <div className="w-12 h-12 bg-primary-600 rounded-lg flex items-center justify-center">
                   <Search className="w-6 h-6 text-white" />
@@ -422,7 +422,7 @@ const LandingPage = () => {
             </div>
 
             {/* For Owners */}
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 border-2 border-green-200">
+            <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 rounded-2xl p-8 border-2 border-green-200 dark:border-green-800 transition-colors duration-200">
               <div className="flex items-center justify-center mb-4">
                 <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
                   <Home className="w-6 h-6 text-white" />
@@ -473,7 +473,7 @@ const LandingPage = () => {
      
 
       {/* Testimonials Section */}
-      <section className="py-20 bg-slate-50 dark:bg-slate-800" data-testid="testimonials-section">
+      <section className="py-20 bg-slate-50 dark:bg-slate-800 transition-colors duration-200" data-testid="testimonials-section">
         <div className="container-custom">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
@@ -486,7 +486,7 @@ const LandingPage = () => {
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* Testimonial 1 */}
-            <div className="bg-white dark:bg-slate-700 rounded-2xl p-8 shadow-lg">
+            <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl p-8 shadow-lg transition-colors duration-200">
               <div className="flex items-center mb-4">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
@@ -507,7 +507,7 @@ const LandingPage = () => {
             </div>
 
             {/* Testimonial 2 */}
-            <div className="bg-white dark:bg-slate-700 rounded-2xl p-8 shadow-lg">
+            <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl p-8 shadow-lg transition-colors duration-200">
               <div className="flex items-center mb-4">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
@@ -528,7 +528,7 @@ const LandingPage = () => {
             </div>
 
             {/* Testimonial 3 */}
-            <div className="bg-white dark:bg-slate-700 rounded-2xl p-8 shadow-lg">
+            <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl p-8 shadow-lg transition-colors duration-200">
               <div className="flex items-center mb-4">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
@@ -552,7 +552,7 @@ const LandingPage = () => {
       </section>
 
       {/* Success Stories Section */}
-      <section className="py-20 bg-white dark:bg-slate-900">
+      <section className="py-20 bg-white dark:bg-slate-900 transition-colors duration-200">
         <div className="container-custom">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
