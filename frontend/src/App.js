@@ -14,6 +14,8 @@ import Signup from './pages/Signup';
 import Search from './pages/Search';
 import PropertyDetail from './pages/PropertyDetail';
 import LifestyleSearch from './pages/LifestyleSearch';
+import About from './pages/About';
+import Pricing from './pages/Pricing';
 
 // Owner Pages
 import OwnerDashboard from './pages/owner/Dashboard';
@@ -76,6 +78,8 @@ function App() {
               <Route path="/search" element={<Search />} />
               <Route path="/lifestyle-search" element={<LifestyleSearch />} />
               <Route path="/property/:id" element={<PropertyDetail />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/pricing" element={<Pricing />} />
               
               {/* Protected Renter Routes */}
               <Route path="/renter/dashboard" element={

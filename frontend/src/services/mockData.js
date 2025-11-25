@@ -731,6 +731,7 @@ export const mockChats = [
         sender_id: 'user_002_renter_premium',
         sender_type: 'renter',
         message: 'Hi, I am interested in this property. Is it still available?',
+        message_type: 'text',
         timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
         is_read: true,
         attachments: []
@@ -739,7 +740,8 @@ export const mockChats = [
         message_id: 'msg_002',
         sender_id: 'user_004_owner_verified',
         sender_type: 'owner',
-        message: 'Yes, it is available. Would you like to schedule a visit?',
+        message: 'Yes, it is available! The property is well-maintained and ready for immediate move-in. Would you like to schedule a visit?',
+        message_type: 'text',
         timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 + 30 * 60 * 1000).toISOString(),
         is_read: true,
         attachments: []
@@ -748,7 +750,8 @@ export const mockChats = [
         message_id: 'msg_003',
         sender_id: 'user_002_renter_premium',
         sender_type: 'renter',
-        message: 'Yes, I would like to visit this weekend. Is Saturday 2 PM good?',
+        message: 'I would like to schedule a property visit. Please let me know your available time slots.',
+        message_type: 'schedule_visit',
         timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 + 45 * 60 * 1000).toISOString(),
         is_read: true,
         attachments: []
@@ -757,7 +760,28 @@ export const mockChats = [
         message_id: 'msg_004',
         sender_id: 'user_004_owner_verified',
         sender_type: 'owner',
-        message: 'Saturday 2 PM works perfectly. See you then!',
+        message: 'Great! I am available this Saturday at 2 PM or Sunday at 11 AM. Which works better for you?',
+        message_type: 'text',
+        timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 + 90 * 60 * 1000).toISOString(),
+        is_read: true,
+        attachments: []
+      },
+      {
+        message_id: 'msg_005',
+        sender_id: 'user_002_renter_premium',
+        sender_type: 'renter',
+        message: 'Saturday 2 PM works perfectly for me. Also, could you please share the property documents for verification?',
+        message_type: 'document_request',
+        timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+        is_read: true,
+        attachments: []
+      },
+      {
+        message_id: 'msg_006',
+        sender_id: 'user_004_owner_verified',
+        sender_type: 'owner',
+        message: 'Perfect! Saturday 2 PM it is. I will share the property tax receipts and ownership proof documents. The property is already verified on Homer, so all documents are authentic.',
+        message_type: 'text',
         timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
         is_read: false,
         attachments: []
@@ -775,29 +799,114 @@ export const mockChats = [
     status: 'active',
     messages: [
       {
-        message_id: 'msg_005',
+        message_id: 'msg_007',
         sender_id: 'user_001_renter_free',
         sender_type: 'renter',
-        message: 'Hello, is this property pet-friendly?',
+        message: 'Hello, is this property pet-friendly? I saw pets are allowed in the listing.',
+        message_type: 'text',
         timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
         is_read: true,
         attachments: []
       },
       {
-        message_id: 'msg_006',
+        message_id: 'msg_008',
         sender_id: 'user_004_owner_verified',
         sender_type: 'owner',
-        message: 'Yes, pets are allowed. What kind of pet do you have?',
+        message: 'Yes, pets are absolutely welcome! What kind of pet do you have?',
+        message_type: 'text',
         timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000).toISOString(),
         is_read: true,
         attachments: []
       },
       {
-        message_id: 'msg_007',
+        message_id: 'msg_009',
         sender_id: 'user_001_renter_free',
         sender_type: 'renter',
-        message: 'I have a small dog. Is that okay?',
-        timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+        message: 'I have a small dog, a Beagle. Very friendly and well-trained. Is there a pet deposit?',
+        message_type: 'text',
+        timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+        is_read: true,
+        attachments: []
+      },
+      {
+        message_id: 'msg_010',
+        sender_id: 'user_004_owner_verified',
+        sender_type: 'owner',
+        message: 'That sounds perfect! There is a small pet deposit of ₹5,000 which is refundable. The society also has a nice park nearby for walks.',
+        message_type: 'text',
+        timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000).toISOString(),
+        is_read: true,
+        attachments: []
+      },
+      {
+        message_id: 'msg_011',
+        sender_id: 'user_001_renter_free',
+        sender_type: 'renter',
+        message: 'That works for me. When can I visit the property?',
+        message_type: 'text',
+        timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000 + 4 * 60 * 60 * 1000).toISOString(),
+        is_read: false,
+        attachments: []
+      }
+    ]
+  },
+  {
+    chat_id: 'chat_003',
+    property_id: 'prop_003_verified',
+    renter_id: 'user_005_both',
+    owner_id: 'user_004_owner_verified',
+    initiated_by: 'renter',
+    created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+    last_message_at: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'active',
+    messages: [
+      {
+        message_id: 'msg_012',
+        sender_id: 'user_005_both',
+        sender_type: 'renter',
+        message: 'Hi, I noticed this is a vegetarian-only property. I am a vegetarian and looking for a quiet 1BHK near HSR Layout.',
+        message_type: 'text',
+        timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        is_read: true,
+        attachments: []
+      },
+      {
+        message_id: 'msg_013',
+        sender_id: 'user_004_owner_verified',
+        sender_type: 'owner',
+        message: 'Perfect! This property is in a very peaceful building with mostly families. It is well-connected to HSR main road and close to the metro station.',
+        message_type: 'text',
+        timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000 + 1 * 60 * 60 * 1000).toISOString(),
+        is_read: true,
+        attachments: []
+      },
+      {
+        message_id: 'msg_014',
+        sender_id: 'user_005_both',
+        sender_type: 'renter',
+        message: 'That sounds ideal. What are the maintenance charges and are there any additional charges?',
+        message_type: 'text',
+        timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000).toISOString(),
+        is_read: true,
+        attachments: []
+      },
+      {
+        message_id: 'msg_015',
+        sender_id: 'user_004_owner_verified',
+        sender_type: 'owner',
+        message: 'Maintenance is ₹1,000/month which covers water and common area maintenance. Electricity is separate on actuals. No hidden charges!',
+        message_type: 'text',
+        timestamp: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000).toISOString(),
+        is_read: true,
+        attachments: []
+      },
+      {
+        message_id: 'msg_016',
+        sender_id: 'user_005_both',
+        sender_type: 'renter',
+        message: 'Could you please share the property documents for verification? (Ownership proof, property tax receipts, etc.)',
+        message_type: 'document_request',
+        timestamp: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000 + 5 * 60 * 60 * 1000).toISOString(),
         is_read: false,
         attachments: []
       }

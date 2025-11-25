@@ -203,7 +203,7 @@ CREATE TABLE chats (
     status ENUM('active', 'archived', 'blocked') DEFAULT 'active' COMMENT 'Chat status',
     
     -- Messages (stored as JSON array for REST API implementation)
-    messages JSON COMMENT 'Array of message objects: {message_id, sender_id, sender_type, message, timestamp, is_read, attachments}',
+    messages JSON COMMENT 'Array of message objects: {message_id, sender_id, sender_type, message, message_type, timestamp, is_read, attachments}',
     
     -- Foreign keys
     FOREIGN KEY (property_id) REFERENCES properties(property_id) ON DELETE CASCADE,
@@ -468,6 +468,7 @@ CREATE TABLE reviews (
 --     "sender_id": "user_xyz789",
 --     "sender_type": "renter",
 --     "message": "Hi, is this property still available?",
+--     "message_type": "text",
 --     "timestamp": "2025-01-20T10:30:00",
 --     "is_read": true,
 --     "attachments": []
@@ -477,11 +478,37 @@ CREATE TABLE reviews (
 --     "sender_id": "user_owner123",
 --     "sender_type": "owner",
 --     "message": "Yes, it is available. Would you like to schedule a visit?",
+--     "message_type": "text",
 --     "timestamp": "2025-01-20T11:15:00",
+--     "is_read": false,
+--     "attachments": []
+--   },
+--   {
+--     "message_id": "msg_ghi789",
+--     "sender_id": "user_xyz789",
+--     "sender_type": "renter",
+--     "message": "I would like to schedule a property visit. Please let me know your available time slots.",
+--     "message_type": "schedule_visit",
+--     "timestamp": "2025-01-20T12:00:00",
+--     "is_read": true,
+--     "attachments": []
+--   },
+--   {
+--     "message_id": "msg_jkl012",
+--     "sender_id": "user_xyz789",
+--     "sender_type": "renter",
+--     "message": "Could you please share the property documents for verification?",
+--     "message_type": "document_request",
+--     "timestamp": "2025-01-20T14:00:00",
 --     "is_read": false,
 --     "attachments": []
 --   }
 -- ]
+--
+-- Message Types:
+-- - "text": Regular text message (default)
+-- - "schedule_visit": Renter requesting property visit or Owner proposing visit time
+-- - "document_request": Renter requesting property verification documents
 
 -- transactions.metadata JSON structure:
 -- For renter_subscription:

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Send, ArrowLeft, Home, MapPin, IndianRupee, RefreshCw } from 'lucide-react';
+import { Send, ArrowLeft, Home, MapPin, IndianRupee, RefreshCw, Calendar, FileText, Shield } from 'lucide-react';
 import MessageBubble from './MessageBubble';
 import Button from '../common/Button';
 
@@ -8,6 +8,8 @@ const ChatWindow = ({ chat, onSendMessage, onRefresh }) => {
   const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
+  const [showScheduleVisit, setShowScheduleVisit] = useState(false);
+  const [showRequestDocuments, setShowRequestDocuments] = useState(false);
   const messagesEndRef = useRef(null);
 
   // Auto scroll to bottom when new messages arrive
@@ -47,6 +49,38 @@ const ChatWindow = ({ chat, onSendMessage, onRefresh }) => {
     }
   };
 
+  const handleScheduleVisit = async () => {
+    const visitMessage = `I would like to schedule a property visit. Please let me know your available time slots.`;
+    await onSendMessage(visitMessage, [], 'schedule_visit');
+    setShowScheduleVisit(false);
+  };
+
+  const handleRequestDocuments = async () => {
+    const docMessage = `Could you please share the property documents for verification? (Ownership proof, property tax receipts, etc.)`;
+    await onSendMessage(docMessage, [], 'document_request');
+    setShowRequestDocuments(false);
+  };
+
+  // Determine user role badge
+  const getUserRoleBadge = (userType) => {
+    if (userType === 'owner') {
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+          <Home className="w-3 h-3 mr-1" />
+          Owner
+        </span>
+      );
+    } else if (userType === 'renter') {
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          <Shield className="w-3 h-3 mr-1" />
+          Renter
+        </span>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="flex flex-col h-full" data-testid="chat-window">
       {/* Chat Header */}
@@ -61,9 +95,12 @@ const ChatWindow = ({ chat, onSendMessage, onRefresh }) => {
           </button>
           
           <div>
-            <h2 className="font-semibold text-gray-900" data-testid="chat-title">
-              {chat.other_user?.full_name || 'User'}
-            </h2>
+            <div className="flex items-center gap-2">
+              <h2 className="font-semibold text-gray-900" data-testid="chat-title">
+                {chat.other_user?.full_name || 'User'}
+              </h2>
+              {getUserRoleBadge(chat.other_user?.user_type)}
+            </div>
             <p className="text-sm text-gray-600">
               {chat.property?.title || 'Property'}
             </p>
@@ -205,6 +242,93 @@ const ChatWindow = ({ chat, onSendMessage, onRefresh }) => {
 
       {/* Message Input */}
       <div className="bg-white border-t px-4 py-3 sticky bottom-0">
+        {/* Role-specific quick actions */}
+        <div className="flex gap-2 mb-3">
+          {chat.current_user_type === 'renter' && (
+            <>
+              <button
+                onClick={() => setShowScheduleVisit(!showScheduleVisit)}
+                className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition"
+                data-testid="schedule-visit-btn"
+              >
+                <Calendar className="w-3.5 h-3.5 mr-1.5" />
+                Schedule Visit
+              </button>
+              <button
+                onClick={() => setShowRequestDocuments(!showRequestDocuments)}
+                className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-purple-700 bg-purple-50 rounded-lg hover:bg-purple-100 transition"
+                data-testid="request-docs-btn"
+              >
+                <FileText className="w-3.5 h-3.5 mr-1.5" />
+                Request Documents
+              </button>
+            </>
+          )}
+          {chat.current_user_type === 'owner' && (
+            <>
+              <button
+                onClick={() => setShowScheduleVisit(!showScheduleVisit)}
+                className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition"
+                data-testid="propose-visit-btn"
+              >
+                <Calendar className="w-3.5 h-3.5 mr-1.5" />
+                Propose Visit Time
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Quick action modals */}
+        {showScheduleVisit && (
+          <div className="mb-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <p className="text-sm text-blue-900 mb-2">
+              {chat.current_user_type === 'renter' 
+                ? 'Request a property visit?' 
+                : 'Propose a visit time?'}
+            </p>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleScheduleVisit}
+                size="sm"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Send Request
+              </Button>
+              <Button
+                onClick={() => setShowScheduleVisit(false)}
+                variant="ghost"
+                size="sm"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {showRequestDocuments && (
+          <div className="mb-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
+            <p className="text-sm text-purple-900 mb-2">
+              Request property verification documents?
+            </p>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleRequestDocuments}
+                size="sm"
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                Send Request
+              </Button>
+              <Button
+                onClick={() => setShowRequestDocuments(false)}
+                variant="ghost"
+                size="sm"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
+
         <div className="flex gap-2">
           <textarea
             value={message}

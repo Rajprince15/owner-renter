@@ -24,6 +24,7 @@ const Navbar = () => {
       links.push({ name: 'Lifestyle Search', path: '/lifestyle-search', icon: Search, badge: 'Premium' });
     }
     
+    // Static pages
     links.push({ name: 'About', path: '/about', icon: null });
     links.push({ name: 'Pricing', path: '/pricing', icon: null });
     

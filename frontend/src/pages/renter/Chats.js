@@ -51,7 +51,7 @@ const RenterChats = () => {
     if (!selectedChat) return;
     
     try {
-      await sendMessage(selectedChat.chat_id, messageText);
+      await sendMessage(selectedChat.chat_id, messageText, attachments, messageType);
       // Reload chat to get updated messages
       await loadChatDetail(selectedChat.chat_id);
       // Refresh chat list to update last message

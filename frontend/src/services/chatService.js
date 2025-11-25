@@ -204,8 +204,12 @@ export const getChatDetail = async (chatId) => {
 // =================================================================
 // API ENDPOINT: POST /api/chats/:chat_id/messages
 // Send a message in a chat
+// Parameters:
+//   - messageText: The text content of the message
+//   - attachments: Array of attachment objects (optional)
+//   - messageType: Type of message - 'text' (default), 'schedule_visit', 'document_request' (optional)
 // =================================================================
-export const sendMessage = async (chatId, messageText, attachments = []) => {
+export const sendMessage = async (chatId, messageText, attachments = [], messageType = 'text') => {
   if (USE_MOCK) {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -232,6 +236,7 @@ export const sendMessage = async (chatId, messageText, attachments = []) => {
       sender_id: userId,
       sender_type: senderType,
       message: messageText,
+      message_type: messageType,
       timestamp: new Date().toISOString(),
       is_read: false,
       attachments: attachments
@@ -248,7 +253,8 @@ export const sendMessage = async (chatId, messageText, attachments = []) => {
   
   return axios.post(`/api/chats/${chatId}/messages`, {
     message: messageText,
-    attachments
+    attachments,
+    message_type: messageType
   });
 };
 
