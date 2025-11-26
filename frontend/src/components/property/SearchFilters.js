@@ -59,16 +59,16 @@ const SearchFilters = ({ onFilterChange, initialFilters = {} }) => {
   }, [filters.sort_by]);
 
   return (
-    <div className="bg-white rounded-lg shadow-md">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-700 transition-colors duration-200">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <SlidersHorizontal className="w-5 h-5 text-gray-600" />
-          <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+          <SlidersHorizontal className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Filters</h2>
         </div>
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="lg:hidden text-gray-600 hover:text-gray-900"
+          className="lg:hidden text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
         >
           <X className="w-5 h-5" />
         </button>
@@ -79,13 +79,13 @@ const SearchFilters = ({ onFilterChange, initialFilters = {} }) => {
         <div className="p-4 space-y-4" data-testid="search-filters">
           {/* City */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               City
             </label>
             <select
               value={filters.city}
               onChange={(e) => handleInputChange('city', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
               data-testid="filter-city"
             >
               {CITIES.map(city => (
@@ -96,7 +96,7 @@ const SearchFilters = ({ onFilterChange, initialFilters = {} }) => {
 
           {/* Location/Locality */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Location/Locality
             </label>
             <input
@@ -104,14 +104,14 @@ const SearchFilters = ({ onFilterChange, initialFilters = {} }) => {
               value={filters.location}
               onChange={(e) => handleInputChange('location', e.target.value)}
               placeholder="e.g., Koramangala, Indiranagar"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
               data-testid="filter-location"
             />
           </div>
 
           {/* Price Range */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Price Range (₹/month)
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -120,7 +120,7 @@ const SearchFilters = ({ onFilterChange, initialFilters = {} }) => {
                 value={filters.min_price}
                 onChange={(e) => handleInputChange('min_price', e.target.value)}
                 placeholder="Min"
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
                 data-testid="filter-min-price"
               />
               <input
@@ -128,7 +128,7 @@ const SearchFilters = ({ onFilterChange, initialFilters = {} }) => {
                 value={filters.max_price}
                 onChange={(e) => handleInputChange('max_price', e.target.value)}
                 placeholder="Max"
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
                 data-testid="filter-max-price"
               />
             </div>
@@ -136,13 +136,13 @@ const SearchFilters = ({ onFilterChange, initialFilters = {} }) => {
 
           {/* BHK Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               BHK Type
             </label>
             <select
               value={filters.bhk_type}
               onChange={(e) => handleInputChange('bhk_type', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
               data-testid="filter-bhk-type"
             >
               <option value="">All</option>
@@ -154,13 +154,13 @@ const SearchFilters = ({ onFilterChange, initialFilters = {} }) => {
 
           {/* Property Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Property Type
             </label>
             <select
               value={filters.property_type}
               onChange={(e) => handleInputChange('property_type', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
               data-testid="filter-property-type"
             >
               <option value="">All</option>
@@ -172,13 +172,13 @@ const SearchFilters = ({ onFilterChange, initialFilters = {} }) => {
 
           {/* Furnishing */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Furnishing
             </label>
             <select
               value={filters.furnishing}
               onChange={(e) => handleInputChange('furnishing', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
               data-testid="filter-furnishing"
             >
               <option value="">All</option>
@@ -190,13 +190,13 @@ const SearchFilters = ({ onFilterChange, initialFilters = {} }) => {
 
           {/* Sort By */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Sort By
             </label>
             <select
               value={filters.sort_by}
               onChange={(e) => handleInputChange('sort_by', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
               data-testid="filter-sort-by"
             >
               <option value="default">Relevance (Verified First)</option>

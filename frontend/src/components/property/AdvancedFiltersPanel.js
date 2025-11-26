@@ -56,33 +56,33 @@ const AdvancedFiltersPanel = ({ filters, onFiltersChange, onApply }) => {
   };
 
   const getAQIColor = (value) => {
-    if (value <= 50) return 'text-green-600';
-    if (value <= 100) return 'text-yellow-600';
-    return 'text-red-600';
+    if (value <= 50) return 'text-green-600 dark:text-green-400';
+    if (value <= 100) return 'text-yellow-600 dark:text-yellow-400';
+    return 'text-red-600 dark:text-red-400';
   };
 
   const getNoiseColor = (value) => {
-    if (value <= 50) return 'text-green-600';
-    if (value <= 65) return 'text-yellow-600';
-    return 'text-red-600';
+    if (value <= 50) return 'text-green-600 dark:text-green-400';
+    if (value <= 65) return 'text-yellow-600 dark:text-yellow-400';
+    return 'text-red-600 dark:text-red-400';
   };
 
   const getWalkabilityColor = (value) => {
-    if (value >= 80) return 'text-green-600';
-    if (value >= 60) return 'text-blue-600';
-    return 'text-yellow-600';
+    if (value >= 80) return 'text-green-600 dark:text-green-400';
+    if (value >= 60) return 'text-blue-600 dark:text-blue-400';
+    return 'text-yellow-600 dark:text-yellow-400';
   };
 
   return (
-    <div data-testid="advanced-filters-panel" className="bg-white rounded-lg shadow-md p-6 space-y-6">
+    <div data-testid="advanced-filters-panel" className="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-700 p-6 space-y-6 transition-colors duration-200">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-blue-600" />
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+          <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           Advanced Lifestyle Filters
         </h3>
         {!isPremium && (
-          <span className="inline-flex items-center gap-1 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+          <span className="inline-flex items-center gap-1 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2 py-1 rounded-full">
             <Lock className="w-3 h-3" />
             Premium Only
           </span>
@@ -94,7 +94,7 @@ const AdvancedFiltersPanel = ({ filters, onFiltersChange, onApply }) => {
         {/* AQI Filter */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
               <Wind className="w-4 h-4" />
               Air Quality Index (AQI)
             </label>
@@ -109,10 +109,10 @@ const AdvancedFiltersPanel = ({ filters, onFiltersChange, onApply }) => {
             step="10"
             value={localFilters.max_aqi}
             onChange={(e) => handleSliderChange('max_aqi', parseInt(e.target.value))}
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
             data-testid="aqi-slider"
           />
-          <div className="flex justify-between text-xs text-gray-500">
+          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
             <span>0 (Best)</span>
             <span>100 (Moderate)</span>
             <span>200 (Poor)</span>
@@ -122,7 +122,7 @@ const AdvancedFiltersPanel = ({ filters, onFiltersChange, onApply }) => {
         {/* Noise Level Filter */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
               <Volume2 className="w-4 h-4" />
               Noise Level (dB)
             </label>
@@ -137,10 +137,10 @@ const AdvancedFiltersPanel = ({ filters, onFiltersChange, onApply }) => {
             step="5"
             value={localFilters.max_noise}
             onChange={(e) => handleSliderChange('max_noise', parseInt(e.target.value))}
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
             data-testid="noise-slider"
           />
-          <div className="flex justify-between text-xs text-gray-500">
+          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
             <span>0 (Silent)</span>
             <span>50 (Quiet)</span>
             <span>100 (Loud)</span>
@@ -150,7 +150,7 @@ const AdvancedFiltersPanel = ({ filters, onFiltersChange, onApply }) => {
         {/* Walkability Filter */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
               <TrendingUp className="w-4 h-4" />
               Walkability Score
             </label>
@@ -165,10 +165,10 @@ const AdvancedFiltersPanel = ({ filters, onFiltersChange, onApply }) => {
             step="10"
             value={localFilters.min_walkability}
             onChange={(e) => handleSliderChange('min_walkability', parseInt(e.target.value))}
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
             data-testid="walkability-slider"
           />
-          <div className="flex justify-between text-xs text-gray-500">
+          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
             <span>0 (Poor)</span>
             <span>50 (Average)</span>
             <span>100 (Excellent)</span>
@@ -176,7 +176,7 @@ const AdvancedFiltersPanel = ({ filters, onFiltersChange, onApply }) => {
         </div>
 
         {/* Checkbox Filters */}
-        <div className="space-y-3 pt-4 border-t border-gray-200">
+        <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
@@ -185,8 +185,8 @@ const AdvancedFiltersPanel = ({ filters, onFiltersChange, onApply }) => {
               className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
               data-testid="near-parks-checkbox"
             />
-            <Trees className="w-4 h-4 text-green-600" />
-            <span className="text-sm text-gray-700">Near parks (within 2km)</span>
+            <Trees className="w-4 h-4 text-green-600 dark:text-green-400" />
+            <span className="text-sm text-gray-700 dark:text-gray-300">Near parks (within 2km)</span>
           </label>
 
           <label className="flex items-center gap-2 cursor-pointer">
@@ -197,8 +197,8 @@ const AdvancedFiltersPanel = ({ filters, onFiltersChange, onApply }) => {
               className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
               data-testid="pet-friendly-checkbox"
             />
-            <Dog className="w-4 h-4 text-orange-600" />
-            <span className="text-sm text-gray-700">Pet friendly</span>
+            <Dog className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+            <span className="text-sm text-gray-700 dark:text-gray-300">Pet friendly</span>
           </label>
         </div>
 
@@ -224,11 +224,11 @@ const AdvancedFiltersPanel = ({ filters, onFiltersChange, onApply }) => {
 
       {/* Upgrade Prompt for Free Users */}
       {!isPremium && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-lg">
+        <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-lg">
           <div className="text-center p-6 max-w-sm">
-            <Lock className="w-12 h-12 text-blue-600 mx-auto mb-3" />
-            <h4 className="text-lg font-semibold text-gray-900 mb-2">Premium Feature</h4>
-            <p className="text-sm text-gray-600 mb-4">
+            <Lock className="w-12 h-12 text-blue-600 dark:text-blue-400 mx-auto mb-3" />
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Premium Feature</h4>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
               Upgrade to Premium to access advanced lifestyle filters and find your perfect home based on air quality, noise levels, and walkability.
             </p>
             <Button
