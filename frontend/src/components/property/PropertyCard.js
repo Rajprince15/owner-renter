@@ -59,12 +59,12 @@ const PropertyCard = ({ property, onShortlist, isShortlisted = false }) => {
         <button
           onClick={handleShortlistClick}
           disabled={isLoading}
-          className="absolute top-2 left-2 bg-white dark:bg-slate-700 p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30 transition disabled:opacity-50"
+          className="absolute top-2 left-2 bg-white dark:bg-slate-800 p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30 transition disabled:opacity-50"
           data-testid={`shortlist-btn-${property_id}`}
         >
           <Heart 
             className={`w-5 h-5 transition-colors ${
-              shortlisted ? 'fill-red-500 text-red-500' : 'text-gray-600 dark:text-gray-300'
+              shortlisted ? 'fill-red-500 text-red-500' : 'text-gray-600 dark:text-gray-400'
             }`}
           />
         </button>
@@ -75,17 +75,17 @@ const PropertyCard = ({ property, onShortlist, isShortlisted = false }) => {
         <div className="p-4">
           {/* Title and Price */}
           <div className="flex justify-between items-start mb-2">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white line-clamp-2 flex-1">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2 flex-1">
               {title}
             </h3>
             <div className="text-right ml-2">
               <p className="text-xl font-bold text-blue-600 dark:text-blue-400">₹{rent?.toLocaleString()}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">per month</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">per month</p>
             </div>
           </div>
 
           {/* Location */}
-          <div className="flex items-center text-slate-600 dark:text-slate-300 mb-3">
+          <div className="flex items-center text-gray-600 dark:text-gray-400 mb-3">
             <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
             <span className="text-sm truncate">
               {location?.locality}, {location?.city}
@@ -93,7 +93,7 @@ const PropertyCard = ({ property, onShortlist, isShortlisted = false }) => {
           </div>
 
           {/* Details */}
-          <div className="flex items-center text-slate-700 dark:text-slate-300 mb-3 text-sm">
+          <div className="flex items-center text-gray-700 dark:text-gray-300 mb-3 text-sm">
             <BedDouble className="w-4 h-4 mr-2 flex-shrink-0" />
             <span>{bhk_type}</span>
             <span className="mx-2">•</span>

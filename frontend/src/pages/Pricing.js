@@ -55,10 +55,10 @@ const Pricing = () => {
         <div className="container-custom">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center mb-4">
-              <Search className="w-8 h-8 text-primary-600 dark:text-primary-400 mr-3" />
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">For Renters</h2>
+              <Search className="w-8 h-8 text-primary-600 mr-3" />
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900">For Renters</h2>
             </div>
-            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
               Find your perfect home with trust and transparency
             </p>
           </div>
@@ -350,59 +350,59 @@ const Pricing = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 dark:divide-slate-600">
-                <tr className="hover:bg-slate-50 dark:hover:bg-slate-600/50">
-                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">Browse All Listings</td>
+                <tr className="hover:bg-slate-50 dark:hover:bg-slate-600">
+                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">Browse All Listings</td>
                   <td className="px-6 py-4 text-center"><CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mx-auto" /></td>
                   <td className="px-6 py-4 text-center bg-primary-50 dark:bg-primary-900/30"><CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mx-auto" /></td>
-                  <td className="px-6 py-4 text-center text-slate-600 dark:text-slate-400">—</td>
-                  <td className="px-6 py-4 text-center bg-green-50 dark:bg-green-900/30 text-slate-600 dark:text-slate-400">—</td>
+                  <td className="px-6 py-4 text-center text-slate-700 dark:text-slate-300">—</td>
+                  <td className="px-6 py-4 text-center bg-green-50 dark:bg-green-900/30 text-slate-700 dark:text-slate-300">—</td>
                 </tr>
-                <tr className="hover:bg-slate-50 dark:hover:bg-slate-600/50">
-                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">Property Contacts</td>
+                <tr className="hover:bg-slate-50 dark:hover:bg-slate-600">
+                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">Property Contacts</td>
                   <td className="px-6 py-4 text-center text-slate-700 dark:text-slate-300">5 max</td>
                   <td className="px-6 py-4 text-center bg-primary-50 dark:bg-primary-900/30 font-bold text-primary-600 dark:text-primary-400">Unlimited</td>
-                  <td className="px-6 py-4 text-center text-slate-600 dark:text-slate-400">—</td>
-                  <td className="px-6 py-4 text-center bg-green-50 dark:bg-green-900/30 text-slate-600 dark:text-slate-400">—</td>
+                  <td className="px-6 py-4 text-center text-slate-700 dark:text-slate-300">—</td>
+                  <td className="px-6 py-4 text-center bg-green-50 dark:bg-green-900/30 text-slate-700 dark:text-slate-300">—</td>
                 </tr>
-                <tr className="hover:bg-slate-50 dark:hover:bg-slate-600/50">
-                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">Search Filters</td>
+                <tr className="hover:bg-slate-50 dark:hover:bg-slate-600">
+                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">Search Filters</td>
                   <td className="px-6 py-4 text-center text-sm text-slate-700 dark:text-slate-300">Basic only</td>
                   <td className="px-6 py-4 text-center bg-primary-50 dark:bg-primary-900/30 font-bold text-primary-600 dark:text-primary-400 text-sm">Basic + Lifestyle</td>
-                  <td className="px-6 py-4 text-center text-slate-600 dark:text-slate-400">—</td>
-                  <td className="px-6 py-4 text-center bg-green-50 dark:bg-green-900/30 text-slate-600 dark:text-slate-400">—</td>
+                  <td className="px-6 py-4 text-center text-slate-700 dark:text-slate-300">—</td>
+                  <td className="px-6 py-4 text-center bg-green-50 dark:bg-green-900/30 text-slate-700 dark:text-slate-300">—</td>
                 </tr>
-                <tr className="hover:bg-slate-50 dark:hover:bg-slate-600/50">
-                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">Verification Badge</td>
-                  <td className="px-6 py-4 text-center text-slate-600 dark:text-slate-400">—</td>
+                <tr className="hover:bg-slate-50 dark:hover:bg-slate-600">
+                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">Verification Badge</td>
+                  <td className="px-6 py-4 text-center text-slate-700 dark:text-slate-300">—</td>
                   <td className="px-6 py-4 text-center bg-primary-50 dark:bg-primary-900/30"><CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mx-auto" /></td>
                   <td className="px-6 py-4 text-center text-amber-600 dark:text-amber-400 text-sm">⚠ "Not Verified"</td>
                   <td className="px-6 py-4 text-center bg-green-50 dark:bg-green-900/30 font-bold text-green-600 dark:text-green-400">✓ Verified</td>
                 </tr>
-                <tr className="hover:bg-slate-50 dark:hover:bg-slate-600/50">
-                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">Search Ranking</td>
-                  <td className="px-6 py-4 text-center text-slate-600 dark:text-slate-400">—</td>
-                  <td className="px-6 py-4 text-center bg-primary-50 dark:bg-primary-900/30 text-slate-600 dark:text-slate-400">—</td>
+                <tr className="hover:bg-slate-50 dark:hover:bg-slate-600">
+                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">Search Ranking</td>
+                  <td className="px-6 py-4 text-center text-slate-700 dark:text-slate-300">—</td>
+                  <td className="px-6 py-4 text-center bg-primary-50 dark:bg-primary-900/30 text-slate-700 dark:text-slate-300">—</td>
                   <td className="px-6 py-4 text-center text-red-600 dark:text-red-400 font-semibold">Bottom</td>
                   <td className="px-6 py-4 text-center bg-green-50 dark:bg-green-900/30 font-bold text-green-600 dark:text-green-400">Top Priority</td>
                 </tr>
-                <tr className="hover:bg-slate-50 dark:hover:bg-slate-600/50">
-                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">Lifestyle Data</td>
-                  <td className="px-6 py-4 text-center text-slate-600 dark:text-slate-400">—</td>
+                <tr className="hover:bg-slate-50 dark:hover:bg-slate-600">
+                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">Lifestyle Data</td>
+                  <td className="px-6 py-4 text-center">—</td>
                   <td className="px-6 py-4 text-center bg-primary-50 dark:bg-primary-900/30"><CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mx-auto" /></td>
-                  <td className="px-6 py-4 text-center text-slate-600 dark:text-slate-400">—</td>
+                  <td className="px-6 py-4 text-center">—</td>
                   <td className="px-6 py-4 text-center bg-green-50 dark:bg-green-900/30"><CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mx-auto" /></td>
                 </tr>
-                <tr className="hover:bg-slate-50 dark:hover:bg-slate-600/50">
-                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">Reverse Marketplace</td>
-                  <td className="px-6 py-4 text-center text-slate-600 dark:text-slate-400">—</td>
+                <tr className="hover:bg-slate-50 dark:hover:bg-slate-600">
+                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">Reverse Marketplace</td>
+                  <td className="px-6 py-4 text-center">—</td>
                   <td className="px-6 py-4 text-center bg-primary-50 dark:bg-primary-900/30"><CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mx-auto" /></td>
-                  <td className="px-6 py-4 text-center text-slate-600 dark:text-slate-400">—</td>
+                  <td className="px-6 py-4 text-center">—</td>
                   <td className="px-6 py-4 text-center bg-green-50 dark:bg-green-900/30"><CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mx-auto" /></td>
                 </tr>
-                <tr className="hover:bg-slate-50 dark:hover:bg-slate-600/50">
-                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">Expected Visibility</td>
-                  <td className="px-6 py-4 text-center text-slate-600 dark:text-slate-400">—</td>
-                  <td className="px-6 py-4 text-center bg-primary-50 dark:bg-primary-900/30 text-slate-600 dark:text-slate-400">—</td>
+                <tr className="hover:bg-slate-50 dark:hover:bg-slate-600">
+                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">Expected Visibility</td>
+                  <td className="px-6 py-4 text-center text-slate-700 dark:text-slate-300">—</td>
+                  <td className="px-6 py-4 text-center bg-primary-50 dark:bg-primary-900/30 text-slate-700 dark:text-slate-300">—</td>
                   <td className="px-6 py-4 text-center text-red-600 dark:text-red-400 text-sm">10% of verified</td>
                   <td className="px-6 py-4 text-center bg-green-50 dark:bg-green-900/30 font-bold text-green-600 dark:text-green-400">5-10X more</td>
                 </tr>
@@ -427,24 +427,24 @@ const Pricing = () => {
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {/* Renter ROI */}
             <div className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/30 rounded-2xl p-8 transition-colors duration-200">
-              <div className="w-12 h-12 bg-primary-600 dark:bg-primary-500 rounded-lg flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-primary-600 rounded-lg flex items-center justify-center mb-4">
                 <TrendingUp className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">For Renters: ₹750 Investment</h3>
               <div className="space-y-4 text-slate-700 dark:text-slate-300">
-                <div className="flex justify-between items-center py-2 border-b border-primary-200 dark:border-primary-800">
+                <div className="flex justify-between items-center py-2 border-b border-primary-200 dark:border-primary-700">
                   <span>Save on broker fees:</span>
                   <span className="font-bold text-primary-600 dark:text-primary-400">₹10,000+</span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-primary-200 dark:border-primary-800">
+                <div className="flex justify-between items-center py-2 border-b border-primary-200 dark:border-primary-700">
                   <span>Avoid scam losses:</span>
                   <span className="font-bold text-primary-600 dark:text-primary-400">₹5,000+</span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-primary-200 dark:border-primary-800">
+                <div className="flex justify-between items-center py-2 border-b border-primary-200 dark:border-primary-700">
                   <span>Time saved (30+ hours):</span>
                   <span className="font-bold text-primary-600 dark:text-primary-400">Priceless</span>
                 </div>
-                <div className="flex justify-between items-center py-3 bg-primary-600 dark:bg-primary-700 text-white rounded-lg px-4 mt-4">
+                <div className="flex justify-between items-center py-3 bg-primary-600 dark:bg-primary-500 text-white rounded-lg px-4 mt-4">
                   <span className="font-bold">Net Benefit:</span>
                   <span className="font-bold text-xl">₹15,000+</span>
                 </div>
@@ -456,24 +456,24 @@ const Pricing = () => {
 
             {/* Owner ROI */}
             <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 rounded-2xl p-8 transition-colors duration-200">
-              <div className="w-12 h-12 bg-green-600 dark:bg-green-500 rounded-lg flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mb-4">
                 <TrendingUp className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">For Owners: ₹2,000 Investment</h3>
               <div className="space-y-4 text-slate-700 dark:text-slate-300">
-                <div className="flex justify-between items-center py-2 border-b border-green-200 dark:border-green-800">
+                <div className="flex justify-between items-center py-2 border-b border-green-200 dark:border-green-700">
                   <span>Find tenant faster:</span>
                   <span className="font-bold text-green-600 dark:text-green-400">7-10 days vs 45 days</span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-green-200 dark:border-green-800">
+                <div className="flex justify-between items-center py-2 border-b border-green-200 dark:border-green-700">
                   <span>Save rent loss (35 days):</span>
                   <span className="font-bold text-green-600 dark:text-green-400">₹25,000+</span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-green-200 dark:border-green-800">
+                <div className="flex justify-between items-center py-2 border-b border-green-200 dark:border-green-700">
                   <span>Quality verified tenants:</span>
                   <span className="font-bold text-green-600 dark:text-green-400">Lower risk</span>
                 </div>
-                <div className="flex justify-between items-center py-3 bg-green-600 dark:bg-green-700 text-white rounded-lg px-4 mt-4">
+                <div className="flex justify-between items-center py-3 bg-green-600 dark:bg-green-500 text-white rounded-lg px-4 mt-4">
                   <span className="font-bold">Net Benefit:</span>
                   <span className="font-bold text-xl">₹25,000+</span>
                 </div>
@@ -496,27 +496,27 @@ const Pricing = () => {
           </div>
 
           <div className="max-w-3xl mx-auto space-y-6">
-            <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-6 transition-colors duration-200">
+            <div className="bg-white dark:bg-slate-700 rounded-xl p-6 transition-colors duration-200">
               <h3 className="font-bold text-slate-900 dark:text-white mb-2">Can I upgrade from free to premium later?</h3>
               <p className="text-slate-600 dark:text-slate-300">Yes! You can upgrade anytime. Your contact history is preserved, and premium features activate immediately.</p>
             </div>
 
-            <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-6 transition-colors duration-200">
+            <div className="bg-white dark:bg-slate-700 rounded-xl p-6 transition-colors duration-200">
               <h3 className="font-bold text-slate-900 dark:text-white mb-2">Is verification mandatory?</h3>
               <p className="text-slate-600 dark:text-slate-300">No. You can use Homer without verification. However, verified users get significantly better results—verified properties get 5-10X more inquiries, and verified renters are prioritized by owners.</p>
             </div>
 
-            <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-6 transition-colors duration-200">
+            <div className="bg-white dark:bg-slate-700 rounded-xl p-6 transition-colors duration-200">
               <h3 className="font-bold text-slate-900 dark:text-white mb-2">What if I don't find a property within 90 days?</h3>
               <p className="text-slate-600 dark:text-slate-300">While 92% of our premium users find properties within 2 weeks, if you don't find a match, contact support for a pro-rated refund or extension.</p>
             </div>
 
-            <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-6 transition-colors duration-200">
+            <div className="bg-white dark:bg-slate-700 rounded-xl p-6 transition-colors duration-200">
               <h3 className="font-bold text-slate-900 dark:text-white mb-2">Do I need to pay ₹2,000 for each property listing?</h3>
               <p className="text-slate-600 dark:text-slate-300">Yes, verification is per property. This ensures every listing undergoes thorough checks. However, once verified, it remains verified—no annual fees.</p>
             </div>
 
-            <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-6 transition-colors duration-200">
+            <div className="bg-white dark:bg-slate-700 rounded-xl p-6 transition-colors duration-200">
               <h3 className="font-bold text-slate-900 dark:text-white mb-2">Are there any hidden charges?</h3>
               <p className="text-slate-600 dark:text-slate-300">Absolutely none. Homer's pricing is fully transparent. What you see is what you pay. No commissions, no finder's fees, no surprises.</p>
             </div>
