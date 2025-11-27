@@ -317,7 +317,7 @@ const RenterDashboard = () => {
                 >
                   <Button
                     onClick={() => navigate('/renter/subscription')}
-                    className="bg-white text-blue-600 hover:bg-blue-50 font-bold text-lg px-8 py-4 shadow-xl"
+                    className="bg-blue-100 text-blue-600 hover:bg-blue-50 font-bold text-lg px-8 py-4 shadow-xl"
                   >
                     Upgrade Now - ₹750 for 90 days
                   </Button>
@@ -331,7 +331,7 @@ const RenterDashboard = () => {
                   }}
                   transition={{ duration: 4, repeat: Infinity }}
                 >
-                  <Crown className="w-40 h-40 text-blue-400 opacity-20" />
+                  <Crown className="w-40 h-40 text-white-400 opacity-20" />
                 </motion.div>
               </div>
             </div>

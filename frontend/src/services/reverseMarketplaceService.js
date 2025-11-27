@@ -16,8 +16,8 @@ export const getAnonymousRenters = async (filters = {}) => {
     let renters = mockUsers.filter(u => 
       (u.user_type === 'renter' || u.user_type === 'both') &&
       u.subscription_tier === 'premium' &&
-      u.is_verified &&
-      u.reverse_marketplace_opted_in
+      u.is_verified_renter &&
+      u.profile_visibility
     );
 
     // Apply filters
@@ -113,16 +113,16 @@ export const updatePrivacySettings = async (optedIn) => {
     const user = mockUsers.find(u => u.user_id.includes(userId));
     
     if (user) {
-      user.reverse_marketplace_opted_in = optedIn;
+      user.profile_visibility = optedIn;
     }
 
     return mockApiCall({
       message: 'Privacy settings updated',
-      opted_in: optedIn
+      profile_visibility: optedIn
     });
   }
   
-  return axios.put('/api/reverse-marketplace/privacy', { opted_in: optedIn });
+  return axios.put('/api/reverse-marketplace/privacy', { profile_visibility: optedIn });
 };
 
 // =================================================================
@@ -139,8 +139,8 @@ export const getPrivacySettings = async () => {
     const user = mockUsers.find(u => u.user_id.includes(userId));
     
     return mockApiCall({
-      opted_in: user?.reverse_marketplace_opted_in || false,
-      can_participate: user?.subscription_tier === 'premium' && user?.is_verified
+      profile_visibility: user?.profile_visibility || false,
+      can_participate: user?.subscription_tier === 'premium' && user?.is_verified_renter
     });
   }
   
