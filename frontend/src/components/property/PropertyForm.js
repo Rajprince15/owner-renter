@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import Input from '../common/Input';
 import { Upload, X } from 'lucide-react';
 import { CITIES, PROPERTY_TYPES } from '../../constants/propertyConstants';
@@ -8,8 +9,21 @@ const PropertyForm = ({ formData, errors, currentStep, onInputChange, onNestedCh
   // Step 1: Basic Info
   if (currentStep === 1) {
     return (
-      <div className="space-y-6" data-testid="form-step-1">
-        <h2 className="text-2xl font-bold text-slate-900 mb-4">Basic Information</h2>
+      <motion.div 
+        className="space-y-6" 
+        data-testid="form-step-1"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <motion.h2 
+          className="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+          initial={{ x: -20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+        >
+          Basic Information
+        </motion.h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2">
@@ -113,15 +127,28 @@ const PropertyForm = ({ formData, errors, currentStep, onInputChange, onNestedCh
             />
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
   
   // Step 2: Location
   if (currentStep === 2) {
     return (
-      <div className="space-y-6" data-testid="form-step-2">
-        <h2 className="text-2xl font-bold text-slate-900 mb-4">Location Details</h2>
+      <motion.div 
+        className="space-y-6" 
+        data-testid="form-step-2"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <motion.h2 
+          className="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+          initial={{ x: -20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+        >
+          Location Details
+        </motion.h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2">
@@ -208,7 +235,7 @@ const PropertyForm = ({ formData, errors, currentStep, onInputChange, onNestedCh
             />
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
   
@@ -220,8 +247,21 @@ const PropertyForm = ({ formData, errors, currentStep, onInputChange, onNestedCh
     ];
     
     return (
-      <div className="space-y-6" data-testid="form-step-3">
-        <h2 className="text-2xl font-bold text-slate-900 mb-4">Property Details</h2>
+      <motion.div 
+        className="space-y-6" 
+        data-testid="form-step-3"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <motion.h2 
+          className="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+          initial={{ x: -20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+        >
+          Property Details
+        </motion.h2>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
@@ -390,15 +430,28 @@ const PropertyForm = ({ formData, errors, currentStep, onInputChange, onNestedCh
             </label>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
   
   // Step 4: Images
   if (currentStep === 4) {
     return (
-      <div className="space-y-6" data-testid="form-step-4">
-        <h2 className="text-2xl font-bold text-slate-900 mb-4">Property Images</h2>
+      <motion.div 
+        className="space-y-6" 
+        data-testid="form-step-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <motion.h2 
+          className="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+          initial={{ x: -20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+        >
+          Property Images
+        </motion.h2>
         
         <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center">
           <Upload className="w-12 h-12 text-slate-400 mx-auto mb-4" />
@@ -451,15 +504,28 @@ const PropertyForm = ({ formData, errors, currentStep, onInputChange, onNestedCh
             ))}
           </div>
         )}
-      </div>
+      </motion.div>
     );
   }
   
   // Step 5: Preview
   if (currentStep === 5) {
     return (
-      <div className="space-y-6" data-testid="form-step-5">
-        <h2 className="text-2xl font-bold text-slate-900 mb-4">Review & Submit</h2>
+      <motion.div 
+        className="space-y-6" 
+        data-testid="form-step-5"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <motion.h2 
+          className="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+          initial={{ x: -20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+        >
+          Review & Submit
+        </motion.h2>
         
         <div className="bg-slate-50 rounded-lg p-6 space-y-6">
           {/* Basic Info */}
@@ -540,7 +606,7 @@ const PropertyForm = ({ formData, errors, currentStep, onInputChange, onNestedCh
             You can get it verified by paying ₹2000 to unlock lifestyle data and 5X more views.
           </p>
         </div>
-      </div>
+      </motion.div>
     );
   }
   
