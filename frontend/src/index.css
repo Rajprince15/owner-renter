@@ -6,50 +6,92 @@
   /* CSS Variables for Theme */
   :root {
     /* Light Mode Colors */
-    --bg-primary: 255 255 255; /* white */
-    --bg-secondary: 248 250 252; /* slate-50 */
-    --bg-tertiary: 241 245 249; /* slate-100 */
-    --card-bg: 255 255 255; /* white */
-    --card-border: 226 232 240; /* slate-200 */
+    --bg-primary: 255 255 255;
+    --bg-secondary: 248 250 252;
+    --bg-tertiary: 241 245 249;
+    --card-bg: 255 255 255;
+    --card-border: 226 232 240;
     
-    --text-primary: 15 23 42; /* slate-900 */
-    --text-secondary: 51 65 85; /* slate-700 */
-    --text-muted: 100 116 139; /* slate-500 */
+    --text-primary: 15 23 42;
+    --text-secondary: 51 65 85;
+    --text-muted: 100 116 139;
     
-    --accent-primary: 37 99 235; /* blue-600 */
-    --accent-secondary: 16 185 129; /* emerald-500 */
+    --accent-primary: 37 99 235;
+    --accent-secondary: 16 185 129;
     
-    --border-color: 226 232 240; /* slate-200 */
-    --input-bg: 255 255 255; /* white */
-    --input-border: 203 213 225; /* slate-300 */
+    --border-color: 226 232 240;
+    --input-bg: 255 255 255;
+    --input-border: 203 213 225;
   }
   
   .dark {
     /* Dark Mode Colors */
-    --bg-primary: 15 23 42; /* slate-900 */
-    --bg-secondary: 30 41 59; /* slate-800 */
-    --bg-tertiary: 51 65 85; /* slate-700 */
-    --card-bg: 30 41 59; /* slate-800 */
-    --card-border: 51 65 85; /* slate-700 */
+    --bg-primary: 15 23 42;
+    --bg-secondary: 30 41 59;
+    --bg-tertiary: 51 65 85;
+    --card-bg: 30 41 59;
+    --card-border: 51 65 85;
     
-    --text-primary: 248 250 252; /* slate-50 */
-    --text-secondary: 203 213 225; /* slate-300 */
-    --text-muted: 148 163 184; /* slate-400 */
+    --text-primary: 248 250 252;
+    --text-secondary: 203 213 225;
+    --text-muted: 148 163 184;
     
-    --accent-primary: 59 130 246; /* blue-500 */
-    --accent-secondary: 16 185 129; /* emerald-500 */
+    --accent-primary: 59 130 246;
+    --accent-secondary: 16 185 129;
     
-    --border-color: 51 65 85; /* slate-700 */
-    --input-bg: 30 41 59; /* slate-800 */
-    --input-border: 71 85 105; /* slate-600 */
+    --border-color: 51 65 85;
+    --input-bg: 30 41 59;
+    --input-border: 71 85 105;
+  }
+
+  /* Smooth scrolling with offset for fixed navbar */
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px;
   }
 
   body {
     @apply font-sans antialiased bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-50;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  
-  html {
-    scroll-behavior: smooth;
+
+  /* Custom text selection */
+  ::selection {
+    @apply bg-primary-500 text-white;
+  }
+
+  /* Focus visible improvements */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-white dark:ring-offset-slate-900;
+  }
+
+  /* Custom scrollbar for webkit browsers */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-slate-100 dark:bg-slate-800;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 dark:bg-slate-600 rounded-lg;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-400 dark:bg-slate-500;
+  }
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(203 213 225) rgb(241 245 249);
+  }
+
+  .dark * {
+    scrollbar-color: rgb(71 85 105) rgb(30 41 59);
   }
 }
 
@@ -92,6 +134,16 @@
   .text-muted {
     @apply text-slate-500 dark:text-slate-400;
   }
+
+  /* Glassmorphism effect */
+  .glass {
+    @apply backdrop-blur-md bg-white/80 dark:bg-slate-800/80;
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-400;
+  }
 }
 
 @layer utilities {
@@ -127,6 +179,12 @@
     }
   }
 
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+
   .animate-fade-in {
     animation: fade-in 0.3s ease-out;
   }
@@ -137,6 +195,10 @@
 
   .animate-shimmer {
     animation: shimmer 2s infinite linear;
+  }
+
+  .animate-shake {
+    animation: shake 0.3s ease-in-out;
   }
   
   .dark .animate-shimmer {
@@ -174,7 +236,18 @@
     transform: translateY(-4px);
   }
 
+  .hover-scale:hover {
+    transform: scale(1.05);
+  }
+
   /* Text utilities */
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -187,5 +260,23 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  /* Performance optimizations */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
