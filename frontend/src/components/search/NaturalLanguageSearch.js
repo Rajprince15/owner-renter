@@ -92,7 +92,7 @@ const NaturalLanguageSearch = ({ onSearch, isPremium = false }) => {
       <div className="flex items-center gap-2 mb-2">
         <Sparkles className="w-5 h-5 text-blue-600" />
         <h3 className="text-lg font-semibold text-gray-900">
-          Natural Language Search
+          Lifestyle Search
         </h3>
         {isPremium && (
           <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">
@@ -102,7 +102,7 @@ const NaturalLanguageSearch = ({ onSearch, isPremium = false }) => {
       </div>
 
       <p className="text-sm text-gray-600">
-        Describe your ideal home in plain English. Our AI will understand and find matching properties.
+        Describe your ideal home naturally. We'll understand and find matching properties for you.
       </p>
 
       {/* Search Input */}

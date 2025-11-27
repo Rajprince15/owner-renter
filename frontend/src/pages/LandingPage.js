@@ -407,7 +407,7 @@ const LandingPage = () => {
                 <ul className="space-y-2 text-slate-700 dark:text-slate-300">
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-primary-600 mr-2 flex-shrink-0 mt-0.5" />
-                    <span>Free: 5 property contacts</span>
+                    <span>Free: 2 property contacts</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-primary-600 mr-2 flex-shrink-0 mt-0.5" />

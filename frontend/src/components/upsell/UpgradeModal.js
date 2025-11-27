@@ -3,9 +3,9 @@ import { X, Check, Zap } from 'lucide-react';
 import Modal from '../common/Modal';
 import Button from '../common/Button';
 
-const UpgradeModal = ({ isOpen, onClose, onUpgrade, contactsUsed = 5, contactsLimit = 5 }) => {
+const UpgradeModal = ({ isOpen, onClose, onUpgrade, contactsUsed = 2, contactsLimit = 2 }) => {
   const freeFeatures = [
-    '5 property contacts',
+    '2 property contacts',
     'Basic search filters',
     'Browse all listings',
     'Shortlist properties'
@@ -15,7 +15,7 @@ const UpgradeModal = ({ isOpen, onClose, onUpgrade, contactsUsed = 5, contactsLi
     'Unlimited property contacts',
     'Verified Renter badge',
     'Advanced lifestyle search',
-    'Natural language search',
+    'Lifestyle search with AI',
     'Reverse marketplace visibility',
     'Priority support'
   ];

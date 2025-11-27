@@ -31,7 +31,7 @@ const Subscription = () => {
   }, []);
 
   const freeFeatures = [
-    '5 property contacts',
+    '2 property contacts',
     'Basic search filters',
     'Browse all listings',
     'Shortlist properties',
@@ -42,7 +42,7 @@ const Subscription = () => {
     'Unlimited property contacts',
     'Verified Renter badge',
     'Advanced lifestyle search',
-    'Natural language search',
+    'Lifestyle search with AI',
     'AQI, noise, walkability filters',
     'Reverse marketplace visibility',
     'Priority customer support',

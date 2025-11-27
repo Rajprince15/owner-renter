@@ -42,7 +42,7 @@ const RenterDashboard = () => {
         if (user) {
           const isPremium = user.subscription_tier === 'premium';
           const used = user.contacts_used || 0;
-          const remaining = isPremium ? 'Unlimited' : Math.max(0, 5 - used);
+          const remaining = isPremium ? 'Unlimited' : Math.max(0, 2 - used);
           setContactsRemaining(remaining);
         }
       } catch (error) {
@@ -192,7 +192,7 @@ const RenterDashboard = () => {
         {user && (
           <ContactLimitIndicator
             contactsUsed={user.contacts_used || 0}
-            contactsLimit={isPremium ? 'unlimited' : 5}
+            contactsLimit={isPremium ? 'unlimited' : 2}
             isPremium={isPremium}
             className="mb-8"
           />

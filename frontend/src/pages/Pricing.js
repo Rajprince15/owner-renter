@@ -83,28 +83,30 @@ const Pricing = () => {
                 <li className="flex items-start">
                   <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mr-3 flex-shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-medium text-slate-900 dark:text-white">Basic filters</span>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Price, BHK, Location</p>
+                    <span className="font-medium text-slate-900 dark:text-white">Basic search filters</span>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Search by price, BHK, and location</p>
                   </div>
                 </li>
                 <li className="flex items-start">
-                  <div className="w-5 h-5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-full flex items-center justify-center mr-3 flex-shrink-0 mt-0.5 text-xs font-bold">5</div>
+                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mr-3 flex-shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-semibold text-amber-600 dark:text-amber-400">5 property contacts maximum</span>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Contact up to 5 owners</p>
+                    <span className="font-medium text-slate-900 dark:text-white">Contact 2 owners</span>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Perfect for exploring options</p>
                   </div>
                 </li>
-                <li className="flex items-start text-slate-400 dark:text-slate-600">
-                  <X className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
-                  <span>No lifestyle search</span>
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mr-3 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-medium text-slate-900 dark:text-white">Shortlist properties</span>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Save your favorite listings</p>
+                  </div>
                 </li>
-                <li className="flex items-start text-slate-400 dark:text-slate-600">
-                  <X className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
-                  <span>No reverse marketplace profile</span>
-                </li>
-                <li className="flex items-start text-slate-400 dark:text-slate-600">
-                  <X className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
-                  <span>No verified renter badge</span>
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mr-3 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-medium text-slate-900 dark:text-white">Basic chat functionality</span>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Message property owners</p>
+                  </div>
                 </li>
               </ul>
 
@@ -160,8 +162,8 @@ const Pricing = () => {
                 <li className="flex items-start">
                   <Check className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-semibold">Natural language AI search</span>
-                    <p className="text-sm text-primary-100">Search like you talk</p>
+                    <span className="font-semibold">Lifestyle Search</span>
+                    <p className="text-sm text-primary-100">Search using natural language</p>
                   </div>
                 </li>
                 <li className="flex items-start">
@@ -359,7 +361,7 @@ const Pricing = () => {
                 </tr>
                 <tr className="hover:bg-slate-50 dark:hover:bg-slate-600">
                   <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">Property Contacts</td>
-                  <td className="px-6 py-4 text-center text-slate-700 dark:text-slate-300">5 max</td>
+                  <td className="px-6 py-4 text-center text-slate-700 dark:text-slate-300">2 max</td>
                   <td className="px-6 py-4 text-center bg-primary-50 dark:bg-primary-900/30 font-bold text-primary-600 dark:text-primary-400">Unlimited</td>
                   <td className="px-6 py-4 text-center text-slate-700 dark:text-slate-300">—</td>
                   <td className="px-6 py-4 text-center bg-green-50 dark:bg-green-900/30 text-slate-700 dark:text-slate-300">—</td>
@@ -400,9 +402,9 @@ const Pricing = () => {
                   <td className="px-6 py-4 text-center bg-green-50 dark:bg-green-900/30"><CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mx-auto" /></td>
                 </tr>
                 <tr className="hover:bg-slate-50 dark:hover:bg-slate-600">
-                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">Expected Visibility</td>
-                  <td className="px-6 py-4 text-center text-slate-700 dark:text-slate-300">—</td>
-                  <td className="px-6 py-4 text-center bg-primary-50 dark:bg-primary-900/30 text-slate-700 dark:text-slate-300">—</td>
+                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">Renter Visibility</td>
+                  <td className="px-6 py-4 text-center text-slate-700 dark:text-slate-300 text-sm">Hidden from owners</td>
+                  <td className="px-6 py-4 text-center bg-primary-50 dark:bg-primary-900/30 font-bold text-primary-600 dark:text-primary-400 text-sm">Visible to owners</td>
                   <td className="px-6 py-4 text-center text-red-600 dark:text-red-400 text-sm">10% of verified</td>
                   <td className="px-6 py-4 text-center bg-green-50 dark:bg-green-900/30 font-bold text-green-600 dark:text-green-400">5-10X more</td>
                 </tr>
@@ -412,8 +414,133 @@ const Pricing = () => {
         </div>
       </section>
 
-      {/* ROI Section */}
+      {/* Reverse Marketplace Explanation Section */}
       <section className="py-20 bg-white dark:bg-slate-900 transition-colors duration-200">
+        <div className="container-custom">
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center mb-4">
+              <Users className="w-10 h-10 text-purple-600 dark:text-purple-400 mr-3" />
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">
+                What is Reverse Marketplace?
+              </h2>
+            </div>
+            <p className="text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">
+              A game-changing feature where verified owners find <strong>you</strong> instead of the other way around
+            </p>
+          </div>
+
+          <div className="max-w-5xl mx-auto">
+            {/* How It Works */}
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl p-8 mb-8 border-2 border-purple-200 dark:border-purple-800 transition-colors duration-200">
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 text-center">How It Works</h3>
+              
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl font-bold text-white">1</span>
+                  </div>
+                  <h4 className="font-bold text-slate-900 dark:text-white mb-2">Create Your Profile</h4>
+                  <p className="text-sm text-slate-700 dark:text-slate-300">
+                    Premium renters fill in their requirements: budget, location preferences, BHK type, move-in date, and employment details
+                  </p>
+                </div>
+
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl font-bold text-white">2</span>
+                  </div>
+                  <h4 className="font-bold text-slate-900 dark:text-white mb-2">Stay Anonymous</h4>
+                  <p className="text-sm text-slate-700 dark:text-slate-300">
+                    Your profile shows only anonymized info (e.g., "Renter #1024"). Your name, contact details, and documents remain hidden
+                  </p>
+                </div>
+
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl font-bold text-white">3</span>
+                  </div>
+                  <h4 className="font-bold text-slate-900 dark:text-white mb-2">Owners Find You</h4>
+                  <p className="text-sm text-slate-700 dark:text-slate-300">
+                    Verified owners browse profiles, find matches, and reach out to you with properties that fit your needs
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Benefits Grid */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* For Premium Renters */}
+              <div className="bg-white dark:bg-slate-800 border-2 border-purple-200 dark:border-purple-700 rounded-xl p-6 transition-colors duration-200">
+                <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center">
+                  <CheckCircle className="w-6 h-6 text-purple-600 dark:text-purple-400 mr-2" />
+                  For Premium Renters
+                </h4>
+                <ul className="space-y-3 text-slate-700 dark:text-slate-300">
+                  <li className="flex items-start">
+                    <span className="text-purple-600 dark:text-purple-400 mr-2">•</span>
+                    <span><strong>No more endless searching</strong> - Owners with matching properties contact you</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-purple-600 dark:text-purple-400 mr-2">•</span>
+                    <span><strong>Complete privacy</strong> - Your identity stays protected until you respond</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-purple-600 dark:text-purple-400 mr-2">•</span>
+                    <span><strong>Better matches</strong> - Connect with owners who already know you fit their criteria</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-purple-600 dark:text-purple-400 mr-2">•</span>
+                    <span><strong>Verified badge advantage</strong> - Owners prioritize verified renters</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* For Verified Owners */}
+              <div className="bg-white dark:bg-slate-800 border-2 border-green-200 dark:border-green-700 rounded-xl p-6 transition-colors duration-200">
+                <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center">
+                  <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mr-2" />
+                  For Verified Owners
+                </h4>
+                <ul className="space-y-3 text-slate-700 dark:text-slate-300">
+                  <li className="flex items-start">
+                    <span className="text-green-600 dark:text-green-400 mr-2">•</span>
+                    <span><strong>Pre-qualified tenants</strong> - Browse verified renters with clear requirements</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-600 dark:text-green-400 mr-2">•</span>
+                    <span><strong>Save time</strong> - Find tenants whose budget and preferences match your property</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-600 dark:text-green-400 mr-2">•</span>
+                    <span><strong>Employment verified</strong> - See income ranges and employment types upfront</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-600 dark:text-green-400 mr-2">•</span>
+                    <span><strong>Serious renters only</strong> - Premium users are committed to finding quality homes</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Privacy & Security Note */}
+            <div className="mt-8 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl p-6 transition-colors duration-200">
+              <div className="flex items-start">
+                <Shield className="w-6 h-6 text-blue-600 dark:text-blue-400 mr-3 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h4 className="font-bold text-slate-900 dark:text-white mb-2">Privacy & Security First</h4>
+                  <p className="text-slate-700 dark:text-slate-300 text-sm">
+                    <strong>What's visible:</strong> Anonymous ID, employment type, income range, property preferences, budget, and move-in date.<br />
+                    <strong>What's hidden:</strong> Your name, contact info, email, phone number, profile photo, and all personal documents remain completely private until you choose to share them.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ROI Section */}
+      <section className="py-20 bg-slate-50 dark:bg-slate-800 transition-colors duration-200">
         <div className="container-custom">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">

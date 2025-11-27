@@ -171,10 +171,10 @@ const Search = () => {
                   🌟 Unlock Premium Lifestyle Search Features
                 </h3>
                 <p className="text-sm text-blue-800 dark:text-blue-300 mb-3">
-                  Get access to AI-powered natural language search, advanced lifestyle filters (air quality, noise levels, walkability), and see detailed lifestyle scores for each property!
+                  Get access to advanced lifestyle search with natural language, lifestyle filters (air quality, noise levels, walkability), and see detailed lifestyle scores for each property!
                 </p>
                 <ul className="text-sm text-blue-700 dark:text-blue-400 mb-4 space-y-1 ml-5 list-disc">
-                  <li>Natural Language Search - describe your ideal home in plain English</li>
+                  <li>Lifestyle Search - describe your ideal home naturally</li>
                   <li>Filter by Air Quality, Noise Levels, and Walkability Scores</li>
                   <li>View detailed lifestyle metrics on every property</li>
                   <li>Plus: Unlimited contacts and verified renter badge</li>
