@@ -13,7 +13,7 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
-  const { theme, toggleTheme, isDark } = useTheme();
+  const { theme, toggleTheme, isDark, isDarkThemeEnabled } = useTheme();
 
   const getNavLinks = () => {
     const links = [
@@ -113,19 +113,21 @@ const Navbar = () => {
                 {/* Notification Panel */}
                 <NotificationPanel />
                 
-                {/* Theme Toggle Button */}
-                <button
-                  onClick={toggleTheme}
-                  className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                  aria-label="Toggle theme"
-                  data-testid="theme-toggle-btn"
-                >
-                  {isDark ? (
-                    <Sun className="w-5 h-5" />
-                  ) : (
-                    <Moon className="w-5 h-5" />
-                  )}
-                </button>
+                {/* Theme Toggle Button - Only show if dark theme is enabled */}
+                {isDarkThemeEnabled && (
+                  <button
+                    onClick={toggleTheme}
+                    className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                    aria-label="Toggle theme"
+                    data-testid="theme-toggle-btn"
+                  >
+                    {isDark ? (
+                      <Sun className="w-5 h-5" />
+                    ) : (
+                      <Moon className="w-5 h-5" />
+                    )}
+                  </button>
+                )}
                 
                 {/* Owner Verification Link */}
                 {(user?.user_type === 'owner' || user?.user_type === 'both') && (
@@ -177,19 +179,21 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                {/* Theme Toggle Button for non-authenticated users */}
-                <button
-                  onClick={toggleTheme}
-                  className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                  aria-label="Toggle theme"
-                  data-testid="theme-toggle-btn"
-                >
-                  {isDark ? (
-                    <Sun className="w-5 h-5" />
-                  ) : (
-                    <Moon className="w-5 h-5" />
-                  )}
-                </button>
+                {/* Theme Toggle Button for non-authenticated users - Only show if dark theme is enabled */}
+                {isDarkThemeEnabled && (
+                  <button
+                    onClick={toggleTheme}
+                    className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                    aria-label="Toggle theme"
+                    data-testid="theme-toggle-btn"
+                  >
+                    {isDark ? (
+                      <Sun className="w-5 h-5" />
+                    ) : (
+                      <Moon className="w-5 h-5" />
+                    )}
+                  </button>
+                )}
                 <Button variant="ghost" to="/login" size="sm" data-testid="navbar-login-btn">
                   <User className="w-4 h-4 mr-2" />
                   Login
@@ -230,24 +234,26 @@ const Navbar = () => {
                 </Link>
               ))}
               <div className="border-t border-slate-200 dark:border-slate-700 pt-4 px-4 space-y-3">
-                {/* Theme Toggle in Mobile Menu */}
-                <button
-                  onClick={toggleTheme}
-                  className="flex items-center justify-center space-x-2 w-full px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
-                  data-testid="mobile-theme-toggle-btn"
-                >
-                  {isDark ? (
-                    <>
-                      <Sun className="w-4 h-4" />
-                      <span>Light Mode</span>
-                    </>
-                  ) : (
-                    <>
-                      <Moon className="w-4 h-4" />
-                      <span>Dark Mode</span>
-                    </>
-                  )}
-                </button>
+                {/* Theme Toggle in Mobile Menu - Only show if dark theme is enabled */}
+                {isDarkThemeEnabled && (
+                  <button
+                    onClick={toggleTheme}
+                    className="flex items-center justify-center space-x-2 w-full px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                    data-testid="mobile-theme-toggle-btn"
+                  >
+                    {isDark ? (
+                      <>
+                        <Sun className="w-4 h-4" />
+                        <span>Light Mode</span>
+                      </>
+                    ) : (
+                      <>
+                        <Moon className="w-4 h-4" />
+                        <span>Dark Mode</span>
+                      </>
+                    )}
+                  </button>
+                )}
                 {isAuthenticated ? (
                   <>
                     {/* Owner Verification Link */}
