@@ -190,17 +190,17 @@ const VerificationManagement = () => {
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.95 }}
         >
-          <CheckCircle className="w-4 h-4\" />
+          <CheckCircle className="w-4 h-4" />
           Approve
         </motion.button>
         <motion.button
           onClick={() => handleReject(verification, type)}
-          className=\"flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700\"
-          data-testid=\"reject-button\"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          data-testid="reject-button"
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.95 }}
         >
-          <XCircle className=\"w-4 h-4\" />
+          <XCircle className="w-4 h-4" />
           Reject
         </motion.button>
       </div>
@@ -478,7 +478,7 @@ const VerificationManagement = () => {
         documents={viewingDocuments}
         title={documentViewerTitle}
       />
-    </div>
+    </motion.div>
   );
 };
 
