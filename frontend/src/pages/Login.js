@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/common/Button';
 import { Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { fadeInUp, slideInLeft, slideInRight, staggerContainer, staggerItem } from '../utils/motionConfig';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -21,11 +23,9 @@ const Login = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    // Clear error for this field
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
-    // Clear API error
     if (apiError) {
       setApiError('');
     }
@@ -33,28 +33,20 @@ const Login = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    
-    // Email/Phone validation
     if (!formData.email.trim()) {
       newErrors.email = 'Email or phone is required';
     }
-    
-    // Password validation
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleQuickLogin = (email, password) => {
-    setFormData({
-      email: email,
-      password: password
-    });
+    setFormData({ email, password });
     setErrors({});
     setApiError('');
   };
@@ -63,9 +55,7 @@ const Login = () => {
     e.preventDefault();
     setApiError('');
     
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
     
     setLoading(true);
     
@@ -76,7 +66,6 @@ const Login = () => {
       });
       
       if (result.success) {
-        // Navigate based on user type
         const user = JSON.parse(localStorage.getItem('user'));
         if (user.user_type === 'admin') {
           navigate('/admin');
@@ -98,82 +87,128 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-100 to-primary-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          className="absolute -top-40 -right-40 w-80 h-80 bg-primary-200 dark:bg-primary-900 rounded-full opacity-20 blur-3xl"
+          animate={{
+            y: [0, 30, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: 'easeInOut'
+          }}
+        />
+        <motion.div
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-200 dark:bg-blue-900 rounded-full opacity-20 blur-3xl"
+          animate={{
+            y: [0, -30, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            delay: 1
+          }}
+        />
+      </div>
+
+      <motion.div 
+        className="max-w-md w-full space-y-8 relative z-10"
+        initial="initial"
+        animate="animate"
+        variants={staggerContainer}
+      >
         {/* Header */}
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+        <motion.div className="text-center" variants={fadeInUp}>
+          <motion.h2 
+            className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-2"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
             Welcome Back
-          </h2>
-          <p className="text-slate-600 dark:text-slate-400">
+          </motion.h2>
+          <motion.p 
+            className="text-slate-600 dark:text-slate-400 text-lg"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
             Sign in to your account to continue
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
         {/* Login Form */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-8 border border-slate-200 dark:border-slate-700 transition-colors duration-200">
+        <motion.div 
+          className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-slate-200/50 dark:border-slate-700/50 transition-colors duration-300"
+          variants={fadeInUp}
+          whileHover={{ boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
+        >
           {/* API Error */}
           {apiError && (
-            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start" data-testid="login-error-message">
+            <motion.div 
+              className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              data-testid="login-error-message"
+            >
               <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 mt-0.5 mr-3 flex-shrink-0" />
               <p className="text-sm text-red-700 dark:text-red-300">{apiError}</p>
-            </div>
+            </motion.div>
           )}
 
           {/* Quick Login Buttons */}
-          <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <motion.div 
+            className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-xl"
+            variants={staggerItem}
+          >
             <p className="text-sm text-blue-900 dark:text-blue-300 font-semibold mb-3">🚀 Quick Login (Demo Accounts)</p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => handleQuickLogin('admin@homer.com', 'admin@123')}
-                className="px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded-md transition-colors duration-200 flex items-center justify-center gap-1"
-                data-testid="quick-login-admin"
-              >
-                <span>👑</span>
-                <span>Admin</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickLogin('renter.free@homer.com', 'password123')}
-                className="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded-md transition-colors duration-200 flex items-center justify-center gap-1"
-                data-testid="quick-login-renter-free"
-              >
-                <span>🏠</span>
-                <span>Free Renter</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickLogin('renter.premium@homer.com', 'password123')}
-                className="px-3 py-2 bg-purple-500 hover:bg-purple-600 text-white text-xs font-semibold rounded-md transition-colors duration-200 flex items-center justify-center gap-1"
-                data-testid="quick-login-renter-premium"
-              >
-                <span>⭐</span>
-                <span>Premium Renter</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickLogin('owner.verified@homer.com', 'password123')}
-                className="px-3 py-2 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold rounded-md transition-colors duration-200 flex items-center justify-center gap-1"
-                data-testid="quick-login-owner"
-              >
-                <span>🔑</span>
-                <span>Owner</span>
-              </button>
-            </div>
+            <motion.div 
+              className="grid grid-cols-2 gap-2"
+              variants={staggerContainer}
+            >
+              {[
+                { label: 'Admin', icon: '👑', email: 'admin@homer.com', password: 'admin@123', color: 'red', testid: 'quick-login-admin' },
+                { label: 'Free Renter', icon: '🏠', email: 'renter.free@homer.com', password: 'password123', color: 'blue', testid: 'quick-login-renter-free' },
+                { label: 'Premium Renter', icon: '⭐', email: 'renter.premium@homer.com', password: 'password123', color: 'purple', testid: 'quick-login-renter-premium' },
+                { label: 'Owner', icon: '🔑', email: 'owner.verified@homer.com', password: 'password123', color: 'green', testid: 'quick-login-owner' }
+              ].map((account, index) => (
+                <motion.button
+                  key={index}
+                  type="button"
+                  onClick={() => handleQuickLogin(account.email, account.password)}
+                  className={`px-3 py-2 bg-${account.color}-500 hover:bg-${account.color}-600 text-white text-xs font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-1 shadow-md hover:shadow-lg`}
+                  variants={staggerItem}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  data-testid={account.testid}
+                >
+                  <span>{account.icon}</span>
+                  <span>{account.label}</span>
+                </motion.button>
+              ))}
+            </motion.div>
             <p className="text-xs text-blue-700 dark:text-blue-400 mt-3 text-center">
               Click any button to auto-fill credentials
             </p>
-          </div>
+          </motion.div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email/Phone Input */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+            {/* Email Input */}
+            <motion.div variants={staggerItem}>
+              <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Email or Phone
                 <span className="text-red-500 ml-1">*</span>
               </label>
-              <div className="relative">
+              <motion.div 
+                className="relative"
+                whileFocus={{ scale: 1.01 }}
+              >
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 w-5 h-5" />
                 <input
                   id="email"
@@ -182,26 +217,24 @@ const Login = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Enter your email or phone"
-                  className={`
-                    w-full pl-11 pr-4 py-2.5 border rounded-lg
-                    bg-white dark:bg-slate-700
-                    text-slate-900 dark:text-slate-100
-                    placeholder-slate-400 dark:placeholder-slate-500
-                    focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent
-                    transition-colors duration-200
-                    ${errors.email ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'}
-                  `}
+                  className={`w-full pl-11 pr-4 py-3 border rounded-xl bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200 ${errors.email ? 'border-red-500 shake' : 'border-slate-300 dark:border-slate-600'}`}
                   data-testid="login-email-input"
                 />
-              </div>
+              </motion.div>
               {errors.email && (
-                <p className="mt-1 text-sm text-red-500 dark:text-red-400">{errors.email}</p>
+                <motion.p 
+                  className="mt-2 text-sm text-red-500 dark:text-red-400"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                >
+                  {errors.email}
+                </motion.p>
               )}
-            </div>
+            </motion.div>
 
             {/* Password Input */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+            <motion.div variants={staggerItem}>
+              <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Password
                 <span className="text-red-500 ml-1">*</span>
               </label>
@@ -214,82 +247,96 @@ const Login = () => {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Enter your password"
-                  className={`
-                    w-full pl-11 pr-11 py-2.5 border rounded-lg
-                    bg-white dark:bg-slate-700
-                    text-slate-900 dark:text-slate-100
-                    placeholder-slate-400 dark:placeholder-slate-500
-                    focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent
-                    transition-colors duration-200
-                    ${errors.password ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'}
-                  `}
+                  className={`w-full pl-11 pr-11 py-3 border rounded-xl bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200 ${errors.password ? 'border-red-500 shake' : 'border-slate-300 dark:border-slate-600'}`}
                   data-testid="login-password-input"
                 />
-                <button
+                <motion.button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   data-testid="login-password-toggle"
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </motion.button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-red-500 dark:text-red-400">{errors.password}</p>
+                <motion.p 
+                  className="mt-2 text-sm text-red-500 dark:text-red-400"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                >
+                  {errors.password}
+                </motion.p>
               )}
-            </div>
+            </motion.div>
 
             {/* Forgot Password Link */}
-            <div className="flex items-center justify-between">
+            <motion.div className="flex items-center justify-between" variants={staggerItem}>
               <div className="text-sm">
                 <Link 
                   to="/forgot-password" 
-                  className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300"
+                  className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors"
                 >
                   Forgot password?
                 </Link>
               </div>
-            </div>
+            </motion.div>
 
             {/* Submit Button */}
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white py-2.5 rounded-lg font-semibold transition-colors duration-200"
-              data-testid="login-submit-button"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Signing in...
-                </span>
-              ) : (
-                'Sign In'
-              )}
-            </Button>
+            <motion.div variants={staggerItem}>
+              <motion.button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700 text-white py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                whileHover={{ scale: loading ? 1 : 1.02, y: loading ? 0 : -2 }}
+                whileTap={{ scale: loading ? 1 : 0.98 }}
+                data-testid="login-submit-button"
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Signing in...
+                  </span>
+                ) : (
+                  'Sign In'
+                )}
+              </motion.button>
+            </motion.div>
           </form>
 
           {/* Sign Up Link */}
-          <div className="mt-6 text-center">
+          <motion.div 
+            className="mt-6 text-center"
+            variants={staggerItem}
+          >
             <p className="text-sm text-slate-600 dark:text-slate-400">
               Don't have an account?{' '}
               <Link 
                 to="/signup" 
-                className="font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300"
+                className="font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors"
               >
                 Sign up now
               </Link>
             </p>
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+
+      <style jsx>{`
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-10px); }
+          75% { transform: translateX(10px); }
+        }
+        .shake {
+          animation: shake 0.3s ease-in-out;
+        }
+      `}</style>
     </div>
   );
 };
