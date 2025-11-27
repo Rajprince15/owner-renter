@@ -39,7 +39,7 @@
 --     - Properties ranked at BOTTOM of search
 --     - NO lifestyle data calculated
 --
---   • VERIFIED TIER (₹2,000 per property):
+--   • VERIFIED TIER (₹1,500 per property):
 --     - verification_tier = 'verified'
 --     - is_verified = TRUE
 --     - verification_fee_paid = TRUE

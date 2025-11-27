@@ -149,7 +149,7 @@ const LifestyleSearch = () => {
                     <TrendingUp className="w-4 h-4 text-green-600" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-900">Natural Language Search</h4>
+                    <h4 className="font-medium text-gray-900">Advanced Lifestyle Search</h4>
                     <p className="text-sm text-gray-600">Search using plain English descriptions</p>
                   </div>
                 </div>

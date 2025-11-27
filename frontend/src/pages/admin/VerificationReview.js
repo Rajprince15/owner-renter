@@ -273,7 +273,7 @@ const VerificationReview = () => {
                             <div>
                               <p className="text-sm text-gray-600">Payment Status</p>
                               <p className="font-medium text-green-600">
-                                {verification.payment_status === 'success' ? '✓ Paid (₹2,000)' : 'Pending'}
+                                {verification.payment_status === 'success' ? '✓ Paid (₹1,500)' : 'Pending'}
                               </p>
                             </div>
                             <div>

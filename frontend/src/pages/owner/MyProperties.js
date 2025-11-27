@@ -244,7 +244,7 @@ const PropertyCard = ({ property, onDelete }) => {
               data-testid={`verify-btn-${property.property_id}`}
             >
               <CheckCircle className="w-4 h-4" />
-              Verify Property (₹2,000)
+              Verify Property (₹1,500)
             </Link>
           ) : (
             <Link

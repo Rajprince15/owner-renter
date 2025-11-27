@@ -218,7 +218,7 @@ const Verification = () => {
               </div>
             </div>
             <div className="mt-4 pt-4 border-t border-green-400">
-              <p className="text-lg font-bold">One-time fee: ₹2,000 per property</p>
+              <p className="text-lg font-bold">One-time fee: ₹1,500 per property</p>
             </div>
           </div>
         )}
@@ -347,7 +347,7 @@ const Verification = () => {
             <div className="bg-gray-50 rounded-lg p-6 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-gray-700">Verification Fee</span>
-                <span className="text-2xl font-bold text-gray-900">₹2,000</span>
+                <span className="text-2xl font-bold text-gray-900">₹1,500</span>
               </div>
               <p className="text-sm text-gray-600">
                 One-time fee for property verification. After payment, our team will review your documents within 24-48 hours.
@@ -376,7 +376,7 @@ const Verification = () => {
                 className="w-full"
                 data-testid="pay-now-button"
               >
-                {loading ? 'Processing...' : 'Pay ₹2,000 Now'}
+                {loading ? 'Processing...' : 'Pay ₹1,500 Now'}
               </Button>
             </div>
           </div>
