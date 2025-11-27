@@ -244,7 +244,7 @@ const Pricing = () => {
               </motion.ul>
 
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button variant="secondary" className="w-full bg-white text-primary-600 hover:bg-primary-50" onClick={() => handleGetStarted('renter')}>
+                <Button variant="secondary" className="w-full !bg-white !text-primary-600 hover:!bg-primary-50 hover:!text-primary-700 !border-2 !border-white shadow-xl font-bold" onClick={() => handleGetStarted('renter')}>
                   Upgrade to Premium
                 </Button>
               </motion.div>
@@ -386,7 +386,7 @@ const Pricing = () => {
               </motion.ul>
 
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button variant="secondary" className="w-full bg-white text-green-600 hover:bg-green-50" onClick={() => handleGetStarted('owner')}>
+                <Button variant="secondary" className="w-full !bg-white !text-green-600 hover:!bg-green-50 hover:!text-green-700 !border-2 !border-white shadow-xl font-bold" onClick={() => handleGetStarted('owner')}>
                   Get Verified
                 </Button>
               </motion.div>

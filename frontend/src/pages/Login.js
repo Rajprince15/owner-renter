@@ -173,16 +173,16 @@ const Login = () => {
               variants={staggerContainer}
             >
               {[
-                { label: 'Admin', icon: '👑', email: 'admin@homer.com', password: 'admin@123', color: 'red', testid: 'quick-login-admin' },
-                { label: 'Free Renter', icon: '🏠', email: 'renter.free@homer.com', password: 'password123', color: 'blue', testid: 'quick-login-renter-free' },
-                { label: 'Premium Renter', icon: '⭐', email: 'renter.premium@homer.com', password: 'password123', color: 'purple', testid: 'quick-login-renter-premium' },
-                { label: 'Owner', icon: '🔑', email: 'owner.verified@homer.com', password: 'password123', color: 'green', testid: 'quick-login-owner' }
+                { label: 'Admin', icon: '👑', email: 'admin@homer.com', password: 'admin@123', bgColor: 'bg-red-500', hoverColor: 'hover:bg-red-600', testid: 'quick-login-admin' },
+                { label: 'Free Renter', icon: '🏠', email: 'renter.free@homer.com', password: 'password123', bgColor: 'bg-blue-500', hoverColor: 'hover:bg-blue-600', testid: 'quick-login-renter-free' },
+                { label: 'Premium Renter', icon: '⭐', email: 'renter.premium@homer.com', password: 'password123', bgColor: 'bg-purple-500', hoverColor: 'hover:bg-purple-600', testid: 'quick-login-renter-premium' },
+                { label: 'Owner', icon: '🔑', email: 'owner.verified@homer.com', password: 'password123', bgColor: 'bg-green-500', hoverColor: 'hover:bg-green-600', testid: 'quick-login-owner' }
               ].map((account, index) => (
                 <motion.button
                   key={index}
                   type="button"
                   onClick={() => handleQuickLogin(account.email, account.password)}
-                  className={`px-3 py-2 bg-${account.color}-500 hover:bg-${account.color}-600 text-white text-xs font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-1 shadow-md hover:shadow-lg`}
+                  className={`px-3 py-2 ${account.bgColor} ${account.hoverColor} text-white text-xs font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-1 shadow-md hover:shadow-lg`}
                   variants={staggerItem}
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
