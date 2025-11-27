@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Edit2, Trash2, CheckCircle, Home, Eye, Image as ImageIcon, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const PropertyTable = ({ 
   properties, 
@@ -45,9 +46,20 @@ const PropertyTable = ({
   });
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden" data-testid="property-table">
-      {selectedProperties.length > 0 && (
-        <div className="bg-blue-50 border-b border-blue-200 px-6 py-3">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-white rounded-xl shadow-lg overflow-hidden"
+      data-testid="property-table"
+    >
+      <AnimatePresence>
+        {selectedProperties.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="bg-blue-50 border-b border-blue-200 px-6 py-3"
+          >
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-blue-900">
               {selectedProperties.length} property(ies) selected
@@ -60,8 +72,9 @@ const PropertyTable = ({
               Delete Selected
             </button>
           </div>
-        </div>
-      )}
+        </motion.div>
+        )}
+      </AnimatePresence>
       
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
@@ -108,8 +121,15 @@ const PropertyTable = ({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {sortedProperties.map((property) => (
-              <tr key={property.property_id} className="hover:bg-gray-50 transition">
+            {sortedProperties.map((property, index) => (
+              <motion.tr
+                key={property.property_id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.03 }}
+                whileHover={{ backgroundColor: 'rgb(249, 250, 251)', x: 2 }}
+                className="transition-all"
+              >
                 <td className="px-6 py-4 whitespace-nowrap">
                   <input
                     type="checkbox"
@@ -226,19 +246,28 @@ const PropertyTable = ({
                     </button>
                   </div>
                 </td>
-              </tr>
+              </motion.tr>
             ))}
           </tbody>
         </table>
       </div>
       
       {properties.length === 0 && (
-        <div className="text-center py-12">
-          <Home className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-500">No properties found</p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center py-12"
+        >
+          <motion.div
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <Home className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+          </motion.div>
+          <p className="text-gray-500 font-medium">No properties found</p>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 };
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { DollarSign, Download, RefreshCw } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const TransactionTable = ({ transactions, onRefund, onViewDetails }) => {
   const [sortBy, setSortBy] = useState('created_at');
@@ -42,7 +43,12 @@ const TransactionTable = ({ transactions, onRefund, onViewDetails }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden" data-testid="transaction-table">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-white rounded-xl shadow-lg overflow-hidden"
+      data-testid="transaction-table"
+    >
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -86,8 +92,15 @@ const TransactionTable = ({ transactions, onRefund, onViewDetails }) => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {sortedTransactions.map((transaction) => (
-              <tr key={transaction.transaction_id} className="hover:bg-gray-50 transition">
+            {sortedTransactions.map((transaction, index) => (
+              <motion.tr
+                key={transaction.transaction_id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.03 }}
+                whileHover={{ backgroundColor: 'rgb(249, 250, 251)', x: 2 }}
+                className="transition-all"
+              >
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <DollarSign className="w-5 h-5 text-gray-400 mr-2" />
@@ -146,19 +159,28 @@ const TransactionTable = ({ transactions, onRefund, onViewDetails }) => {
                     </button>
                   </div>
                 </td>
-              </tr>
+              </motion.tr>
             ))}
           </tbody>
         </table>
       </div>
       
       {transactions.length === 0 && (
-        <div className="text-center py-12">
-          <DollarSign className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-500">No transactions found</p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center py-12"
+        >
+          <motion.div
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <DollarSign className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+          </motion.div>
+          <p className="text-gray-500 font-medium">No transactions found</p>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 };
 

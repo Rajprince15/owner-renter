@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Edit2, Trash2, CheckCircle, XCircle, User, FileText } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const UserTable = ({ users, onEdit, onDelete, onVerify, onViewDocuments }) => {
   const [sortBy, setSortBy] = useState('created_at');
@@ -49,23 +50,41 @@ const UserTable = ({ users, onEdit, onDelete, onVerify, onViewDocuments }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden" data-testid="user-table">
-      {selectedUsers.length > 0 && (
-        <div className="bg-blue-50 border-b border-blue-200 px-6 py-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-blue-900">
-              {selectedUsers.length} user(s) selected
-            </span>
-            <button
-              onClick={() => onDelete(selectedUsers)}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium"
-              data-testid="bulk-delete-users"
-            >
-              Delete Selected
-            </button>
-          </div>
-        </div>
-      )}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-white rounded-xl shadow-lg overflow-hidden"
+      data-testid="user-table"
+    >
+      <AnimatePresence>
+        {selectedUsers.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="bg-blue-50 border-b border-blue-200 px-6 py-3"
+          >
+            <div className="flex items-center justify-between">
+              <motion.span
+                initial={{ x: -20 }}
+                animate={{ x: 0 }}
+                className="text-sm font-medium text-blue-900"
+              >
+                {selectedUsers.length} user(s) selected
+              </motion.span>
+              <motion.button
+                onClick={() => onDelete(selectedUsers)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium"
+                data-testid="bulk-delete-users"
+              >
+                Delete Selected
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
@@ -118,8 +137,15 @@ const UserTable = ({ users, onEdit, onDelete, onVerify, onViewDocuments }) => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {sortedUsers.map((user) => (
-              <tr key={user.user_id} className="hover:bg-gray-50 transition">
+            {sortedUsers.map((user, index) => (
+              <motion.tr
+                key={user.user_id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.03 }}
+                whileHover={{ backgroundColor: 'rgb(249, 250, 251)', x: 2 }}
+                className="transition-all"
+              >
                 <td className="px-6 py-4 whitespace-nowrap">
                   <input
                     type="checkbox"
@@ -243,19 +269,28 @@ const UserTable = ({ users, onEdit, onDelete, onVerify, onViewDocuments }) => {
                     </button>
                   </div>
                 </td>
-              </tr>
+              </motion.tr>
             ))}
           </tbody>
         </table>
       </div>
       
       {users.length === 0 && (
-        <div className="text-center py-12">
-          <User className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-500">No users found</p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center py-12"
+        >
+          <motion.div
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <User className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+          </motion.div>
+          <p className="text-gray-500 font-medium">No users found</p>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 };
 
