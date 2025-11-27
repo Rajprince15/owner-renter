@@ -288,62 +288,7 @@ const Subscription = () => {
             />
           </motion.div>
         </motion.div>
-
-        {/* Payment History */}
-        {transactions.length > 0 && (
-          <motion.div 
-            className="bg-white rounded-2xl shadow-2xl p-8 mb-8 border-2 border-gray-100"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-          >
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-              <Calendar className="w-6 h-6 text-blue-600" />
-              Payment History
-            </h2>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Date</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Type</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Amount</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {transactions.map((txn, index) => (
-                    <motion.tr 
-                      key={txn.transaction_id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.8 + index * 0.1 }}
-                      whileHover={{ backgroundColor: '#f9fafb' }}
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                        {formatDate(txn.created_at)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {txn.transaction_type === 'renter_subscription' ? 'Premium Subscription' : txn.transaction_type}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
-                        ₹{txn.amount}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <motion.span 
-                          className={`px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${txn.payment_status === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
-                          whileHover={{ scale: 1.1 }}
-                        >
-                          {txn.payment_status}
-                        </motion.span>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </motion.div>
-        )}
+       
 
         {/* FAQ */}
         <motion.div 
