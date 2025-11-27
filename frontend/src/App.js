@@ -58,10 +58,12 @@ import Footer from './components/layout/Footer';
 
 // Protected Route
 import ProtectedRoute from './components/common/ProtectedRoute';
+import ScrollToTop from './components/common/ScrollToTop';
 
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <ThemeProvider>
         <AuthProvider>
           <NotificationProvider>

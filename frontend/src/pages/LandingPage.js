@@ -267,26 +267,6 @@ const LandingPage = () => {
             </motion.div>
           </div>
 
-          {/* Trust Indicators with Counter Animation */}
-          <motion.div
-            className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 text-center"
-            initial="initial"
-            animate="animate"
-            variants={staggerContainer}
-            data-testid="trust-indicators"
-          >
-            {[
-              { value: '50K+', label: 'Active Users' },
-              { value: '10K+', label: 'Verified Properties' },
-              { value: '25K+', label: 'Successful Connections' },
-              { value: '4.8/5', label: 'Average Rating' }
-            ].map((stat, index) => (
-              <motion.div key={index} variants={fadeInUp}>
-                <div className="text-3xl font-bold mb-1">{stat.value}</div>
-                <div className="text-primary-200 text-sm">{stat.label}</div>
-              </motion.div>
-            ))}
-          </motion.div>
         </div>
 
         {/* Scroll Indicator */}

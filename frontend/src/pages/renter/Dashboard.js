@@ -174,78 +174,7 @@ const RenterDashboard = () => {
           </motion.p>
         </motion.div>
 
-        {/* Stats Cards */}
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
-          variants={staggerContainer}
-          initial="initial"
-          animate="animate"
-        >
-          {/* Subscription Status */}
-          <StatCard
-            icon={<Crown className="w-6 h-6" />}
-            title={isPremium ? 'Premium' : 'Free'}
-            subtitle={isPremium ? 'All features unlocked' : 'Limited features'}
-            value={isPremium ? '✓ Active' : 'Upgrade'}
-            color="blue"
-            badge={isPremium ? 'Active' : null}
-            onClick={() => !isPremium && navigate('/renter/subscription')}
-            delay={0.1}
-          />
-
-          {/* Contacts Remaining */}
-          <StatCard
-            icon={<MessageCircle className="w-6 h-6" />}
-            title="Contacts"
-            subtitle={isPremium ? 'Unlimited contacts' : 'Contacts remaining'}
-            value={contactsRemaining}
-            color="green"
-            onClick={() => navigate('/renter/chats')}
-            testId="contacts-remaining"
-            delay={0.2}
-            warning={!isPremium && contactsRemaining < 3}
-          />
-
-          {/* Shortlisted Properties */}
-          <StatCard
-            icon={<Heart className="w-6 h-6" />}
-            title="Shortlisted"
-            subtitle="Saved homes"
-            value={shortlistedProperties.length}
-            color="red"
-            onClick={() => navigate('/renter/shortlists')}
-            testId="shortlisted-count"
-            delay={0.3}
-          />
-
-          {/* Verification Status */}
-          <StatCard
-            icon={<CheckCircle className="w-6 h-6" />}
-            title={isVerified ? 'Verified' : 'Not Verified'}
-            subtitle={isVerified ? 'Profile verified' : 'Profile not verified'}
-            value={isVerified ? '✓ Done' : 'Verify'}
-            color={isVerified ? 'green' : 'yellow'}
-            badge={isVerified ? 'Verified' : null}
-            onClick={() => !isVerified && navigate('/renter/verification')}
-            delay={0.4}
-          />
-        </motion.div>
-
-        {/* Contact Limit Indicator */}
-        {user && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <ContactLimitIndicator
-              contactsUsed={user.contacts_used || 0}
-              contactsLimit={isPremium ? 'unlimited' : 2}
-              isPremium={isPremium}
-              className="mb-8"
-            />
-          </motion.div>
-        )}
+        {/* Removed Stats Cards - keeping only verification in Quick Actions */}
 
         {/* Upgrade Banner (for free users) */}
         {!isPremium && (
@@ -371,18 +300,33 @@ const RenterDashboard = () => {
             testId="quick-action-messages"
             delay={0.3}
           />
-          {isPremium && isVerified && (
-            <QuickActionCard
-              icon={<Shield className="w-6 h-6" />}
-              title="Privacy Settings"
-              description="Manage reverse marketplace visibility"
-              color="purple"
-              onClick={() => navigate('/renter/privacy')}
-              testId="quick-action-privacy"
-              delay={0.4}
-            />
-          )}
+          {/* Enhanced Verification Card beside Messages */}
+          <VerificationActionCard
+            icon={<CheckCircle className="w-6 h-6" />}
+            title={isVerified ? 'Verified Renter' : 'Get Verified'}
+            description={isVerified ? 'Your profile is verified' : 'Verify your profile now'}
+            isVerified={isVerified}
+            onClick={() => !isVerified && navigate('/renter/verification')}
+            testId="quick-action-verification"
+            delay={0.4}
+          />
         </motion.div>
+
+        {/* Contact Limit Indicator - Moved below Quick Actions */}
+        {user && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <ContactLimitIndicator
+              contactsUsed={user.contacts_used || 0}
+              contactsLimit={isPremium ? 'unlimited' : 2}
+              isPremium={isPremium}
+              className="mb-8"
+            />
+          </motion.div>
+        )}
 
         {/* Search Suggestions */}
         <motion.div 
@@ -632,6 +576,127 @@ const QuickActionCard = ({ icon, title, description, color, onClick, testId, del
       >
         Get Started →
       </motion.div>
+    </motion.button>
+  );
+};
+
+// Enhanced Verification Action Card Component
+const VerificationActionCard = ({ icon, title, description, isVerified, onClick, testId, delay }) => {
+  return (
+    <motion.button
+      onClick={onClick}
+      className={`${isVerified ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200' : 'bg-white border-2 border-yellow-200'} rounded-2xl shadow-lg p-6 hover:shadow-2xl transition-all text-left group relative overflow-hidden`}
+      data-testid={testId}
+      variants={fadeInUp}
+      whileHover={{ y: -8, scale: 1.03 }}
+      whileTap={{ scale: 0.97 }}
+      disabled={isVerified}
+    >
+      {/* Animated Background */}
+      <motion.div
+        className={`absolute inset-0 ${isVerified ? 'bg-gradient-to-br from-green-400 to-emerald-500' : 'bg-gradient-to-br from-yellow-400 to-orange-500'} opacity-0 group-hover:opacity-5 transition-opacity`}
+        initial={false}
+      />
+      
+      {/* Pulse Animation for Non-Verified */}
+      {!isVerified && (
+        <motion.div
+          className="absolute inset-0 bg-yellow-400 rounded-2xl"
+          animate={{
+            opacity: [0, 0.1, 0],
+            scale: [0.95, 1.05, 0.95],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+      )}
+
+      {/* Verified Badge */}
+      {isVerified && (
+        <motion.div
+          initial={{ scale: 0, rotate: -180 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 200, damping: 15 }}
+          className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg"
+        >
+          ✓ Verified
+        </motion.div>
+      )}
+
+      {/* Icon with Enhanced Animation */}
+      <motion.div 
+        className={`p-4 ${isVerified ? 'bg-gradient-to-br from-green-500 to-emerald-600' : 'bg-gradient-to-br from-yellow-500 to-orange-600'} rounded-xl w-fit mb-4 shadow-lg relative z-10`}
+        whileHover={{ rotate: isVerified ? [0, -10, 10, -10, 10, 0] : 360, scale: 1.1 }}
+        animate={!isVerified ? {
+          rotate: [0, 5, -5, 0],
+          scale: [1, 1.05, 1],
+        } : {}}
+        transition={{
+          duration: 2,
+          repeat: !isVerified ? Infinity : 0,
+          ease: "easeInOut"
+        }}
+      >
+        <span className="text-white">{icon}</span>
+      </motion.div>
+
+      {/* Content */}
+      <div className="relative z-10">
+        <h3 className={`text-lg font-bold mb-2 ${isVerified ? 'text-green-800' : 'text-gray-900 group-hover:text-yellow-700'} transition-colors`}>
+          {title}
+        </h3>
+        <p className={`text-sm ${isVerified ? 'text-green-700' : 'text-gray-600'}`}>
+          {description}
+        </p>
+
+        {/* Call to Action */}
+        {!isVerified && (
+          <motion.div
+            className="mt-3 flex items-center text-yellow-600 font-medium text-sm"
+            animate={{ x: [0, 5, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            Verify Now →
+          </motion.div>
+        )}
+
+        {/* Verified Status */}
+        {isVerified && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-3 flex items-center text-green-600 font-semibold text-sm"
+          >
+            <motion.span
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 1, repeat: Infinity }}
+            >
+              ✓
+            </motion.span>
+            <span className="ml-1">All Set!</span>
+          </motion.div>
+        )}
+      </div>
+
+      {/* Shine Effect for Non-Verified */}
+      {!isVerified && (
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0"
+          animate={{
+            opacity: [0, 0.3, 0],
+            x: [-100, 400],
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            repeatDelay: 1,
+            ease: "easeInOut"
+          }}
+        />
+      )}
     </motion.button>
   );
 };
