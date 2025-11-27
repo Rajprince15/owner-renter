@@ -1015,7 +1015,7 @@ FLOW 3: FREE OWNER LISTING & VERIFICATION UPSELL
 8. Uploads:
    - ID proof
    - Ownership proof (electricity bill/property tax)
-9. Completes payment (₹2,000)
+9. Completes payment (₹1,500)
 10. Admin reviews
 11. Once verified:
     - "Verified Property" badge
@@ -1713,7 +1713,7 @@ Type 1: Renter Premium Subscription
 - Sets: subscription_start, subscription_end
 
 Type 2: Property Verification Fee
-- Amount: ₹2,000
+- Amount: ₹1,500
 - Per property
 - Updates: property.verification_tier = "verified"
 - Marks: property.verification_fee_paid = true
@@ -1949,7 +1949,7 @@ Cross-reference with features.txt to ensure COMPLETE coverage:
 [✓] Not discoverable in lifestyle search
 [✓] Performance metrics shown (to upsell)
 
-✅ OWNER VERIFIED TIER (₹2,000 per property):
+✅ OWNER VERIFIED TIER (₹1,500 per property):
 [✓] "Verified Property" badge
 [✓] Top search ranking (above all free listings)
 [✓] Lifestyle data enrichment (AQI, noise, walkability)
@@ -2008,7 +2008,7 @@ Cross-reference with features.txt to ensure COMPLETE coverage:
 [✓] Razorpay integration
 [✓] Two payment types:
     - Renter subscription: ₹750 for 90 days
-    - Property verification: ₹2,000 per property
+    - Property verification: ₹1,500 per property
 [✓] Mock payment flow (switchable)
 [✓] Transaction history
 [✓] Invoice generation
@@ -2672,7 +2672,7 @@ USER GROWTH:
 - Target: 500 premium conversions
 
 INVENTORY:
-- Target: 2,000 property listings
+- Target: 1,500 property listings
 - Target: 30% verified properties (600)
 
 ENGAGEMENT:
@@ -2720,7 +2720,7 @@ WHAT'S VERIFIED:
 ✅ Trust-first monetization (no commissions)
 ✅ Contact limits (5 for free renters)
 ✅ Subscription pricing (₹750 for 90 days)
-✅ Verification fees (₹2,000 per property)
+✅ Verification fees (₹1,500 per property)
 ✅ Lifestyle search (AQI, noise, walkability)
 ✅ Natural language search
 ✅ Reverse marketplace (anonymous profiles)

@@ -12,7 +12,7 @@ This document provides a comprehensive guide for implementing the freemium tier 
 
 ### Revenue Streams:
 1. **Renter Premium Subscriptions:** ₹750 for 90 days
-2. **Property Verification Fees:** ₹2,000 per property (one-time)
+2. **Property Verification Fees:** ₹1,500 per property (one-time)
 
 ---
 
@@ -31,7 +31,7 @@ This document provides a comprehensive guide for implementing the freemium tier 
   - Property type (optional)
   
 **The \"Pain Point\" (Limitations):**
-- ⚠️ **Strict 5-contact limit** - Can only initiate chat with 5 properties maximum
+- ⚠️ **Strict 2-contact limit** - Can only initiate chat with 2 properties maximum
 - ❌ **NO** access to advanced lifestyle search (AQI, noise, walkability filters)
 - ❌ **NOT** listed in reverse marketplace
 - ❌ **NO** verified renter badge
@@ -39,7 +39,7 @@ This document provides a comprehensive guide for implementing the freemium tier 
 **Database Fields:**
 ```sql
 subscription_tier = 'free'
-contacts_used = 0-5 (increments on each new chat)
+contacts_used = 0-2 (increments on each new chat)
 is_verified_renter = FALSE
 ```
 
@@ -47,7 +47,7 @@ is_verified_renter = FALSE
 ```python
 # Before creating chat
 if user.subscription_tier == 'free':
-    if user.contacts_used >= 5:
+    if user.contacts_used >= 2:
         raise HTTPException(
             status_code=403,
             detail=\"Contact limit reached. Upgrade to Premium.\"
@@ -60,7 +60,7 @@ if user.subscription_tier == 'free':
 ```
 
 **Frontend Behavior:**
-- Show contact counter: \"3/5 contacts used\"
+- Show contact counter: \"1/2 contacts used\"
 - Display upgrade modal when limit hit
 - Lock lifestyle search filters with \"Premium Only\" overlay
 
@@ -187,11 +187,11 @@ def search_properties(filters):
 
 ---
 
-### Tier 2: VERIFIED LISTER (₹2,000 per property)
+### Tier 2: VERIFIED LISTER (₹1,500 per property)
 
 **Target User:** Serious owner who wants a high-quality tenant fast
 
-**Payment:** One-time ₹2,000 per property
+**Payment:** One-time ₹1,500 per property
 
 **What They Get (The Value Bundle):**
 
@@ -460,10 +460,10 @@ async def lifestyle_search(user_id, filters):
    - Reset `contacts_used = 0`
    - Create transaction record
 
-### Property Verification (₹2,000)
+### Property Verification (₹1,500)
 
 Same flow as above, but:
-- Amount: ₹2,000
+- Amount: ₹1,500
 - Type: \"property_verification\"
 - Updates property record instead of user
 - Sets `verification_fee_paid = TRUE`

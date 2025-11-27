@@ -3300,7 +3300,7 @@ Before deployment:
 
 REVENUE STREAMS:
 1. Renter Premium Subscriptions: ₹750 for 90 days
-2. Property Verification Fees: ₹2,000 per property (one-time)
+2. Property Verification Fees: ₹1,500 per property (one-time)
 
 CORE PRINCIPLE: We monetize TRUST and ACCESS, not ads.
 Platform is 100% ad-free and focused on quality.
@@ -3322,14 +3322,14 @@ Features:
      - Property type (optional)
 
 Limitations (Pain Points):
-  ⚠️ STRICT 5-contact limit - Can only initiate chat with 5 properties max
+  ⚠️ STRICT 2-contact limit - Can only initiate chat with 2 properties max
   ❌ NO access to advanced lifestyle search (AQI, noise, walkability filters)
   ❌ NOT listed in reverse marketplace
   ❌ NO verified renter badge
 
 Database Fields:
   - subscription_tier = 'free'
-  - contacts_used = 0-5 (increments on each new chat)
+  - contacts_used = 0-2 (increments on each new chat)
   - is_verified_renter = FALSE
 
 Backend Logic (Contact Limit Enforcement):
@@ -3338,7 +3338,7 @@ Backend Logic (Contact Limit Enforcement):
 @router.post("/api/chats/initiate")
 async def initiate_chat(property_id: str, current_user: User):
     if current_user.subscription_tier == 'free':
-        if current_user.contacts_used >= 5:
+        if current_user.contacts_used >= 2:
             raise HTTPException(
                 status_code=403,
                 detail="Contact limit reached. Upgrade to Premium for unlimited contacts."
@@ -3353,7 +3353,7 @@ async def initiate_chat(property_id: str, current_user: User):
 ```
 
 Frontend Behavior:
-  - Show contact counter: "3/5 contacts used"
+  - Show contact counter: "1/2 contacts used"
   - Display upgrade modal when limit hit
   - Lock lifestyle search filters with "Premium Only" overlay
 
@@ -3474,11 +3474,11 @@ Frontend Display:
 
 ---
 
-TIER 2: VERIFIED LISTER (₹2,000 per property)
+TIER 2: VERIFIED LISTER (₹1,500 per property)
 ----------------------------------------------
 Target: Serious owner who wants a high-quality tenant fast
 
-Payment: One-time ₹2,000 per property
+Payment: One-time ₹1,500 per property
 
 Features (The Value Bundle):
   1. ✅ "Verified Property" Badge 🏆
@@ -3729,9 +3729,9 @@ RENTER PREMIUM SUBSCRIPTION (₹750):
    - Reset contacts_used = 0
    - Create transaction record
 
-PROPERTY VERIFICATION (₹2,000):
+PROPERTY VERIFICATION (₹1,500):
 Same flow as above, but:
-  - Amount: ₹2,000
+  - Amount: ₹1,500
   - Type: "property_verification"
   - Updates property record instead of user
   - Sets verification_fee_paid = TRUE

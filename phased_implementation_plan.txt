@@ -528,7 +528,7 @@ NOTE: Contact limits NOT enforced yet - that's Phase 6!
 PHASE 6: FREE TIER LIMITS & UPSELL MODALS
 =================================================================
 
-GOAL: Enforce 5-contact limit for free renters and show upgrade prompts
+GOAL: Enforce 2-contact limit for free renters and show upgrade prompts
 
 ESTIMATED CREDITS: 3-4
 
@@ -651,7 +651,7 @@ FEATURES IN THIS PHASE:
 
 ✓ Owner verification page:
   - Verification benefits
-  - Pricing: ₹2,000 per property
+  - Pricing: ₹1,500 per property
   - Property selection dropdown
   - "Pay & Verify" button
 

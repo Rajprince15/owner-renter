@@ -1118,7 +1118,7 @@ FREE LISTER (₹0 forever):
   ❌ Not in lifestyle search
   ❌ No reverse marketplace access
 
-VERIFIED LISTER (₹2,000 per property):
+VERIFIED LISTER (₹1,500 per property):
   ✓ "Verified Property" badge 🏆
   ✓ TOP search ranking (Phase 3)
   ✓ Lifestyle data enrichment (Phase 7)
@@ -1151,7 +1151,7 @@ KEY IMPLEMENTATION POINTS:
 5. Payment Flows (Phase 5):
    - Support both mock and real Razorpay
    - Renter subscription: ₹750 → premium tier + 90 days
-   - Property verification: ₹2,000 → pending → admin approval
+   - Property verification: ₹1,500 → pending → admin approval
 
 6. Verification (Phase 6):
    - File upload IMMEDIATELY when selected (not on submit)

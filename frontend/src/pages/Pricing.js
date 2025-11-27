@@ -223,15 +223,15 @@ const Pricing = () => {
                 <li className="flex items-start">
                   <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mr-3 flex-shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-medium text-slate-900 dark:text-white">Basic listing visibility</span>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Your property appears in search results</p>
+                    <span className="font-medium text-slate-900 dark:text-white">Search discovery enabled</span>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Your property appears for renters</p>
                   </div>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mr-3 flex-shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-medium text-slate-900 dark:text-white">Standard search inclusion</span>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Renters can discover your listing</p>
+                    <span className="font-medium text-slate-900 dark:text-white">Active marketplace presence</span>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Reach potential renters</p>
                   </div>
                 </li>
                 <li className="flex items-start text-slate-400 dark:text-slate-600">
@@ -384,7 +384,7 @@ const Pricing = () => {
                   <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">Search Ranking</td>
                   <td className="px-6 py-4 text-center text-slate-700 dark:text-slate-300">—</td>
                   <td className="px-6 py-4 text-center bg-primary-50 dark:bg-primary-900/30 text-slate-700 dark:text-slate-300">—</td>
-                  <td className="px-6 py-4 text-center text-red-600 dark:text-red-400 font-semibold">Bottom</td>
+                  <td className="px-6 py-4 text-center text-slate-600 dark:text-slate-400">Standard</td>
                   <td className="px-6 py-4 text-center bg-green-50 dark:bg-green-900/30 font-bold text-green-600 dark:text-green-400">Top Priority</td>
                 </tr>
                 <tr className="hover:bg-slate-50 dark:hover:bg-slate-600">
