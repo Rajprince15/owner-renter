@@ -571,15 +571,15 @@ const StatCard = ({ icon, title, subtitle, value, color, badge, onClick, testId,
         )}
       </div>
       <motion.h3 
-        className="text-3xl font-bold text-gray-900 mb-1"
+        className="text-3xl font-bold text-gray-900 dark:text-white mb-1"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: delay + 0.2 }}
       >
         {value}
       </motion.h3>
-      <p className="text-sm font-medium text-gray-900 mb-1">{title}</p>
-      <p className="text-xs text-gray-600">{subtitle}</p>
+      <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">{title}</p>
+      <p className="text-xs text-gray-600 dark:text-gray-400">{subtitle}</p>
       {warning && (
         <motion.p
           initial={{ opacity: 0 }}

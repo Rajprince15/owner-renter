@@ -5,7 +5,7 @@ import { useInView } from 'react-intersection-observer';
 import { 
   MapPin, BedDouble, Home, Ruler, Car, Heart, MessageCircle, 
   CheckCircle, AlertCircle, User, Phone, Mail,
-  Wind, Footprints, Trees, Activity, ArrowLeft, Eye, Share2, X
+  Wind, Footprints, Trees, Activity, ArrowLeft, Eye, Share2, X, Crown
 } from 'lucide-react';
 import PropertyGallery from '../components/property/PropertyGallery';
 import Button from '../components/common/Button';
@@ -392,8 +392,8 @@ const PropertyDetail = () => {
               </motion.div>
             </motion.div>
 
-            {/* Lifestyle Data with animation */}
-            {property.lifestyle_data && (
+            {/* Lifestyle Data with animation - PREMIUM ONLY */}
+            {property.lifestyle_data && user?.subscription_tier === 'premium' && (
               <motion.div
                 ref={lifestyleRef}
                 className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-md p-6 transition-colors duration-200"
@@ -401,7 +401,17 @@ const PropertyDetail = () => {
                 animate={lifestyleInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.5 }}
               >
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Lifestyle Scores</h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">Lifestyle Scores</h2>
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-semibold rounded-full"
+                  >
+                    <Crown className="w-3 h-3 mr-1" />
+                    Premium
+                  </motion.span>
+                </div>
                 <motion.div
                   className="grid grid-cols-1 md:grid-cols-3 gap-4"
                   variants={staggerContainer}
@@ -464,6 +474,78 @@ const PropertyDetail = () => {
                     </motion.ul>
                   </motion.div>
                 )}
+              </motion.div>
+            )}
+
+            {/* Upgrade prompt for free users when lifestyle data exists */}
+            {property.lifestyle_data && (!user || user?.subscription_tier !== 'premium') && (
+              <motion.div
+                ref={lifestyleRef}
+                className="bg-gradient-to-br from-blue-50 via-purple-50 to-blue-50 dark:from-slate-800 dark:via-slate-800 dark:to-slate-800 border-2 border-blue-200 dark:border-blue-800 rounded-lg shadow-md p-8 transition-colors duration-200 relative overflow-hidden"
+                initial={{ opacity: 0, y: 30 }}
+                animate={lifestyleInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.5 }}
+              >
+                <motion.div
+                  animate={{ 
+                    scale: [1, 1.2, 1],
+                    rotate: [0, 5, -5, 0],
+                  }}
+                  transition={{ duration: 4, repeat: Infinity }}
+                  className="absolute -right-10 -top-10 w-40 h-40 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-2xl"
+                />
+                <div className="relative z-10 text-center">
+                  <motion.div
+                    animate={{ rotate: [0, 15, -15, 0] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="inline-block mb-4"
+                  >
+                    <Crown className="w-16 h-16 text-blue-600 dark:text-blue-400" />
+                  </motion.div>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                    🌟 Unlock Lifestyle Scores
+                  </h3>
+                  <p className="text-gray-700 dark:text-gray-300 mb-6 max-w-2xl mx-auto text-lg">
+                    Get detailed insights on Air Quality, Walkability, Noise Levels, and nearby amenities. 
+                    Make informed decisions with Premium!
+                  </p>
+                  <motion.ul 
+                    className="space-y-2 mb-6 text-left max-w-md mx-auto"
+                    variants={staggerContainer}
+                    initial="initial"
+                    animate="animate"
+                  >
+                    {[
+                      'Air Quality Index (AQI) data',
+                      'Walkability scores',
+                      'Noise level information',
+                      'Nearby parks and green spaces'
+                    ].map((feature, index) => (
+                      <motion.li
+                        key={index}
+                        variants={fadeInUp}
+                        className="flex items-center gap-2 text-gray-700 dark:text-gray-300"
+                      >
+                        <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
+                        <span>{feature}</span>
+                      </motion.li>
+                    ))}
+                  </motion.ul>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Button
+                      onClick={() => user ? navigate('/renter/subscription') : navigate('/login')}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-lg px-8 py-4 shadow-xl"
+                    >
+                      {user ? 'Upgrade to Premium' : 'Login to Upgrade'}
+                    </Button>
+                  </motion.div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
+                    Only ₹750 for 90 days
+                  </p>
+                </div>
               </motion.div>
             )}
 

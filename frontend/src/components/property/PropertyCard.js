@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, BedDouble, Heart, Eye } from 'lucide-react';
+import { MapPin, BedDouble, Heart, Eye, Crown, Lock } from 'lucide-react';
 import VerifiedBadge from '../common/VerifiedBadge';
 import LifestyleScoreBadge from './LifestyleScoreBadge';
 import { fadeInUp, scaleIn } from '../../utils/motionConfig';
+import { useAuth } from '../../context/AuthContext';
 
 const PropertyCard = ({ property, onShortlist, isShortlisted = false }) => {
+  const { user } = useAuth();
   const [shortlisted, setShortlisted] = useState(isShortlisted);
   const [isLoading, setIsLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -183,8 +185,8 @@ const PropertyCard = ({ property, onShortlist, isShortlisted = false }) => {
             <span>{details?.carpet_area} sq.ft</span>
           </motion.div>
 
-          {/* Lifestyle scores with Stagger Animation */}
-          {lifestyle_data && (
+          {/* Lifestyle scores with Stagger Animation - PREMIUM ONLY */}
+          {lifestyle_data && user?.subscription_tier === 'premium' && (
             <motion.div
               className="flex flex-wrap gap-2"
               initial={{ opacity: 0, y: 10 }}
@@ -214,6 +216,27 @@ const PropertyCard = ({ property, onShortlist, isShortlisted = false }) => {
                   size="small"
                   showLabel={false}
                 />
+              </motion.div>
+            </motion.div>
+          )}
+
+          {/* Premium Upsell Badge for free users */}
+          {lifestyle_data && (!user || user?.subscription_tier !== 'premium') && (
+            <motion.div
+              className="flex items-center gap-2 mt-2"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <motion.div
+                className="flex items-center gap-1.5 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-400 px-3 py-1.5 rounded-lg text-xs font-medium border border-blue-200 dark:border-blue-800"
+                whileHover={{ scale: 1.05 }}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", delay: 0.7 }}
+              >
+                <Lock className="w-3 h-3" />
+                <span>Premium Lifestyle Scores</span>
               </motion.div>
             </motion.div>
           )}
