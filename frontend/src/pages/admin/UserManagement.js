@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, Filter, Edit2, Trash2, CheckCircle, XCircle, 
   Download, Shield, UserCheck, UserX, ChevronLeft 
@@ -174,64 +175,128 @@ const UserManagement = () => {
     showToast('Users exported to CSV', 'success');
   };
 
+  const pageVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -20 }
+  };
+
+  const modalVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, scale: 0.8 }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6" data-testid="user-management">
+    <motion.div 
+      className="min-h-screen bg-gray-50 p-6" 
+      data-testid="user-management"
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      transition={{ duration: 0.5 }}
+    >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
-          <button
+        <motion.div 
+          className="mb-6"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <motion.button
             onClick={() => navigate('/admin')}
             className="flex items-center text-gray-600 hover:text-gray-900 mb-4 font-medium"
             data-testid="back-to-admin-button"
+            whileHover={{ x: -5 }}
+            whileTap={{ scale: 0.95 }}
           >
             <ChevronLeft className="w-5 h-5 mr-1" />
             Back to Admin Dashboard
-          </button>
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-600">
-            <div className="flex justify-between items-center">
+          </motion.button>
+          <motion.div 
+            className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-600"
+            whileHover={{ boxShadow: "0 20px 40px rgba(0,0,0,0.1)" }}
+          >
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                <motion.h1 
+                  className="text-3xl font-bold text-gray-900 flex items-center gap-3"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
                   User Management
-                  <span className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-semibold">
+                  <motion.span 
+                    className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-semibold"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
                     {users.length} Users
-                  </span>
-                </h1>
+                  </motion.span>
+                </motion.h1>
                 <p className="text-gray-600 mt-2">
                   Manage all users, renters, and property owners with full administrative control
                 </p>
-                <div className="flex gap-4 mt-3 text-sm">
-                  <span className="text-gray-700">
+                <div className="flex flex-wrap gap-4 mt-3 text-sm">
+                  <motion.span 
+                    className="text-gray-700"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 }}
+                  >
                     <span className="font-semibold text-purple-600">{users.filter(u => u.subscription_tier === 'premium').length}</span> Premium Users
-                  </span>
-                  <span className="text-gray-700">
+                  </motion.span>
+                  <motion.span 
+                    className="text-gray-700"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 }}
+                  >
                     <span className="font-semibold text-green-600">{users.filter(u => u.is_verified_renter).length}</span> Verified Renters
-                  </span>
-                  <span className="text-gray-700">
+                  </motion.span>
+                  <motion.span 
+                    className="text-gray-700"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.6 }}
+                  >
                     <span className="font-semibold text-blue-600">{users.filter(u => u.is_verified_owner).length}</span> Verified Owners
-                  </span>
+                  </motion.span>
                 </div>
               </div>
-              <button
+              <motion.button
                 onClick={exportToCSV}
-                className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all hover:scale-105 shadow-md"
+                className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all shadow-md"
                 data-testid="export-csv-button"
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <Download className="w-5 h-5" />
                 Export CSV
-              </button>
+              </motion.button>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <motion.div 
+          className="bg-white rounded-lg shadow p-6 mb-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
           <div className="flex items-center gap-2 mb-4">
             <Filter className="w-5 h-5 text-gray-600" />
             <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             {/* Search */}
-            <div className="relative">
+            <motion.div 
+              className="relative"
+              whileHover={{ scale: 1.02 }}
+            >
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
@@ -241,49 +306,52 @@ const UserManagement = () => {
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 data-testid="search-input"
               />
-            </div>
+            </motion.div>
 
             {/* User Type Filter */}
-            <select
+            <motion.select
               value={filters.user_type}
               onChange={(e) => setFilters({ ...filters, user_type: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               data-testid="user-type-filter"
+              whileHover={{ scale: 1.02 }}
             >
               <option value="all">All User Types</option>
               <option value="renter">Renters</option>
               <option value="owner">Owners</option>
               <option value="both">Both</option>
-            </select>
+            </motion.select>
 
             {/* Subscription Filter */}
-            <select
+            <motion.select
               value={filters.subscription_tier}
               onChange={(e) => setFilters({ ...filters, subscription_tier: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               data-testid="subscription-filter"
+              whileHover={{ scale: 1.02 }}
             >
               <option value="all">All Subscriptions</option>
               <option value="free">Free</option>
               <option value="premium">Premium</option>
-            </select>
+            </motion.select>
 
             {/* Verification Filter */}
-            <select
+            <motion.select
               value={filters.verification_status}
               onChange={(e) => setFilters({ ...filters, verification_status: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               data-testid="verification-filter"
+              whileHover={{ scale: 1.02 }}
             >
               <option value="all">All Verification</option>
               <option value="verified">Verified</option>
               <option value="pending">Pending</option>
               <option value="none">Not Verified</option>
               <option value="rejected">Rejected</option>
-            </select>
+            </motion.select>
 
             {/* Active Status Filter */}
-            <select
+            <motion.select
               value={filters.is_active === undefined ? 'all' : filters.is_active.toString()}
               onChange={(e) => {
                 const value = e.target.value;
@@ -294,51 +362,76 @@ const UserManagement = () => {
               }}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               data-testid="active-status-filter"
+              whileHover={{ scale: 1.02 }}
             >
               <option value="all">All Status</option>
               <option value="true">Active</option>
               <option value="false">Inactive</option>
-            </select>
+            </motion.select>
           </div>
-        </div>
+        </motion.div>
 
         {/* Bulk Actions */}
-        {selectedUsers.length > 0 && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <div className="flex justify-between items-center">
-              <p className="text-blue-900 font-semibold">
-                {selectedUsers.length} user(s) selected
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={handleBulkDelete}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2"
-                  data-testid="bulk-delete-button"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Delete Selected
-                </button>
-                <button
-                  onClick={() => setSelectedUsers([])}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
-                >
-                  Clear Selection
-                </button>
+        <AnimatePresence>
+          {selectedUsers.length > 0 && (
+            <motion.div 
+              className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+            >
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+                <p className="text-blue-900 font-semibold">
+                  {selectedUsers.length} user(s) selected
+                </p>
+                <div className="flex gap-3">
+                  <motion.button
+                    onClick={handleBulkDelete}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2"
+                    data-testid="bulk-delete-button"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete Selected
+                  </motion.button>
+                  <motion.button
+                    onClick={() => setSelectedUsers([])}
+                    className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Clear Selection
+                  </motion.button>
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* User Table */}
-        <div className="bg-white rounded-lg shadow">
+        <motion.div 
+          className="bg-white rounded-lg shadow"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="rounded-full h-12 w-12 border-b-2 border-blue-600"
+              />
             </div>
           ) : users.length === 0 ? (
-            <div className="text-center py-12">
+            <motion.div 
+              className="text-center py-12"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
               <p className="text-gray-600">No users found</p>
-            </div>
+            </motion.div>
           ) : (
             <UserTable
               users={users}
@@ -363,103 +456,121 @@ const UserManagement = () => {
               onViewDocuments={handleViewDocuments}
             />
           )}
-        </div>
+        </motion.div>
       </div>
 
       {/* Edit User Modal */}
-      {showEditModal && editingUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-testid="edit-user-modal">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold mb-4">Edit User</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                <input
-                  type="text"
-                  value={editingUser.full_name || ''}
-                  onChange={(e) => setEditingUser({ ...editingUser, full_name: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                  data-testid="edit-full-name"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input
-                  type="email"
-                  value={editingUser.email || ''}
-                  onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                  data-testid="edit-email"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                <input
-                  type="tel"
-                  value={editingUser.phone || ''}
-                  onChange={(e) => setEditingUser({ ...editingUser, phone: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                  data-testid="edit-phone"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">User Type</label>
-                <select
-                  value={editingUser.user_type || 'renter'}
-                  onChange={(e) => setEditingUser({ ...editingUser, user_type: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                  data-testid="edit-user-type"
-                >
-                  <option value="renter">Renter</option>
-                  <option value="owner">Owner</option>
-                  <option value="both">Both</option>
-                </select>
-              </div>
-              {(editingUser.user_type === 'renter' || editingUser.user_type === 'both') && (
+      <AnimatePresence>
+        {showEditModal && editingUser && (
+          <motion.div 
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" 
+            data-testid="edit-user-modal"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div 
+              className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              <h2 className="text-2xl font-bold mb-4">Edit User</h2>
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Subscription Tier</label>
-                  <select
-                    value={editingUser.subscription_tier || 'free'}
-                    onChange={(e) => setEditingUser({ ...editingUser, subscription_tier: e.target.value })}
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    value={editingUser.full_name || ''}
+                    onChange={(e) => setEditingUser({ ...editingUser, full_name: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                    data-testid="edit-subscription"
+                    data-testid="edit-full-name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={editingUser.email || ''}
+                    onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                    data-testid="edit-email"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <input
+                    type="tel"
+                    value={editingUser.phone || ''}
+                    onChange={(e) => setEditingUser({ ...editingUser, phone: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                    data-testid="edit-phone"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">User Type</label>
+                  <select
+                    value={editingUser.user_type || 'renter'}
+                    onChange={(e) => setEditingUser({ ...editingUser, user_type: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                    data-testid="edit-user-type"
                   >
-                    <option value="free">Free</option>
-                    <option value="premium">Premium</option>
+                    <option value="renter">Renter</option>
+                    <option value="owner">Owner</option>
+                    <option value="both">Both</option>
                   </select>
                 </div>
-              )}
-              <div>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={editingUser.is_active || false}
-                    onChange={(e) => setEditingUser({ ...editingUser, is_active: e.target.checked })}
-                    className="w-4 h-4"
-                    data-testid="edit-is-active"
-                  />
-                  <span className="text-sm font-medium text-gray-700">Active Account</span>
-                </label>
+                {(editingUser.user_type === 'renter' || editingUser.user_type === 'both') && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Subscription Tier</label>
+                    <select
+                      value={editingUser.subscription_tier || 'free'}
+                      onChange={(e) => setEditingUser({ ...editingUser, subscription_tier: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      data-testid="edit-subscription"
+                    >
+                      <option value="free">Free</option>
+                      <option value="premium">Premium</option>
+                    </select>
+                  </div>
+                )}
+                <div>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={editingUser.is_active || false}
+                      onChange={(e) => setEditingUser({ ...editingUser, is_active: e.target.checked })}
+                      className="w-4 h-4"
+                      data-testid="edit-is-active"
+                    />
+                    <span className="text-sm font-medium text-gray-700">Active Account</span>
+                  </label>
+                </div>
               </div>
-            </div>
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                onClick={() => setShowEditModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveUser}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                data-testid="save-user-button"
-              >
-                Save Changes
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              <div className="flex justify-end gap-3 mt-6">
+                <motion.button
+                  onClick={() => setShowEditModal(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Cancel
+                </motion.button>
+                <motion.button
+                  onClick={handleSaveUser}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  data-testid="save-user-button"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Save Changes
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Delete Confirmation */}
       {showDeleteConfirm && userToDelete && (
@@ -499,7 +610,7 @@ const UserManagement = () => {
         documents={viewingDocuments}
         title={documentViewerTitle}
       />
-    </div>
+    </motion.div>
   );
 };
 

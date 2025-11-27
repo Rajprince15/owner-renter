@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { 
   Users, Home, CheckCircle, DollarSign, 
   Settings, Database, Shield, BarChart3, FileText 
@@ -105,220 +106,288 @@ const AdminDashboard = () => {
     }
   ];
 
+  const pageVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+    exit: { opacity: 0, y: -20, transition: { duration: 0.3 } }
+  };
+
+  const staggerContainer = {
+    animate: {
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="rounded-full h-12 w-12 border-b-2 border-blue-600"
+        />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 p-6" data-testid="admin-dashboard">
+    <motion.div 
+      className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 p-6" 
+      data-testid="admin-dashboard"
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
       <div className="max-w-7xl mx-auto">
         {/* Header with Admin Badge */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border-l-4 border-red-600">
+        <motion.div 
+          className="bg-white rounded-xl shadow-lg p-6 mb-8 border-l-4 border-red-600"
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="bg-red-100 p-3 rounded-full">
+              <motion.div 
+                className="bg-red-100 p-3 rounded-full"
+                whileHover={{ scale: 1.1, rotate: 10 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
                 <Shield className="w-8 h-8 text-red-600" />
-              </div>
+              </motion.div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                <motion.h1 
+                  className="text-3xl font-bold text-gray-900 flex items-center gap-3"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
                   Admin Control Panel
-                  <span className="text-sm bg-red-600 text-white px-3 py-1 rounded-full font-semibold">
+                  <motion.span 
+                    className="text-sm bg-red-600 text-white px-3 py-1 rounded-full font-semibold"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
                     ADMIN ACCESS
-                  </span>
-                </h1>
-                <p className="text-gray-600 mt-1">Full system control and management capabilities</p>
+                  </motion.span>
+                </motion.h1>
+                <motion.p 
+                  className="text-gray-600 mt-1"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  Full system control and management capabilities
+                </motion.p>
               </div>
             </div>
-            <div className="flex items-center gap-3 bg-slate-50 px-4 py-3 rounded-lg">
+            <motion.div 
+              className="flex items-center gap-3 bg-slate-50 px-4 py-3 rounded-lg"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 }}
+            >
               <div className="text-right">
                 <p className="text-xs text-gray-500">Logged in as</p>
                 <p className="font-semibold text-gray-900">{user?.full_name}</p>
                 <p className="text-xs text-red-600 font-semibold">Administrator</p>
               </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Quick Actions Bar */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg p-6 mb-8 text-white">
+        <motion.div 
+          className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg p-6 mb-8 text-white"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+        >
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
             ⚡ Quick Admin Actions
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button
-              onClick={() => navigate('/admin/verifications')}
-              className="bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg p-4 text-left transition-all hover:scale-105"
-              data-testid="quick-action-verifications"
-            >
-              <div className="flex items-center gap-3">
-                <div className="bg-white/30 p-2 rounded-lg">
-                  <CheckCircle className="w-6 h-6" />
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-3 gap-4"
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+          >
+            {[
+              { icon: CheckCircle, label: 'Review Verifications', count: stats.pendingVerifications, path: '/admin/verifications', testId: 'quick-action-verifications' },
+              { icon: Users, label: 'Manage Users', count: stats.totalUsers, path: '/admin/users', testId: 'quick-action-users' },
+              { icon: Home, label: 'Manage Properties', count: stats.totalProperties, path: '/admin/properties', testId: 'quick-action-properties' }
+            ].map((action, index) => (
+              <motion.button
+                key={index}
+                onClick={() => navigate(action.path)}
+                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg p-4 text-left transition-all"
+                variants={itemVariants}
+                whileHover={{ scale: 1.03, translateY: -3 }}
+                whileTap={{ scale: 0.98 }}
+                data-testid={action.testId}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="bg-white/30 p-2 rounded-lg">
+                    <action.icon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">{action.label}</p>
+                    <p className="text-sm text-white/80">{action.count} {action.label.split(' ')[1].toLowerCase()}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-semibold">Review Verifications</p>
-                  <p className="text-sm text-white/80">{stats.pendingVerifications} pending</p>
-                </div>
-              </div>
-            </button>
-            <button
-              onClick={() => navigate('/admin/users')}
-              className="bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg p-4 text-left transition-all hover:scale-105"
-              data-testid="quick-action-users"
-            >
-              <div className="flex items-center gap-3">
-                <div className="bg-white/30 p-2 rounded-lg">
-                  <Users className="w-6 h-6" />
-                </div>
-                <div>
-                  <p className="font-semibold">Manage Users</p>
-                  <p className="text-sm text-white/80">{stats.totalUsers} total users</p>
-                </div>
-              </div>
-            </button>
-            <button
-              onClick={() => navigate('/admin/properties')}
-              className="bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg p-4 text-left transition-all hover:scale-105"
-              data-testid="quick-action-properties"
-            >
-              <div className="flex items-center gap-3">
-                <div className="bg-white/30 p-2 rounded-lg">
-                  <Home className="w-6 h-6" />
-                </div>
-                <div>
-                  <p className="font-semibold">Manage Properties</p>
-                  <p className="text-sm text-white/80">{stats.totalProperties} total properties</p>
-                </div>
-              </div>
-            </button>
-          </div>
-        </div>
+              </motion.button>
+            ))}
+          </motion.div>
+        </motion.div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard 
-            label="Total Users" 
-            value={stats.totalUsers} 
-            icon={Users} 
-            color="blue" 
-          />
-          <StatCard 
-            label="Total Properties" 
-            value={stats.totalProperties} 
-            icon={Home} 
-            color="green" 
-          />
-          <StatCard 
-            label="Pending Verifications" 
-            value={stats.pendingVerifications} 
-            icon={CheckCircle} 
-            color="purple" 
-          />
-          <StatCard 
-            label="Total Revenue" 
-            value={`₹${stats.totalRevenue.toLocaleString()}`} 
-            icon={DollarSign} 
-            color="yellow" 
-          />
-        </div>
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          {[
+            { label: 'Total Users', value: stats.totalUsers, icon: Users, color: 'blue' },
+            { label: 'Total Properties', value: stats.totalProperties, icon: Home, color: 'green' },
+            { label: 'Pending Verifications', value: stats.pendingVerifications, icon: CheckCircle, color: 'purple' },
+            { label: 'Total Revenue', value: `₹${stats.totalRevenue.toLocaleString()}`, icon: DollarSign, color: 'yellow' }
+          ].map((stat, index) => (
+            <motion.div key={index} variants={itemVariants}>
+              <StatCard {...stat} />
+            </motion.div>
+          ))}
+        </motion.div>
 
-        {/* System Overview - Enhanced */}
-        <div className="mb-6">
+        {/* System Overview */}
+        <motion.div 
+          className="mb-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+        >
           <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
             <BarChart3 className="w-6 h-6 text-blue-600" />
             System Overview
           </h2>
-        </div>
+        </motion.div>
 
         {/* Secondary Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-xl transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900">User Breakdown</h3>
-              <Users className="w-6 h-6 text-blue-600" />
-            </div>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center p-2 bg-blue-50 rounded">
-                <span className="text-gray-700 font-medium">Renters:</span>
-                <span className="font-bold text-blue-600">{stats.totalRenters}</span>
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          {[
+            {
+              title: 'User Breakdown',
+              icon: Users,
+              iconColor: 'blue-600',
+              borderColor: 'blue-500',
+              items: [
+                { label: 'Renters:', value: stats.totalRenters, bg: 'blue-50', color: 'blue-600' },
+                { label: 'Owners:', value: stats.totalOwners, bg: 'green-50', color: 'green-600' },
+                { label: 'Premium Users:', value: stats.premiumUsers, bg: 'purple-50', color: 'purple-600' }
+              ]
+            },
+            {
+              title: 'Property Status',
+              icon: Home,
+              iconColor: 'green-600',
+              borderColor: 'green-500',
+              items: [
+                { label: 'Active:', value: stats.activeProperties, bg: 'green-50', color: 'green-600' },
+                { label: 'Verified:', value: stats.verifiedProperties, bg: 'blue-50', color: 'blue-600' },
+                { label: 'Total:', value: stats.totalProperties, bg: 'gray-50', color: 'gray-900' }
+              ]
+            },
+            {
+              title: 'Revenue & Activity',
+              icon: DollarSign,
+              iconColor: 'yellow-600',
+              borderColor: 'yellow-500',
+              items: [
+                { label: 'This Month:', value: `₹${stats.revenueThisMonth.toLocaleString()}`, bg: 'green-50', color: 'green-600' },
+                { label: 'All Time:', value: `₹${stats.totalRevenue.toLocaleString()}`, bg: 'yellow-50', color: 'yellow-600' },
+                { label: 'Total Chats:', value: stats.totalChats, bg: 'blue-50', color: 'blue-600' }
+              ]
+            }
+          ].map((card, index) => (
+            <motion.div
+              key={index}
+              className={`bg-white rounded-xl shadow-lg p-6 border-l-4 border-${card.borderColor} hover:shadow-xl transition-shadow`}
+              variants={itemVariants}
+              whileHover={{ y: -5 }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900">{card.title}</h3>
+                <card.icon className={`w-6 h-6 text-${card.iconColor}`} />
               </div>
-              <div className="flex justify-between items-center p-2 bg-green-50 rounded">
-                <span className="text-gray-700 font-medium">Owners:</span>
-                <span className="font-bold text-green-600">{stats.totalOwners}</span>
+              <div className="space-y-3">
+                {card.items.map((item, i) => (
+                  <motion.div
+                    key={i}
+                    className={`flex justify-between items-center p-2 bg-${item.bg} rounded`}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.7 + (i * 0.1) }}
+                  >
+                    <span className="text-gray-700 font-medium">{item.label}</span>
+                    <span className={`font-bold text-${item.color}`}>{item.value}</span>
+                  </motion.div>
+                ))}
               </div>
-              <div className="flex justify-between items-center p-2 bg-purple-50 rounded">
-                <span className="text-gray-700 font-medium">Premium Users:</span>
-                <span className="font-bold text-purple-600">{stats.premiumUsers}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900">Property Status</h3>
-              <Home className="w-6 h-6 text-green-600" />
-            </div>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center p-2 bg-green-50 rounded">
-                <span className="text-gray-700 font-medium">Active:</span>
-                <span className="font-bold text-green-600">{stats.activeProperties}</span>
-              </div>
-              <div className="flex justify-between items-center p-2 bg-blue-50 rounded">
-                <span className="text-gray-700 font-medium">Verified:</span>
-                <span className="font-bold text-blue-600">{stats.verifiedProperties}</span>
-              </div>
-              <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                <span className="text-gray-700 font-medium">Total:</span>
-                <span className="font-bold text-gray-900">{stats.totalProperties}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500 hover:shadow-xl transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900">Revenue & Activity</h3>
-              <DollarSign className="w-6 h-6 text-yellow-600" />
-            </div>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center p-2 bg-green-50 rounded">
-                <span className="text-gray-700 font-medium">This Month:</span>
-                <span className="font-bold text-green-600">₹{stats.revenueThisMonth.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between items-center p-2 bg-yellow-50 rounded">
-                <span className="text-gray-700 font-medium">All Time:</span>
-                <span className="font-bold text-yellow-600">₹{stats.totalRevenue.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between items-center p-2 bg-blue-50 rounded">
-                <span className="text-gray-700 font-medium">Total Chats:</span>
-                <span className="font-bold text-blue-600">{stats.totalChats}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+            </motion.div>
+          ))}
+        </motion.div>
 
         {/* Admin Tools Section */}
-        <div className="mb-6">
+        <motion.div 
+          className="mb-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+        >
           <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
             <Settings className="w-6 h-6 text-gray-700" />
             Administrative Tools
           </h2>
           <p className="text-gray-600 mb-4">Access all system management and control features</p>
-        </div>
+        </motion.div>
 
         {/* Menu Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
           {menuItems.map((item, index) => (
-            <MenuCard key={index} {...item} />
+            <motion.div key={index} variants={itemVariants}>
+              <MenuCard {...item} />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Activity Log */}
-        <ActivityLog limit={10} />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1 }}
+        >
+          <ActivityLog limit={10} />
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
