@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, Filter, Edit2, Trash2, CheckCircle, Eye,
   Download, Shield, ChevronLeft, RefreshCw 
@@ -191,56 +192,120 @@ const PropertyManagement = () => {
     showToast('Properties exported to CSV', 'success');
   };
 
+  const pageVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+    exit: { opacity: 0, y: -20, transition: { duration: 0.3 } }
+  };
+
+  const staggerContainer = {
+    animate: {
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6" data-testid="property-management">
+    <motion.div 
+      className="min-h-screen bg-gray-50 p-6" 
+      data-testid="property-management"
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
-          <button
+        <motion.div 
+          className="mb-6"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <motion.button
             onClick={() => navigate('/admin')}
-            className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
+            className="flex items-center text-gray-600 hover:text-gray-900 mb-4 font-medium"
             data-testid="back-to-admin-button"
+            whileHover={{ x: -5 }}
+            whileTap={{ scale: 0.95 }}
           >
             <ChevronLeft className="w-5 h-5 mr-1" />
             Back to Dashboard
-          </button>
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Property Management</h1>
-              <p className="text-gray-600 mt-1">
-                Manage all property listings ({properties.length} total)
-              </p>
+          </motion.button>
+          <motion.div 
+            className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-600"
+            whileHover={{ boxShadow: "0 20px 40px rgba(0,0,0,0.1)" }}
+          >
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+              <div>
+                <motion.h1 
+                  className="text-3xl font-bold text-gray-900 flex items-center gap-3"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  Property Management
+                  <motion.span 
+                    className="text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full font-semibold"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    {properties.length} Properties
+                  </motion.span>
+                </motion.h1>
+                <p className="text-gray-600 mt-2">
+                  Manage all property listings and verifications with full control
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <motion.button
+                  onClick={loadProperties}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-md"
+                  data-testid="refresh-button"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95, rotate: 180 }}
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Refresh
+                </motion.button>
+                <motion.button
+                  onClick={exportToCSV}
+                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all shadow-md"
+                  data-testid="export-csv-button"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Download className="w-4 h-4" />
+                  Export CSV
+                </motion.button>
+              </div>
             </div>
-            <div className="flex gap-3">
-              <button
-                onClick={loadProperties}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                data-testid="refresh-button"
-              >
-                <RefreshCw className="w-4 h-4" />
-                Refresh
-              </button>
-              <button
-                onClick={exportToCSV}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                data-testid="export-csv-button"
-              >
-                <Download className="w-4 h-4" />
-                Export CSV
-              </button>
-            </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <motion.div 
+          className="bg-white rounded-lg shadow p-6 mb-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
           <div className="flex items-center gap-2 mb-4">
             <Filter className="w-5 h-5 text-gray-600" />
             <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Search */}
-            <div className="relative md:col-span-2">
+            <motion.div 
+              className="relative md:col-span-2"
+              whileHover={{ scale: 1.02 }}
+            >
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
@@ -250,102 +315,131 @@ const PropertyManagement = () => {
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 data-testid="search-input"
               />
-            </div>
+            </motion.div>
 
             {/* Status Filter */}
-            <select
+            <motion.select
               value={filters.status}
               onChange={(e) => setFilters({ ...filters, status: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               data-testid="status-filter"
+              whileHover={{ scale: 1.02 }}
             >
               <option value="all">All Status</option>
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
               <option value="rented">Rented</option>
-            </select>
+            </motion.select>
 
             {/* Verification Filter */}
-            <select
+            <motion.select
               value={filters.verification_status}
               onChange={(e) => setFilters({ ...filters, verification_status: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               data-testid="verification-filter"
+              whileHover={{ scale: 1.02 }}
             >
               <option value="all">All Verification</option>
               <option value="verified">Verified</option>
               <option value="unverified">Unverified</option>
-            </select>
+            </motion.select>
 
             {/* City */}
-            <input
+            <motion.input
               type="text"
               placeholder="City"
               value={filters.city}
               onChange={(e) => setFilters({ ...filters, city: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               data-testid="city-filter"
+              whileHover={{ scale: 1.02 }}
             />
 
             {/* Min Rent */}
-            <input
+            <motion.input
               type="number"
               placeholder="Min Rent"
               value={filters.min_rent}
               onChange={(e) => setFilters({ ...filters, min_rent: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               data-testid="min-rent-filter"
+              whileHover={{ scale: 1.02 }}
             />
 
             {/* Max Rent */}
-            <input
+            <motion.input
               type="number"
               placeholder="Max Rent"
               value={filters.max_rent}
               onChange={(e) => setFilters({ ...filters, max_rent: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               data-testid="max-rent-filter"
+              whileHover={{ scale: 1.02 }}
             />
           </div>
-        </div>
+        </motion.div>
 
         {/* Bulk Actions */}
-        {selectedProperties.length > 0 && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <div className="flex justify-between items-center">
-              <p className="text-blue-900 font-semibold">
-                {selectedProperties.length} property(ies) selected
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={handleBulkDelete}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2"
-                  data-testid="bulk-delete-button"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Delete Selected
-                </button>
-                <button
-                  onClick={() => setSelectedProperties([])}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
-                >
-                  Clear Selection
-                </button>
+        <AnimatePresence>
+          {selectedProperties.length > 0 && (
+            <motion.div 
+              className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+            >
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+                <p className="text-blue-900 font-semibold">
+                  {selectedProperties.length} property(ies) selected
+                </p>
+                <div className="flex gap-3">
+                  <motion.button
+                    onClick={handleBulkDelete}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2"
+                    data-testid="bulk-delete-button"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete Selected
+                  </motion.button>
+                  <motion.button
+                    onClick={() => setSelectedProperties([])}
+                    className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Clear Selection
+                  </motion.button>
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Property Table */}
-        <div className="bg-white rounded-lg shadow">
+        <motion.div 
+          className="bg-white rounded-lg shadow"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="rounded-full h-12 w-12 border-b-2 border-blue-600"
+              />
             </div>
           ) : properties.length === 0 ? (
-            <div className="text-center py-12">
+            <motion.div 
+              className="text-center py-12"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
               <p className="text-gray-600">No properties found</p>
-            </div>
+            </motion.div>
           ) : (
             <PropertyTable
               properties={properties}
@@ -372,7 +466,7 @@ const PropertyManagement = () => {
               onViewDocuments={handleViewDocuments}
             />
           )}
-        </div>
+        </motion.div>
       </div>
 
       {/* Delete Confirmation */}
@@ -440,7 +534,7 @@ const PropertyManagement = () => {
         images={viewingImages}
         title={imageGalleryTitle}
       />
-    </div>
+    </motion.div>
   );
 };
 
