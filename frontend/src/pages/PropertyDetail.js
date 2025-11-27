@@ -441,7 +441,7 @@ const PropertyDetail = () => {
         onClose={() => setShowUpgradeModal(false)}
         onUpgrade={handleUpgrade}
         contactsUsed={user?.contacts_used || 0}
-        contactsLimit={user?.subscription_tier === 'premium' ? 'unlimited' : 5}
+        contactsLimit={user?.subscription_tier === 'premium' ? 'unlimited' : 2}
       />
     </div>
   );

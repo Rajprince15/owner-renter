@@ -1147,7 +1147,7 @@ export const mockNotifications = [
     user_id: 'user_001_renter_free',
     type: 'contact_limit_warning',
     title: 'Contact Limit Warning',
-    message: 'You have used 2 of 5 free contacts. Upgrade to premium for unlimited contacts.',
+    message: 'You have reached your free contact limit (2 contacts). Upgrade to premium for unlimited contacts!',
     action_url: '/renter/subscription',
     is_read: false,
     created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString()

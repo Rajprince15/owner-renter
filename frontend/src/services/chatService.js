@@ -22,7 +22,7 @@ export const initiateChat = async (propertyId, initialMessage = 'Hi, I am intere
     const user = JSON.parse(localStorage.getItem('user'));
     
     // Check if free tier and at limit
-    if (user.subscription_tier === 'free' && user.contacts_used >= 5) {
+    if (user.subscription_tier === 'free' && user.contacts_used >= 2) {
       return mockApiError('Contact limit reached. Upgrade to premium.', 403);
     }
     

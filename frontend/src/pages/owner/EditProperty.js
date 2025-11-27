@@ -168,8 +168,7 @@ const EditProperty = () => {
                     This Property is Not Verified
                   </h3>
                   <p className="text-sm text-amber-700 mb-3">
-                    Unverified properties get 90% fewer views and appear at the bottom of search results. 
-                    Get verified to unlock 5X more views, lifestyle data, and premium renter access.
+                    Get verified to unlock enhanced visibility, lifestyle data analysis, and access to premium renters who are actively looking for quality homes!
                   </p>
                   <div className="flex flex-wrap gap-3">
                     <Link

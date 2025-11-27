@@ -221,17 +221,17 @@ const Pricing = () => {
                   </div>
                 </li>
                 <li className="flex items-start">
-                  <div className="w-5 h-5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-full flex items-center justify-center mr-3 flex-shrink-0 mt-0.5 text-lg">⚠</div>
+                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mr-3 flex-shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-semibold text-amber-600 dark:text-amber-400">"Not Verified" warning badge</span>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Lower trust signal to renters</p>
+                    <span className="font-medium text-slate-900 dark:text-white">Basic listing visibility</span>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Your property appears in search results</p>
                   </div>
                 </li>
-                <li className="flex items-start text-red-600 dark:text-red-400">
-                  <X className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mr-3 flex-shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-semibold">Ranked at bottom of search</span>
-                    <p className="text-sm text-red-500 dark:text-red-400">Below all verified properties</p>
+                    <span className="font-medium text-slate-900 dark:text-white">Standard search inclusion</span>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Renters can discover your listing</p>
                   </div>
                 </li>
                 <li className="flex items-start text-slate-400 dark:text-slate-600">

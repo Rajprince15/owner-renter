@@ -253,7 +253,7 @@ const PropertyAnalytics = () => {
                       Unlock 5X More Views
                     </h3>
                     <p className="text-amber-700">
-                      Your property is currently unverified and getting limited visibility
+                      Get verified to boost your property's performance and reach premium renters
                     </p>
                   </div>
                 </div>
