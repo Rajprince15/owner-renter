@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { createProperty } from '../../services/propertyService';
 import { getMyProperties } from '../../services/propertyService';
 import PropertyForm from '../../components/property/PropertyForm';
 import Button from '../../components/common/Button';
 import VerificationBenefitsModal from '../../components/owner/VerificationBenefitsModal';
+import { pageTransition } from '../../utils/motionConfig';
 
 const STEPS = [
   { id: 1, name: 'Basic Info', description: 'Property details' },
@@ -184,106 +186,221 @@ const AddProperty = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50" data-testid="add-property-page">
+    <motion.div 
+      className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-200" 
+      data-testid="add-property-page"
+      {...pageTransition}
+    >
       <div className="container-custom py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/owner/dashboard')}
-            className="mb-4"
-            data-testid="back-to-dashboard-btn"
+        {/* Header with Animation */}
+        <motion.div 
+          className="mb-8"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <motion.div
+            whileHover={{ x: -5 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
-          </Button>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2" data-testid="page-title">
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/owner/dashboard')}
+              className="mb-4"
+              data-testid="back-to-dashboard-btn"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </motion.div>
+          <motion.h1 
+            className="text-3xl font-bold text-slate-900 dark:text-white mb-2" 
+            data-testid="page-title"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+          >
             Add New Property
-          </h1>
-          <p className="text-slate-600">
+          </motion.h1>
+          <motion.p 
+            className="text-slate-600 dark:text-slate-400"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
             Fill in the details to list your property
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
-        {/* Progress Steps */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        {/* Progress Steps with Animations */}
+        <motion.div 
+          className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 mb-8 transition-colors duration-200"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
           <div className="flex items-center justify-between">
             {STEPS.map((step, index) => (
               <React.Fragment key={step.id}>
-                <div className="flex flex-col items-center">
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition ${
+                <motion.div 
+                  className="flex flex-col items-center"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3 + index * 0.1 }}
+                >
+                  <motion.div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${
                       currentStep > step.id
-                        ? 'bg-green-500 text-white'
+                        ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
                         : currentStep === step.id
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-slate-200 text-slate-500'
+                        ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/50'
+                        : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
                     }`}
                     data-testid={`step-indicator-${step.id}`}
+                    animate={currentStep === step.id ? {
+                      scale: [1, 1.1, 1],
+                      boxShadow: [
+                        '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                        '0 10px 15px -3px rgba(0, 0, 0, 0.2)',
+                        '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      ]
+                    } : {}}
+                    transition={{ duration: 2, repeat: currentStep === step.id ? Infinity : 0 }}
                   >
-                    {currentStep > step.id ? <Check className="w-5 h-5" /> : step.id}
-                  </div>
+                    {currentStep > step.id ? (
+                      <motion.div
+                        initial={{ scale: 0, rotate: -180 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        transition={{ type: "spring", stiffness: 200 }}
+                      >
+                        <Check className="w-5 h-5" />
+                      </motion.div>
+                    ) : step.id}
+                  </motion.div>
                   <div className="text-center mt-2">
-                    <p className="text-xs font-medium text-slate-900">{step.name}</p>
-                    <p className="text-xs text-slate-500">{step.description}</p>
+                    <p className={`text-xs font-medium transition-colors ${
+                      currentStep >= step.id ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'
+                    }`}>
+                      {step.name}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{step.description}</p>
                   </div>
-                </div>
+                </motion.div>
                 {index < STEPS.length - 1 && (
-                  <div
-                    className={`flex-1 h-1 mx-2 ${
-                      currentStep > step.id ? 'bg-green-500' : 'bg-slate-200'
+                  <motion.div
+                    className={`flex-1 h-1 mx-2 rounded-full transition-all duration-500 ${
+                      currentStep > step.id ? 'bg-green-500' : 'bg-slate-200 dark:bg-slate-700'
                     }`}
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: currentStep > step.id ? 1 : 0.3 }}
+                    transition={{ duration: 0.5 }}
                   />
                 )}
               </React.Fragment>
             ))}
           </div>
-        </div>
+        </motion.div>
 
-        {/* Form Content */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <PropertyForm
-            formData={formData}
-            errors={errors}
-            currentStep={currentStep}
-            onInputChange={handleInputChange}
-            onNestedChange={handleNestedChange}
-          />
-
-          {/* Navigation Buttons */}
-          <div className="flex justify-between mt-8 pt-6 border-t border-slate-200">
-            <Button
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={currentStep === 1}
-              data-testid="previous-step-btn"
+        {/* Form Content with Step Transitions */}
+        <motion.div 
+          className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 transition-colors duration-200"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Previous
-            </Button>
+              <PropertyForm
+                formData={formData}
+                errors={errors}
+                currentStep={currentStep}
+                onInputChange={handleInputChange}
+                onNestedChange={handleNestedChange}
+              />
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Navigation Buttons with Animations */}
+          <motion.div 
+            className="flex justify-between mt-8 pt-6 border-t border-slate-200 dark:border-slate-700"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            <motion.div
+              whileHover={{ scale: 1.05, x: -5 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Button
+                variant="outline"
+                onClick={handlePrevious}
+                disabled={currentStep === 1}
+                data-testid="previous-step-btn"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Previous
+              </Button>
+            </motion.div>
             
             {currentStep < STEPS.length ? (
-              <Button
-                variant="primary"
-                onClick={handleNext}
-                data-testid="next-step-btn"
+              <motion.div
+                whileHover={{ scale: 1.05, x: 5 }}
+                whileTap={{ scale: 0.95 }}
               >
-                Next
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleNext}
+                  data-testid="next-step-btn"
+                >
+                  Next
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </motion.div>
             ) : (
-              <Button
-                variant="primary"
-                onClick={handleSubmit}
-                disabled={submitting}
-                data-testid="submit-property-btn"
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                animate={submitting ? {} : {
+                  boxShadow: [
+                    '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                    '0 10px 15px -3px rgba(59, 130, 246, 0.4)',
+                    '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  ]
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
               >
-                {submitting ? 'Submitting...' : 'Submit Property'}
-                <Check className="w-4 h-4 ml-2" />
-              </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleSubmit}
+                  disabled={submitting}
+                  data-testid="submit-property-btn"
+                >
+                  {submitting ? (
+                    <>
+                      <motion.div
+                        className="w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      Submit Property
+                      <Check className="w-4 h-4 ml-2" />
+                    </>
+                  )}
+                </Button>
+              </motion.div>
             )}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
 
       {/* Verification Benefits Modal */}
@@ -292,7 +409,7 @@ const AddProperty = () => {
         onClose={() => setShowVerificationModal(false)}
         onVerifyNow={handleVerifyNow}
       />
-    </div>
+    </motion.div>
   );
 };
 
