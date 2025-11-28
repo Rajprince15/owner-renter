@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Save, Shield, TrendingUp, AlertCircle, Upload, X } from 'lucide-react';
 import { getPropertyDetail, updateProperty } from '../../services/propertyService';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import { CITIES } from '../../constants/propertyConstants';
+import { pageTransition, fadeInUp, staggerContainer, staggerItem } from '../../utils/motionConfig';
 
 const EditProperty = () => {
   const { id } = useParams();
@@ -23,7 +25,6 @@ const EditProperty = () => {
     try {
       setLoading(true);
       const response = await getPropertyDetail(id);
-      // Ensure all nested structures exist with defaults
       const propertyData = response.data;
       setFormData({
         ...propertyData,
@@ -93,7 +94,6 @@ const EditProperty = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Comprehensive validation
     const newErrors = {};
     if (!formData.title.trim()) newErrors.title = 'Title is required';
     if (!formData.description.trim()) newErrors.description = 'Description is required';
@@ -118,7 +118,6 @@ const EditProperty = () => {
     
     try {
       setSubmitting(true);
-      // Send complete property object matching database schema
       await updateProperty(id, formData);
       alert('Property updated successfully!');
       navigate('/owner/properties');
@@ -133,10 +132,18 @@ const EditProperty = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+        <motion.div 
+          className="text-center"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <motion.div
+            className="inline-block h-12 w-12 border-4 border-primary-600 border-t-transparent rounded-full"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          />
           <p className="text-slate-600 mt-4">Loading property...</p>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -152,69 +159,117 @@ const EditProperty = () => {
   const facingOptions = ['north', 'south', 'east', 'west', 'north-east', 'north-west', 'south-east', 'south-west'];
 
   return (
-    <div className="min-h-screen bg-slate-50" data-testid="edit-property-page">
-      <div className="container-custom py-8">
+    <motion.div 
+      className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-slate-50" 
+      data-testid="edit-property-page"
+      {...pageTransition}
+    >
+      {/* Animated Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          className="absolute top-40 left-20 w-72 h-72 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-20"
+          animate={{
+            x: [0, 50, 0],
+            y: [0, -30, 0],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+      </div>
+
+      <div className="container-custom py-8 relative z-10">
         
         {/* Verification Banner for Unverified Properties */}
-        {!formData.is_verified && (
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-500 rounded-lg p-6 mb-6 shadow-md">
-            <div className="flex items-start justify-between">
-              <div className="flex items-start space-x-4 flex-1">
-                <div className="p-2 bg-amber-100 rounded-full">
-                  <AlertCircle className="w-6 h-6 text-amber-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-amber-900 mb-1">
-                    This Property is Not Verified
-                  </h3>
-                  <p className="text-sm text-amber-700 mb-3">
-                    Get verified to unlock enhanced visibility, lifestyle data analysis, and access to premium renters who are actively looking for quality homes!
-                  </p>
-                  <div className="flex flex-wrap gap-3">
-                    <Link
-                      to="/owner/verification"
-                      state={{ propertyId: formData.property_id }}
-                      className="inline-flex items-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-semibold transition"
-                    >
-                      <Shield className="w-4 h-4 mr-2" />
-                      Verify Now for ₹1,500
-                    </Link>
-                    <a
-                      href="#benefits"
-                      className="inline-flex items-center px-4 py-2 bg-white border border-amber-300 text-amber-700 rounded-lg font-medium hover:bg-amber-50 transition"
-                    >
-                      <TrendingUp className="w-4 h-4 mr-2" />
-                      See Benefits
-                    </a>
+        <AnimatePresence>
+          {!formData.is_verified && (
+            <motion.div 
+              className="bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-500 rounded-2xl p-6 mb-6 shadow-lg"
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex items-start space-x-4 flex-1">
+                  <motion.div 
+                    className="p-3 bg-amber-100 rounded-full"
+                    animate={{ rotate: [0, 10, -10, 0] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <AlertCircle className="w-6 h-6 text-amber-600" />
+                  </motion.div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-amber-900 mb-1">
+                      This Property is Not Verified
+                    </h3>
+                    <p className="text-sm text-amber-700 mb-3">
+                      Get verified to unlock enhanced visibility, lifestyle data analysis, and access to premium renters!
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Link
+                          to="/owner/verification"
+                          state={{ propertyId: formData.property_id }}
+                          className="inline-flex items-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-semibold transition shadow-lg shadow-amber-500/30"
+                        >
+                          <Shield className="w-4 h-4 mr-2" />
+                          Verify Now for ₹1,500
+                        </Link>
+                      </motion.div>
+                      <motion.a
+                        href="#benefits"
+                        className="inline-flex items-center px-4 py-2 bg-white border border-amber-300 text-amber-700 rounded-lg font-medium hover:bg-amber-50 transition"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <TrendingUp className="w-4 h-4 mr-2" />
+                        See Benefits
+                      </motion.a>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
         
         {/* Header */}
-        <div className="mb-8">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/owner/properties')}
-            className="mb-4"
-            data-testid="back-btn"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Properties
-          </Button>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2" data-testid="page-title">
-            Edit Property
+        <motion.div 
+          className="mb-8"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <motion.div whileHover={{ x: -5 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/owner/properties')}
+              className="mb-4"
+              data-testid="back-btn"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Properties
+            </Button>
+          </motion.div>
+          <h1 className="text-4xl font-bold text-slate-900 mb-2" data-testid="page-title">
+            Edit Property ✏️
           </h1>
-          <p className="text-slate-600">
+          <p className="text-slate-600 text-lg">
             Update your property details
           </p>
-        </div>
+        </motion.div>
 
         <form onSubmit={handleSubmit}>
           {/* Basic Information */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <motion.div 
+            className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-6 border border-slate-200"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
             <h2 className="text-xl font-bold text-slate-900 mb-4">Basic Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
@@ -313,10 +368,15 @@ const EditProperty = () => {
                 />
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Location Details */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <motion.div 
+            className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-6 border border-slate-200"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
             <h2 className="text-xl font-bold text-slate-900 mb-4">Location Details</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
@@ -398,10 +458,15 @@ const EditProperty = () => {
                 />
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Property Details */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <motion.div 
+            className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-6 border border-slate-200"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
             <h2 className="text-xl font-bold text-slate-900 mb-4">Property Details</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
@@ -542,9 +607,19 @@ const EditProperty = () => {
               <label className="block text-sm font-medium text-slate-700 mb-3">
                 Amenities
               </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+              <motion.div 
+                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
                 {amenitiesList.map((amenity) => (
-                  <label key={amenity} className="flex items-center space-x-2 cursor-pointer">
+                  <motion.label 
+                    key={amenity} 
+                    className="flex items-center space-x-2 cursor-pointer p-2 rounded-lg hover:bg-slate-50 transition"
+                    variants={staggerItem}
+                    whileHover={{ scale: 1.05, backgroundColor: "rgba(241, 245, 249, 1)" }}
+                  >
                     <input
                       type="checkbox"
                       checked={formData.details.amenities?.includes(amenity) || false}
@@ -561,9 +636,9 @@ const EditProperty = () => {
                     <span className="text-sm text-slate-700 capitalize">
                       {amenity.replace('_', ' ')}
                     </span>
-                  </label>
+                  </motion.label>
                 ))}
-              </div>
+              </motion.div>
             </div>
 
             {/* Tenant Preferences */}
@@ -573,7 +648,11 @@ const EditProperty = () => {
               </label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {tenantTypesList.map((tenant) => (
-                  <label key={tenant} className="flex items-center space-x-2 cursor-pointer">
+                  <motion.label 
+                    key={tenant} 
+                    className="flex items-center space-x-2 cursor-pointer p-2 rounded-lg hover:bg-slate-50 transition"
+                    whileHover={{ scale: 1.05 }}
+                  >
                     <input
                       type="checkbox"
                       checked={formData.details.preferred_tenants?.includes(tenant) || false}
@@ -590,15 +669,15 @@ const EditProperty = () => {
                     <span className="text-sm text-slate-700 capitalize">
                       {tenant}
                     </span>
-                  </label>
+                  </motion.label>
                 ))}
               </div>
             </div>
 
             {/* Additional Preferences */}
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="flex items-center space-x-2 cursor-pointer">
+              <motion.div whileHover={{ scale: 1.02 }}>
+                <label className="flex items-center space-x-2 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
                   <input
                     type="checkbox"
                     checked={formData.details.pets_allowed || false}
@@ -608,9 +687,9 @@ const EditProperty = () => {
                   />
                   <span className="text-sm font-medium text-slate-700">Pets Allowed</span>
                 </label>
-              </div>
-              <div>
-                <label className="flex items-center space-x-2 cursor-pointer">
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.02 }}>
+                <label className="flex items-center space-x-2 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
                   <input
                     type="checkbox"
                     checked={formData.details.vegetarian_only || false}
@@ -620,24 +699,36 @@ const EditProperty = () => {
                   />
                   <span className="text-sm font-medium text-slate-700">Vegetarian Only</span>
                 </label>
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Property Images */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <motion.div 
+            className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-6 border border-slate-200"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
             <h2 className="text-xl font-bold text-slate-900 mb-4">Property Images</h2>
             
-            <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center">
-              <Upload className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+            <motion.div 
+              className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center"
+              whileHover={{ borderColor: "rgb(59, 130, 246)", backgroundColor: "rgba(59, 130, 246, 0.02)" }}
+            >
+              <motion.div
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <Upload className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+              </motion.div>
               <h3 className="text-lg font-semibold text-slate-900 mb-2">Manage Property Images</h3>
               <p className="text-sm text-slate-600 mb-4">
                 Add or remove images for your property
               </p>
-              <button
+              <motion.button
                 type="button"
                 onClick={() => {
-                  // Add sample image
                   const sampleImages = [
                     'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800',
                     'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800',
@@ -648,34 +739,54 @@ const EditProperty = () => {
                 }}
                 className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition"
                 data-testid="add-image-btn"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 Add Sample Image
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
 
             {formData.images && formData.images.length > 0 && (
-              <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-4">
-                {formData.images.map((image, index) => (
-                  <div key={index} className="relative group">
-                    <img
-                      src={image}
-                      alt={`Property ${index + 1}`}
-                      className="w-full h-40 object-cover rounded-lg"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newImages = formData.images.filter((_, i) => i !== index);
-                        handleInputChange('images', newImages);
-                      }}
-                      className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition"
-                      data-testid={`remove-image-${index}`}
+              <motion.div 
+                className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-4"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
+                <AnimatePresence>
+                  {formData.images.map((image, index) => (
+                    <motion.div 
+                      key={index} 
+                      className="relative group"
+                      variants={staggerItem}
+                      layout
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      whileHover={{ scale: 1.05 }}
                     >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
-              </div>
+                      <img
+                        src={image}
+                        alt={`Property ${index + 1}`}
+                        className="w-full h-40 object-cover rounded-lg"
+                      />
+                      <motion.button
+                        type="button"
+                        onClick={() => {
+                          const newImages = formData.images.filter((_, i) => i !== index);
+                          handleInputChange('images', newImages);
+                        }}
+                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition"
+                        data-testid={`remove-image-${index}`}
+                        whileHover={{ scale: 1.2, rotate: 90 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        <X className="w-4 h-4" />
+                      </motion.button>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </motion.div>
             )}
 
             {/* Video and Virtual Tour URLs */}
@@ -699,31 +810,64 @@ const EditProperty = () => {
                 />
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Submit Button */}
-          <div className="flex justify-end space-x-4">
-            <Button
-              variant="outline"
-              type="button"
-              onClick={() => navigate('/owner/properties')}
-              data-testid="cancel-btn"
+          <motion.div 
+            className="flex justify-end space-x-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => navigate('/owner/properties')}
+                data-testid="cancel-btn"
+              >
+                Cancel
+              </Button>
+            </motion.div>
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              animate={submitting ? {} : {
+                boxShadow: [
+                  '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                  '0 10px 15px -3px rgba(59, 130, 246, 0.4)',
+                  '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                ]
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
             >
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              type="submit"
-              disabled={submitting}
-              data-testid="save-changes-btn"
-            >
-              <Save className="w-4 h-4 mr-2" />
-              {submitting ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </div>
+              <Button
+                variant="primary"
+                type="submit"
+                disabled={submitting}
+                data-testid="save-changes-btn"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {submitting ? (
+                  <>
+                    <motion.span
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="inline-block mr-2"
+                    >
+                      ⏳
+                    </motion.span>
+                    Saving...
+                  </>
+                ) : (
+                  'Save Changes'
+                )}
+              </Button>
+            </motion.div>
+          </motion.div>
         </form>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

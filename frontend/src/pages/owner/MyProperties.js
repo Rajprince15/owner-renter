@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Edit, Trash2, Eye, Users, AlertCircle, CheckCircle, BarChart3, Shield } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, Edit, Trash2, Eye, Users, AlertCircle, CheckCircle, BarChart3 } from 'lucide-react';
 import { getMyProperties, deleteProperty } from '../../services/propertyService';
 import Button from '../../components/common/Button';
+import { pageTransition, staggerContainer, staggerItem, fadeInUp, hoverLift } from '../../utils/motionConfig';
 
 const MyProperties = () => {
   const [properties, setProperties] = useState([]);
@@ -44,66 +46,131 @@ const MyProperties = () => {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50" data-testid="my-properties-page">
-      <div className="container-custom py-8">
+    <motion.div 
+      className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-slate-50" 
+      data-testid="my-properties-page"
+      {...pageTransition}
+    >
+      {/* Animated Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          className="absolute top-20 right-20 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20"
+          animate={{
+            x: [0, -50, 0],
+            y: [0, 50, 0],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+      </div>
+
+      <div className="container-custom py-8 relative z-10">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <motion.div 
+          className="flex items-center justify-between mb-8"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 mb-2" data-testid="page-title">
-              My Properties
-            </h1>
-            <p className="text-slate-600">
+            <motion.h1 
+              className="text-4xl font-bold text-slate-900 mb-2" 
+              data-testid="page-title"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              My Properties 🏠
+            </motion.h1>
+            <motion.p 
+              className="text-slate-600 text-lg"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
               Manage and track all your listed properties
-            </p>
+            </motion.p>
           </div>
-          <Button
-            variant="primary"
-            to="/owner/property/add"
-            data-testid="add-property-btn"
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <Plus className="w-5 h-5 mr-2" />
-            Add Property
-          </Button>
-        </div>
+            <Button
+              variant="primary"
+              to="/owner/property/add"
+              data-testid="add-property-btn"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Add Property
+            </Button>
+          </motion.div>
+        </motion.div>
 
         {/* Filter Tabs */}
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+        <motion.div 
+          className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-4 mb-6 border border-slate-200"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
           <div className="flex gap-4">
-            <FilterTab
-              label="All Properties"
-              count={properties.length}
-              active={filter === 'all'}
-              onClick={() => setFilter('all')}
-              testId="filter-all"
-            />
-            <FilterTab
-              label="Verified"
-              count={properties.filter(p => p.is_verified).length}
-              active={filter === 'verified'}
-              onClick={() => setFilter('verified')}
-              testId="filter-verified"
-            />
-            <FilterTab
-              label="Unverified"
-              count={properties.filter(p => !p.is_verified).length}
-              active={filter === 'unverified'}
-              onClick={() => setFilter('unverified')}
-              testId="filter-unverified"
-            />
+            {[
+              { key: 'all', label: 'All Properties', count: properties.length },
+              { key: 'verified', label: 'Verified', count: properties.filter(p => p.is_verified).length },
+              { key: 'unverified', label: 'Unverified', count: properties.filter(p => !p.is_verified).length }
+            ].map((tab, index) => (
+              <motion.div
+                key={tab.key}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6 + index * 0.1 }}
+              >
+                <FilterTab
+                  label={tab.label}
+                  count={tab.count}
+                  active={filter === tab.key}
+                  onClick={() => setFilter(tab.key)}
+                  testId={`filter-${tab.key}`}
+                />
+              </motion.div>
+            ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Properties Grid */}
         {loading ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <motion.div 
+            className="text-center py-12"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <motion.div
+              className="inline-block h-12 w-12 border-4 border-primary-600 border-t-transparent rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            />
             <p className="text-slate-600 mt-4">Loading properties...</p>
-          </div>
+          </motion.div>
         ) : filteredProperties.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center" data-testid="no-properties-message">
-            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Plus className="w-8 h-8 text-slate-400" />
-            </div>
+          <motion.div 
+            className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-12 text-center border border-slate-200" 
+            data-testid="no-properties-message"
+            {...fadeInUp}
+          >
+            <motion.div
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <div className="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <Plus className="w-10 h-10 text-slate-400" />
+              </div>
+            </motion.div>
             <h3 className="text-xl font-semibold text-slate-900 mb-2">
               {filter === 'all' ? 'No properties yet' : `No ${filter} properties`}
             </h3>
@@ -113,77 +180,127 @@ const MyProperties = () => {
                 : `You don't have any ${filter} properties at the moment`}
             </p>
             {filter === 'all' && (
-              <Button variant="primary" to="/owner/property/add">
-                <Plus className="w-5 h-5 mr-2" />
-                Add Your First Property
-              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button variant="primary" to="/owner/property/add">
+                  <Plus className="w-5 h-5 mr-2" />
+                  Add Your First Property
+                </Button>
+              </motion.div>
             )}
-          </div>
+          </motion.div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProperties.map((property) => (
-              <PropertyCard
-                key={property.property_id}
-                property={property}
-                onDelete={handleDelete}
-              />
-            ))}
-          </div>
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+          >
+            <AnimatePresence mode="popLayout">
+              {filteredProperties.map((property, index) => (
+                <motion.div
+                  key={property.property_id}
+                  variants={staggerItem}
+                  layout
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <PropertyCard
+                    property={property}
+                    onDelete={handleDelete}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
 // Filter Tab Component
 const FilterTab = ({ label, count, active, onClick, testId }) => {
   return (
-    <button
+    <motion.button
       onClick={onClick}
-      className={`px-4 py-2 rounded-lg font-medium transition ${
+      className={`px-6 py-3 rounded-xl font-medium transition-all ${
         active
-          ? 'bg-primary-100 text-primary-700'
+          ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg shadow-primary-500/50'
           : 'text-slate-600 hover:bg-slate-100'
       }`}
       data-testid={testId}
+      whileHover={{ scale: 1.05, y: -2 }}
+      whileTap={{ scale: 0.95 }}
+      animate={active ? {
+        boxShadow: [
+          '0 10px 15px -3px rgba(59, 130, 246, 0.3)',
+          '0 10px 25px -3px rgba(59, 130, 246, 0.5)',
+          '0 10px 15px -3px rgba(59, 130, 246, 0.3)'
+        ]
+      } : {}}
+      transition={{ duration: 2, repeat: active ? Infinity : 0 }}
     >
-      {label} <span className="ml-1">({count})</span>
-    </button>
+      {label} <span className="ml-1 font-bold">({count})</span>
+    </motion.button>
   );
 };
 
 // Property Card Component
 const PropertyCard = ({ property, onDelete }) => {
   return (
-    <div
-      className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition"
+    <motion.div
+      className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200"
       data-testid={`property-card-${property.property_id}`}
+      whileHover={{ 
+        y: -8,
+        boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+      }}
+      transition={{ duration: 0.3 }}
     >
       {/* Image */}
-      <div className="relative h-48 overflow-hidden">
-        <img
+      <div className="relative h-48 overflow-hidden group">
+        <motion.img
           src={property.images?.[0] || 'https://via.placeholder.com/400x300'}
           alt={property.title}
           className="w-full h-full object-cover"
+          whileHover={{ scale: 1.1 }}
+          transition={{ duration: 0.5 }}
+        />
+        {/* Gradient Overlay */}
+        <motion.div 
+          className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+          initial={{ opacity: 0 }}
+          whileHover={{ opacity: 1 }}
         />
         {/* Status Badge */}
         <div className="absolute top-2 right-2">
           {property.is_verified ? (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            <motion.span 
+              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-500 text-white shadow-lg backdrop-blur-sm"
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 200 }}
+            >
               <CheckCircle className="w-3 h-3 mr-1" />
               Verified
-            </span>
+            </motion.span>
           ) : (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+            <motion.span 
+              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-500 text-white shadow-lg backdrop-blur-sm"
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
               <AlertCircle className="w-3 h-3 mr-1" />
               Not Verified
-            </span>
+            </motion.span>
           )}
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="p-5">
         <h3 className="text-lg font-semibold text-slate-900 mb-2 line-clamp-1">
           {property.title}
         </h3>
@@ -193,72 +310,90 @@ const PropertyCard = ({ property, onDelete }) => {
 
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-xl font-bold text-primary-600">
+            <motion.p 
+              className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 100 }}
+            >
               ₹{property.rent.toLocaleString()}
-            </p>
+            </motion.p>
             <p className="text-xs text-slate-500">per month</p>
           </div>
-          <div className="text-sm text-slate-600">
+          <div className="text-sm font-semibold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">
             {property.bhk_type}
           </div>
         </div>
 
         {/* Stats */}
         <div className="flex items-center gap-4 text-sm text-slate-500 mb-4 pb-4 border-b border-slate-200">
-          <div className="flex items-center gap-1">
+          <motion.div 
+            className="flex items-center gap-1"
+            whileHover={{ scale: 1.1 }}
+          >
             <Eye className="w-4 h-4" />
             <span>{property.analytics?.total_views || 0}</span>
-          </div>
-          <div className="flex items-center gap-1">
+          </motion.div>
+          <motion.div 
+            className="flex items-center gap-1"
+            whileHover={{ scale: 1.1 }}
+          >
             <Users className="w-4 h-4" />
             <span>{property.analytics?.total_contacts || 0}</span>
-          </div>
+          </motion.div>
         </div>
 
         {/* Actions */}
         <div className="flex flex-col gap-2">
           <div className="flex gap-2">
-            <Link
-              to={`/owner/property/${property.property_id}/edit`}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition text-sm font-medium"
-              data-testid={`edit-btn-${property.property_id}`}
-            >
-              <Edit className="w-4 h-4" />
-              Edit
-            </Link>
-            <button
+            <motion.div className="flex-1" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link
+                to={`/owner/property/${property.property_id}/edit`}
+                className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:from-primary-700 hover:to-primary-800 transition text-sm font-medium shadow-lg shadow-primary-500/30"
+                data-testid={`edit-btn-${property.property_id}`}
+              >
+                <Edit className="w-4 h-4" />
+                Edit
+              </Link>
+            </motion.div>
+            <motion.button
               onClick={() => onDelete(property.property_id)}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+              className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition shadow-lg shadow-red-500/30"
               data-testid={`delete-btn-${property.property_id}`}
+              whileHover={{ scale: 1.05, rotate: 5 }}
+              whileTap={{ scale: 0.95 }}
             >
               <Trash2 className="w-4 h-4" />
-            </button>
+            </motion.button>
           </div>
           
-          {/* Show Verify button for unverified properties */}
           {!property.is_verified ? (
-            <Link
-              to="/owner/verification"
-              state={{ propertyId: property.property_id }}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition text-sm font-semibold shadow-md"
-              data-testid={`verify-btn-${property.property_id}`}
-            >
-              <CheckCircle className="w-4 h-4" />
-              Verify Property (₹1,500)
-            </Link>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Link
+                to="/owner/verification"
+                state={{ propertyId: property.property_id }}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition text-sm font-semibold shadow-lg shadow-green-500/30"
+                data-testid={`verify-btn-${property.property_id}`}
+              >
+                <CheckCircle className="w-4 h-4" />
+                Verify Property (₹1,500)
+              </Link>
+            </motion.div>
           ) : (
-            <Link
-              to={`/owner/property/${property.property_id}/analytics`}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition text-sm font-medium"
-              data-testid={`analytics-btn-${property.property_id}`}
-            >
-              <BarChart3 className="w-4 h-4" />
-              View Analytics
-            </Link>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Link
+                to={`/owner/property/${property.property_id}/analytics`}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 border-2 border-blue-200 rounded-xl hover:bg-blue-100 transition text-sm font-medium"
+                data-testid={`analytics-btn-${property.property_id}`}
+              >
+                <BarChart3 className="w-4 h-4" />
+                View Analytics
+              </Link>
+            </motion.div>
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
