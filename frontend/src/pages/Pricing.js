@@ -806,9 +806,25 @@ const Pricing = () => {
               variants={staggerContainer}
             >
               <motion.div variants={fadeInUp} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button variant="secondary" size="lg" to="/signup" className="bg-white text-primary-600 hover:bg-primary-50">
-                  Create Free Account
-                </Button>
+                {isAuthenticated ? (
+                  <Button 
+                    variant="secondary" 
+                    size="lg" 
+                    onClick={() => {
+                      if (user?.user_type === 'renter') navigate('/renter/dashboard');
+                      else if (user?.user_type === 'owner') navigate('/owner/dashboard');
+                      else if (user?.is_admin) navigate('/admin');
+                      else navigate('/');
+                    }}
+                    className="bg-white text-primary-600 hover:bg-primary-50"
+                  >
+                    Go to Dashboard
+                  </Button>
+                ) : (
+                  <Button variant="secondary" size="lg" to="/signup" className="bg-white text-primary-600 hover:bg-primary-50">
+                    Create Free Account
+                  </Button>
+                )}
               </motion.div>
               <motion.div variants={fadeInUp} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button variant="outline" size="lg" to="/search" className="bg-white/10 backdrop-blur-sm border-white text-white hover:bg-white hover:text-primary-600">

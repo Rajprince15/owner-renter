@@ -183,35 +183,42 @@ const LandingPage = () => {
                 </form>
               </motion.div>
 
-              {/* CTA Buttons with Stagger */}
+              {/* CTA Buttons with Stagger - Role-based visibility */}
               <motion.div
                 className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
                 variants={staggerContainer}
               >
-                <motion.div variants={fadeInUp}>
-                  <Button 
-                    variant="secondary" 
-                    size="lg" 
-                    to="/search"
-                    data-testid="find-home-btn"
-                    className="bg-white text-primary-600 hover:bg-primary-50"
-                  >
-                    <Search className="w-5 h-5 mr-2" />
-                    I'm Looking for a Home
-                  </Button>
-                </motion.div>
-                <motion.div variants={fadeInUp}>
-                  <Button 
-                    variant="outline" 
-                    size="lg" 
-                    onClick={handleListProperty}
-                    className="bg-white/10 backdrop-blur-sm border-white text-white hover:bg-white hover:text-primary-600"
-                    data-testid="list-property-btn"
-                  >
-                    <Home className="w-5 h-5 mr-2" />
-                    I Want to List Property
-                  </Button>
-                </motion.div>
+                {/* Show "Looking for Home" button only to: unauthenticated, renters, or "both" type users */}
+                {(!isAuthenticated || user?.user_type === 'renter' || user?.user_type === 'both') && (
+                  <motion.div variants={fadeInUp}>
+                    <Button 
+                      variant="secondary" 
+                      size="lg" 
+                      to="/search"
+                      data-testid="find-home-btn"
+                      className="bg-white text-primary-600 hover:bg-primary-50"
+                    >
+                      <Search className="w-5 h-5 mr-2" />
+                      I'm Looking for a Home
+                    </Button>
+                  </motion.div>
+                )}
+                
+                {/* Show "List Property" button only to: unauthenticated, owners, or "both" type users */}
+                {(!isAuthenticated || user?.user_type === 'owner' || user?.user_type === 'both') && (
+                  <motion.div variants={fadeInUp}>
+                    <Button 
+                      variant="outline" 
+                      size="lg" 
+                      onClick={handleListProperty}
+                      className="bg-white/10 backdrop-blur-sm border-white text-white hover:bg-white hover:text-primary-600"
+                      data-testid="list-property-btn"
+                    >
+                      <Home className="w-5 h-5 mr-2" />
+                      I Want to List Property
+                    </Button>
+                  </motion.div>
+                )}
               </motion.div>
             </motion.div>
 
