@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, CheckCircle, Briefcase, DollarSign, User, Eye, Award, Zap, TrendingUp } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Shield, CheckCircle, Briefcase, DollarSign, User, Eye, Award, Zap, TrendingUp, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import DocumentUpload from '../../components/verification/DocumentUpload';
 import VerificationStatusTracker from '../../components/verification/VerificationStatusTracker';
