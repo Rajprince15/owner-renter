@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 
@@ -8,57 +8,60 @@ import { NotificationProvider } from './context/NotificationContext';
 import { ToastProvider } from './context/ToastContext';
 import { ThemeProvider } from './context/ThemeContext';
 
-// Pages
-import LandingPage from './pages/LandingPage';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import Search from './pages/Search';
-import PropertyDetail from './pages/PropertyDetail';
-import Pricing from './pages/Pricing';
-
-// Owner Pages
-import OwnerDashboard from './pages/owner/Dashboard';
-import MyProperties from './pages/owner/MyProperties';
-import AddProperty from './pages/owner/AddProperty';
-import EditProperty from './pages/owner/EditProperty';
-import OwnerChats from './pages/owner/Chats';
-import PropertyAnalytics from './pages/owner/PropertyAnalytics';
-
-// Renter Pages
-import RenterDashboard from './pages/renter/Dashboard';
-import RenterShortlists from './pages/renter/Shortlists';
-import RenterChats from './pages/renter/Chats';
-import RenterSubscription from './pages/renter/Subscription';
-
-// Owner Pages - Additional
-import OwnerVerification from './pages/owner/Verification';
-import ReverseMarketplace from './pages/owner/ReverseMarketplace';
-
-// Renter Pages - Additional
-import RenterVerificationUpload from './pages/renter/VerificationUpload';
-import RenterPrivacySettings from './pages/renter/PrivacySettings';
-
-// Admin Pages
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminAnalytics from './pages/admin/AdminAnalytics';
-import UserManagement from './pages/admin/UserManagement';
-import PropertyManagement from './pages/admin/PropertyManagement';
-import VerificationManagement from './pages/admin/VerificationManagement';
-import TransactionManagement from './pages/admin/TransactionManagement';
-import DatabaseTools from './pages/admin/DatabaseTools';
-import SystemSettings from './pages/admin/SystemSettings';
-
-// Payment Pages
-import PaymentSuccess from './pages/PaymentSuccess';
-import PaymentFailure from './pages/PaymentFailure';
-
-// Layout components
+// Common components - loaded immediately
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
-
-// Protected Route
 import ProtectedRoute from './components/common/ProtectedRoute';
 import ScrollToTop from './components/common/ScrollToTop';
+import LoadingSpinner from './components/common/LoadingSpinner';
+
+// Code splitting: Lazy load pages for better performance
+// Public Pages
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const Login = lazy(() => import('./pages/Login'));
+const Signup = lazy(() => import('./pages/Signup'));
+const Search = lazy(() => import('./pages/Search'));
+const PropertyDetail = lazy(() => import('./pages/PropertyDetail'));
+const Pricing = lazy(() => import('./pages/Pricing'));
+
+// Payment Pages
+const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
+const PaymentFailure = lazy(() => import('./pages/PaymentFailure'));
+
+// Owner Pages
+const OwnerDashboard = lazy(() => import('./pages/owner/Dashboard'));
+const MyProperties = lazy(() => import('./pages/owner/MyProperties'));
+const AddProperty = lazy(() => import('./pages/owner/AddProperty'));
+const EditProperty = lazy(() => import('./pages/owner/EditProperty'));
+const OwnerChats = lazy(() => import('./pages/owner/Chats'));
+const PropertyAnalytics = lazy(() => import('./pages/owner/PropertyAnalytics'));
+const OwnerVerification = lazy(() => import('./pages/owner/Verification'));
+const ReverseMarketplace = lazy(() => import('./pages/owner/ReverseMarketplace'));
+
+// Renter Pages
+const RenterDashboard = lazy(() => import('./pages/renter/Dashboard'));
+const RenterShortlists = lazy(() => import('./pages/renter/Shortlists'));
+const RenterChats = lazy(() => import('./pages/renter/Chats'));
+const RenterSubscription = lazy(() => import('./pages/renter/Subscription'));
+const RenterVerificationUpload = lazy(() => import('./pages/renter/VerificationUpload'));
+const RenterPrivacySettings = lazy(() => import('./pages/renter/PrivacySettings'));
+
+// Admin Pages
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminAnalytics = lazy(() => import('./pages/admin/AdminAnalytics'));
+const UserManagement = lazy(() => import('./pages/admin/UserManagement'));
+const PropertyManagement = lazy(() => import('./pages/admin/PropertyManagement'));
+const VerificationManagement = lazy(() => import('./pages/admin/VerificationManagement'));
+const TransactionManagement = lazy(() => import('./pages/admin/TransactionManagement'));
+const DatabaseTools = lazy(() => import('./pages/admin/DatabaseTools'));
+const SystemSettings = lazy(() => import('./pages/admin/SystemSettings'));
+
+// Loading fallback component
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <LoadingSpinner size="lg" />
+  </div>
+);
 
 function App() {
   return (
@@ -68,11 +71,21 @@ function App() {
         <AuthProvider>
           <NotificationProvider>
             <ToastProvider>
+              {/* Skip to main content link for accessibility */}
+              <a
+                href="#main-content"
+                className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:shadow-lg"
+                data-testid="skip-to-main"
+              >
+                Skip to main content
+              </a>
+              
               <div className="min-h-screen flex flex-col bg-white dark:bg-slate-900 transition-colors duration-200">
                 <Navbar />
                 
-                <main className="flex-grow">
-                  <Routes>
+                <main id="main-content" className="flex-grow" tabIndex={-1}>
+                  <Suspense fallback={<PageLoader />}>
+                    <Routes>
               {/* Public routes */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
@@ -233,11 +246,12 @@ function App() {
                   <PropertyAnalytics />
                 </ProtectedRoute>
               } />
-            </Routes>
-          </main>
-          
-            <Footer />
-          </div>
+                    </Routes>
+                  </Suspense>
+                </main>
+                
+                <Footer />
+              </div>
             </ToastProvider>
           </NotificationProvider>
         </AuthProvider>
