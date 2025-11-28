@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, CheckCircle, Briefcase, DollarSign, User, Eye } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Shield, CheckCircle, Briefcase, DollarSign, User, Eye, Award, Zap, TrendingUp } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import DocumentUpload from '../../components/verification/DocumentUpload';
 import VerificationStatusTracker from '../../components/verification/VerificationStatusTracker';
@@ -13,6 +14,7 @@ import {
   getMyVerificationStatus,
   uploadDocument 
 } from '../../services/verificationService';
+import { pageTransition, fadeInUp, staggerContainer } from '../../utils/motionConfig';
 
 const VerificationUpload = () => {
   const { user, updateUser } = useAuth();
@@ -37,7 +39,6 @@ const VerificationUpload = () => {
     fetchVerificationStatus();
   }, []);
 
-  // Warn user before leaving if files are uploaded but not submitted
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       const uploadedCount = Object.values(documents).filter(doc => doc !== null).length;
@@ -73,9 +74,7 @@ const VerificationUpload = () => {
         [documentType]: uploadedFile
       }));
 
-      // Mark as having unsaved changes once files are uploaded
       setHasUnsavedChanges(true);
-
       return uploadedFile;
     } catch (error) {
       throw new Error('Failed to upload document');
@@ -165,10 +164,8 @@ const VerificationUpload = () => {
 
       await submitRenterVerification(verificationData);
 
-      // Clear unsaved changes flag
       setHasUnsavedChanges(false);
 
-      // Update user context
       await updateUser({
         ...user,
         renter_verification_status: 'pending'
@@ -188,111 +185,183 @@ const VerificationUpload = () => {
   const status = verificationStatus?.status || 'none';
   const canSubmit = status === 'none' || status === 'rejected';
   
-  // Calculate current step
   const uploadedCount = Object.values(documents).filter(doc => doc !== null).length;
   const totalRequired = Object.keys(documents).length;
   const documentsComplete = uploadedCount === totalRequired;
   const getCurrentStep = () => {
     if (!documentsComplete) return 1;
-    return 2; // Employment details step
+    return 2;
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8" data-testid="renter-verification-page">
+    <motion.div 
+      className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-8" 
+      data-testid="renter-verification-page"
+      {...pageTransition}
+    >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-indigo-100 rounded-full">
-              <Shield className="w-8 h-8 text-indigo-600" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Renter Verification</h1>
-              <p className="text-gray-600 mt-1">
+        <motion.div 
+          className="bg-white rounded-2xl shadow-2xl p-8 mb-8 border-2 border-indigo-100 relative overflow-hidden"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <motion.div
+            animate={{ 
+              scale: [1, 1.2, 1],
+              rotate: [0, 180, 360]
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="absolute right-0 top-0 w-40 h-40 bg-indigo-200/30 rounded-full -mr-20 -mt-20"
+          />
+          <div className="flex items-center space-x-4 relative z-10">
+            <motion.div 
+              className="p-4 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-xl"
+              animate={{ 
+                boxShadow: [
+                  '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                  '0 20px 25px -5px rgba(99, 102, 241, 0.4)',
+                  '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                ]
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <Shield className="w-10 h-10 text-white" />
+            </motion.div>
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Renter Verification</h1>
+              <motion.p 
+                className="text-gray-600 mt-2 text-lg"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
                 Get verified to unlock premium benefits and gain owner's trust
-              </p>
+              </motion.p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Progress Steps - Show only during verification process */}
+        {/* Progress Steps */}
         {canSubmit && (
-          <VerificationSteps 
-            currentStep={getCurrentStep()} 
-            documents={documents}
-          />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <VerificationSteps 
+              currentStep={getCurrentStep()} 
+              documents={documents}
+            />
+          </motion.div>
         )}
 
-        {/* Upload Status Indicator - Show after any document is uploaded */}
+        {/* Upload Status Indicator */}
         {canSubmit && uploadedCount > 0 && (
-          <UploadStatusIndicator documents={documents} />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <UploadStatusIndicator documents={documents} />
+          </motion.div>
         )}
 
         {/* Benefits Section */}
         {!isVerified && status === 'none' && (
-          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-lg p-6 mb-6 text-white">
-            <h2 className="text-xl font-bold mb-4 flex items-center">
-              <CheckCircle className="w-6 h-6 mr-2" />
+          <motion.div 
+            className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl shadow-2xl p-8 mb-8 text-white relative overflow-hidden"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4 }}
+            whileHover={{ scale: 1.02 }}
+          >
+            <motion.div
+              animate={{ 
+                scale: [1, 1.3, 1],
+                rotate: [0, 180, 360]
+              }}
+              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+              className="absolute -right-20 -bottom-20 w-60 h-60 bg-white/10 rounded-full"
+            />
+            <h2 className="text-2xl font-bold mb-6 flex items-center relative z-10">
+              <Award className="w-8 h-8 mr-3" />
               Benefits of Verification
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-start space-x-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="font-medium">Higher Priority</p>
-                  <p className="text-indigo-100 text-sm">Owners prioritize verified renters</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="font-medium">Verified Badge</p>
-                  <p className="text-indigo-100 text-sm">Stand out from other renters</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="font-medium">Reverse Marketplace Access</p>
-                  <p className="text-indigo-100 text-sm">Let verified owners find you</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="font-medium">Faster Responses</p>
-                  <p className="text-indigo-100 text-sm">Verified renters get quicker replies</p>
-                </div>
-              </div>
-            </div>
-          </div>
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+            >
+              {[
+                { icon: TrendingUp, title: 'Higher Priority', desc: 'Owners prioritize verified renters' },
+                { icon: CheckCircle, title: 'Verified Badge', desc: 'Stand out from other renters' },
+                { icon: Users, title: 'Reverse Marketplace', desc: 'Let verified owners find you' },
+                { icon: Zap, title: 'Faster Responses', desc: 'Verified renters get quicker replies' }
+              ].map((benefit, index) => (
+                <motion.div 
+                  key={index}
+                  className="flex items-start space-x-3"
+                  variants={fadeInUp}
+                  whileHover={{ x: 5 }}
+                >
+                  <motion.div
+                    animate={{ rotate: [0, 10, -10, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
+                  >
+                    <benefit.icon className="w-6 h-6 mt-1 flex-shrink-0" />
+                  </motion.div>
+                  <div>
+                    <p className="font-bold text-lg">{benefit.title}</p>
+                    <p className="text-indigo-100">{benefit.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
         )}
 
         {/* Status Tracker */}
         {status !== 'none' && (
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Verification Status</h2>
+          <motion.div 
+            className="bg-white rounded-2xl shadow-2xl p-8 mb-8 border-2 border-gray-100"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Verification Status</h2>
             <VerificationStatusTracker
               status={status}
               rejectionReason={verificationStatus?.verification?.rejection_reason}
               submittedAt={verificationStatus?.verification?.submitted_at}
               reviewedAt={verificationStatus?.verification?.reviewed_at}
             />
-          </div>
+          </motion.div>
         )}
 
         {/* Verification Form */}
         {canSubmit && (
           <form onSubmit={handleSubmit}>
             {/* Document Upload Section */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-                <User className="w-6 h-6 mr-2 text-indigo-600" />
+            <motion.div 
+              className="bg-white rounded-2xl shadow-2xl p-8 mb-8 border-2 border-gray-100"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              whileHover={{ boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
+            >
+              <h2 className="text-2xl font-bold text-gray-900 mb-8 flex items-center">
+                <User className="w-7 h-7 mr-3 text-indigo-600" />
                 Identity Documents
               </h2>
 
-              <div className="space-y-6">
-                <div>
+              <div className="space-y-8">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.6 }}
+                >
                   <DocumentUpload
                     label="ID Proof (Aadhaar Card)"
                     documentType="id_proof"
@@ -302,19 +371,25 @@ const VerificationUpload = () => {
                     existingFile={documents.id_proof}
                   />
                   {documents.id_proof && (
-                    <button
+                    <motion.button
                       type="button"
                       onClick={() => handlePreviewDocument('id_proof')}
-                      className="mt-2 flex items-center space-x-2 text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                      className="mt-3 flex items-center space-x-2 text-sm text-indigo-600 hover:text-indigo-700 font-semibold"
                       data-testid="preview-id-proof-button"
+                      whileHover={{ x: 5 }}
+                      whileTap={{ scale: 0.95 }}
                     >
                       <Eye className="w-4 h-4" />
                       <span>Preview Document</span>
-                    </button>
+                    </motion.button>
                   )}
-                </div>
+                </motion.div>
 
-                <div>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.7 }}
+                >
                   <DocumentUpload
                     label="Income Proof (Salary Slip / Bank Statement)"
                     documentType="income_proof"
@@ -324,144 +399,202 @@ const VerificationUpload = () => {
                     existingFile={documents.income_proof}
                   />
                   {documents.income_proof && (
-                    <button
+                    <motion.button
                       type="button"
                       onClick={() => handlePreviewDocument('income_proof')}
-                      className="mt-2 flex items-center space-x-2 text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                      className="mt-3 flex items-center space-x-2 text-sm text-indigo-600 hover:text-indigo-700 font-semibold"
                       data-testid="preview-income-proof-button"
+                      whileHover={{ x: 5 }}
+                      whileTap={{ scale: 0.95 }}
                     >
                       <Eye className="w-4 h-4" />
                       <span>Preview Document</span>
-                    </button>
+                    </motion.button>
                   )}
-                </div>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Employment Details Section */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-                <Briefcase className="w-6 h-6 mr-2 text-indigo-600" />
+            <motion.div 
+              className="bg-white rounded-2xl shadow-2xl p-8 mb-8 border-2 border-gray-100"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              whileHover={{ boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
+            >
+              <h2 className="text-2xl font-bold text-gray-900 mb-8 flex items-center">
+                <Briefcase className="w-7 h-7 mr-3 text-indigo-600" />
                 Employment Details
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+              <motion.div 
+                className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
+                <motion.div variants={fadeInUp}>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
                     Company Name <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <motion.input
                     type="text"
                     value={employmentDetails.company_name}
                     onChange={(e) => handleEmploymentChange('company_name', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                     placeholder="Enter company name"
                     required
                     data-testid="company-name-input"
+                    whileFocus={{ scale: 1.02 }}
                   />
-                </div>
+                </motion.div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <motion.div variants={fadeInUp}>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
                     Designation <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <motion.input
                     type="text"
                     value={employmentDetails.designation}
                     onChange={(e) => handleEmploymentChange('designation', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                     placeholder="Enter your designation"
                     required
                     data-testid="designation-input"
+                    whileFocus={{ scale: 1.02 }}
                   />
-                </div>
+                </motion.div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <motion.div variants={fadeInUp}>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
                     Employment Type <span className="text-red-500">*</span>
                   </label>
-                  <select
+                  <motion.select
                     value={employmentDetails.employment_type}
                     onChange={(e) => handleEmploymentChange('employment_type', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                     required
                     data-testid="employment-type-select"
+                    whileFocus={{ scale: 1.02 }}
                   >
                     <option value="salaried">Salaried</option>
                     <option value="self-employed">Self-Employed</option>
                     <option value="business">Business Owner</option>
                     <option value="freelancer">Freelancer</option>
-                  </select>
-                </div>
+                  </motion.select>
+                </motion.div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <motion.div variants={fadeInUp}>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
                     Annual Income (₹) <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
+                    <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <motion.input
                       type="number"
                       value={employmentDetails.annual_income}
                       onChange={(e) => handleEmploymentChange('annual_income', e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                       placeholder="Enter annual income"
                       min="0"
                       required
                       data-testid="annual-income-input"
+                      whileFocus={{ scale: 1.02 }}
                     />
                   </div>
-                </div>
+                </motion.div>
 
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <motion.div variants={fadeInUp} className="md:col-span-2">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
                     Years of Experience
                   </label>
-                  <input
+                  <motion.input
                     type="number"
                     value={employmentDetails.years_of_experience}
                     onChange={(e) => handleEmploymentChange('years_of_experience', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                     placeholder="Enter years of experience"
                     min="0"
                     data-testid="experience-input"
+                    whileFocus={{ scale: 1.02 }}
                   />
-                </div>
-              </div>
-            </div>
+                </motion.div>
+              </motion.div>
+            </motion.div>
 
             {/* Submit Button */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <motion.div 
+              className="bg-white rounded-2xl shadow-2xl p-8 border-2 border-gray-100"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+            >
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">
-                    By submitting, you agree to our verification process and data usage policy.
-                  </p>
-                </div>
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  data-testid="submit-verification-button"
+                <motion.p 
+                  className="text-sm text-gray-600"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
                 >
-                  {loading ? 'Submitting...' : 'Submit for Verification'}
-                </Button>
+                  By submitting, you agree to our verification process and data usage policy.
+                </motion.p>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    data-testid="submit-verification-button"
+                    className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+                  >
+                    {loading ? (
+                      <span className="flex items-center">
+                        <motion.div
+                          className="w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        />
+                        Submitting...
+                      </span>
+                    ) : (
+                      'Submit for Verification'
+                    )}
+                  </Button>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
           </form>
         )}
 
         {/* Already Verified Message */}
         {isVerified && status === 'verified' && (
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="text-center py-8">
-              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-gray-900 mb-2">You're Verified!</h3>
-              <p className="text-gray-600 mb-6">
+          <motion.div 
+            className="bg-white rounded-2xl shadow-2xl p-8 border-2 border-green-200"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+          >
+            <div className="text-center py-12">
+              <motion.div
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+              >
+                <CheckCircle className="w-24 h-24 text-green-500 mx-auto mb-6" />
+              </motion.div>
+              <h3 className="text-3xl font-bold text-gray-900 mb-4">You're Verified!</h3>
+              <p className="text-gray-600 mb-8 text-lg">
                 You can now enjoy all premium benefits including reverse marketplace access.
               </p>
-              <Button onClick={() => navigate('/renter/dashboard')}>Go to Dashboard</Button>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button onClick={() => navigate('/renter/dashboard')}>Go to Dashboard</Button>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Document Preview Modal */}
@@ -470,7 +603,6 @@ const VerificationUpload = () => {
             document={previewDocument}
             onClose={handleClosePreview}
             onReupload={() => {
-              // Find which document type this is
               const documentType = Object.keys(documents).find(
                 key => documents[key] === previewDocument
               );
@@ -481,7 +613,7 @@ const VerificationUpload = () => {
           />
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
