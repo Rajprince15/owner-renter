@@ -1,5 +1,6 @@
 import React from 'react';
 import { CheckCircle, Clock, XCircle, AlertCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const VerificationStatusTracker = ({ status, rejectionReason, submittedAt, reviewedAt }) => {
   const getStatusConfig = () => {
@@ -92,12 +93,44 @@ const VerificationStatusTracker = ({ status, rejectionReason, submittedAt, revie
   return (
     <div className="w-full" data-testid="verification-status-tracker">
       {/* Status Card */}
-      <div className={`border-2 ${config.borderColor} rounded-lg p-6 ${config.bgColor} mb-6`}>
+      <motion.div 
+        className={`border-2 ${config.borderColor} rounded-lg p-6 ${config.bgColor} mb-6`}
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.5, type: "spring" }}
+      >
         <div className="flex items-start space-x-4">
-          <div className={`p-3 rounded-full ${config.bgColor}`}>
-            <Icon className={`w-8 h-8 ${config.color}`} />
-          </div>
-          <div className="flex-1">
+          <motion.div 
+            className={`p-3 rounded-full ${config.bgColor}`}
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+          >
+            <motion.div
+              animate={
+                status === 'pending'
+                  ? { rotate: 360 }
+                  : status === 'rejected'
+                  ? { rotate: [0, -10, 10, -10, 10, 0] }
+                  : {}
+              }
+              transition={
+                status === 'pending'
+                  ? { duration: 2, repeat: Infinity, ease: "linear" }
+                  : status === 'rejected'
+                  ? { duration: 0.5, delay: 0.5 }
+                  : {}
+              }
+            >
+              <Icon className={`w-8 h-8 ${config.color}`} />
+            </motion.div>
+          </motion.div>
+          <motion.div 
+            className="flex-1"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+          >
             <h3 className={`text-xl font-bold ${config.color} mb-2`} data-testid="status-title">
               {config.title}
             </h3>
@@ -106,7 +139,12 @@ const VerificationStatusTracker = ({ status, rejectionReason, submittedAt, revie
             </p>
 
             {/* Timeline Info */}
-            <div className="space-y-2 text-sm text-gray-600">
+            <motion.div 
+              className="space-y-2 text-sm text-gray-600"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
               {submittedAt && (
                 <p>
                   <span className="font-medium">Submitted:</span> {formatDate(submittedAt)}
@@ -122,18 +160,24 @@ const VerificationStatusTracker = ({ status, rejectionReason, submittedAt, revie
                   <span className="font-medium">Estimated completion:</span> {getEstimatedTime()}
                 </p>
               )}
-            </div>
+            </motion.div>
 
             {/* Rejection Reason */}
             {status === 'rejected' && rejectionReason && (
-              <div className="mt-4 p-4 bg-white border border-red-200 rounded-lg" data-testid="rejection-reason">
+              <motion.div 
+                className="mt-4 p-4 bg-white border border-red-200 rounded-lg" 
+                data-testid="rejection-reason"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                transition={{ delay: 0.6 }}
+              >
                 <p className="font-medium text-red-900 mb-1">Rejection Reason:</p>
                 <p className="text-red-700">{rejectionReason}</p>
-              </div>
+              </motion.div>
             )}
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Progress Steps */}
       <div className="relative">
@@ -141,8 +185,15 @@ const VerificationStatusTracker = ({ status, rejectionReason, submittedAt, revie
 
         <div className="space-y-6">
           {steps.map((step, index) => (
-            <div key={index} className="relative flex items-center" data-testid={`progress-step-${index}`}>
-              <div
+            <motion.div 
+              key={index} 
+              className="relative flex items-center" 
+              data-testid={`progress-step-${index}`}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.7 + index * 0.1 }}
+            >
+              <motion.div
                 className={`
                   relative z-10 flex items-center justify-center w-12 h-12 rounded-full border-2
                   ${step.completed ? 'bg-green-500 border-green-500' : ''}
@@ -150,14 +201,47 @@ const VerificationStatusTracker = ({ status, rejectionReason, submittedAt, revie
                   ${step.failed ? 'bg-red-500 border-red-500' : ''}
                   ${!step.completed && !step.active && !step.failed ? 'bg-white border-gray-300' : ''}
                 `}
+                animate={
+                  step.active
+                    ? {
+                        scale: [1, 1.1, 1],
+                        boxShadow: [
+                          '0 0 0 0 rgba(234, 179, 8, 0.4)',
+                          '0 0 0 10px rgba(234, 179, 8, 0)',
+                          '0 0 0 0 rgba(234, 179, 8, 0)'
+                        ]
+                      }
+                    : {}
+                }
+                transition={
+                  step.active
+                    ? { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                    : { duration: 0.3 }
+                }
               >
-                {step.completed && <CheckCircle className="w-6 h-6 text-white" />}
+                {step.completed && (
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ type: "spring", stiffness: 200 }}
+                  >
+                    <CheckCircle className="w-6 h-6 text-white" />
+                  </motion.div>
+                )}
                 {step.active && <Clock className="w-6 h-6 text-white" />}
-                {step.failed && <XCircle className="w-6 h-6 text-white" />}
+                {step.failed && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 200 }}
+                  >
+                    <XCircle className="w-6 h-6 text-white" />
+                  </motion.div>
+                )}
                 {!step.completed && !step.active && !step.failed && (
                   <span className="text-gray-400 font-medium">{index + 1}</span>
                 )}
-              </div>
+              </motion.div>
 
               <div className="ml-4">
                 <p
@@ -172,7 +256,7 @@ const VerificationStatusTracker = ({ status, rejectionReason, submittedAt, revie
                   {step.title}
                 </p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

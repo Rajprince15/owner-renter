@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Sliders } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const RenterFilters = ({ filters, onFilterChange, onClearFilters }) => {
   const [localFilters, setLocalFilters] = useState(filters);
@@ -74,115 +75,165 @@ const RenterFilters = ({ filters, onFilterChange, onClearFilters }) => {
   ];
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6" data-testid="renter-filters">
+    <motion.div 
+      className="bg-white rounded-lg shadow-md p-6" 
+      data-testid="renter-filters"
+      initial={{ opacity: 0, x: -30 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-bold text-gray-900">Filters</h3>
-        <button
+      <motion.div 
+        className="flex justify-between items-center mb-6"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <div className="flex items-center">
+          <Sliders className="w-5 h-5 text-gray-700 mr-2" />
+          <h3 className="text-lg font-bold text-gray-900">Filters</h3>
+        </div>
+        <motion.button
           onClick={handleClearAll}
           className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center"
           data-testid="clear-filters-button"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
           <X className="w-4 h-4 mr-1" />
           Clear All
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
 
       {/* Budget Range */}
-      <div className="mb-6">
+      <motion.div 
+        className="mb-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
         <label className="block text-sm font-medium text-gray-700 mb-3">
           Budget Range (Monthly)
         </label>
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-xs text-gray-600 mb-1">Min</label>
-            <input
+            <motion.input
               type="number"
               value={localFilters.budget_min || ''}
               onChange={handleBudgetMinChange}
               placeholder="10000"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               data-testid="budget-min-input"
+              whileFocus={{ scale: 1.02 }}
             />
           </div>
           <div>
             <label className="block text-xs text-gray-600 mb-1">Max</label>
-            <input
+            <motion.input
               type="number"
               value={localFilters.budget_max || ''}
               onChange={handleBudgetMaxChange}
               placeholder="50000"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               data-testid="budget-max-input"
+              whileFocus={{ scale: 1.02 }}
             />
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* BHK Type */}
-      <div className="mb-6">
+      <motion.div 
+        className="mb-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
         <label className="block text-sm font-medium text-gray-700 mb-3">
           BHK Type
         </label>
         <div className="grid grid-cols-2 gap-2">
-          {bhkTypes.map((bhk) => (
-            <button
+          {bhkTypes.map((bhk, index) => (
+            <motion.button
               key={bhk}
               onClick={() => handleBHKToggle(bhk)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
                 (localFilters.bhk_type || []).includes(bhk)
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-blue-600 text-white shadow-md'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
               data-testid={`bhk-filter-${bhk}`}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.5 + index * 0.05 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               {bhk}
-            </button>
+            </motion.button>
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* Location */}
-      <div className="mb-6">
+      <motion.div 
+        className="mb-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+      >
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Preferred Location
         </label>
-        <input
+        <motion.input
           type="text"
           value={localFilters.location || ''}
           onChange={handleLocationChange}
           placeholder="e.g., Koramangala, HSR Layout"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           data-testid="location-filter-input"
+          whileFocus={{ scale: 1.02 }}
         />
-      </div>
+      </motion.div>
 
       {/* Employment Type */}
-      <div className="mb-6">
+      <motion.div 
+        className="mb-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+      >
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Employment Type
         </label>
-        <select
+        <motion.select
           value={localFilters.employment_type || ''}
           onChange={handleEmploymentTypeChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           data-testid="employment-type-filter"
+          whileFocus={{ scale: 1.02 }}
         >
           {employmentTypes.map((type) => (
             <option key={type.value} value={type.value}>
               {type.label}
             </option>
           ))}
-        </select>
-      </div>
+        </motion.select>
+      </motion.div>
 
       {/* Info Box */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <motion.div 
+        className="bg-blue-50 border border-blue-200 rounded-lg p-4"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.8 }}
+      >
         <p className="text-sm text-blue-800">
           <strong>Note:</strong> All profiles are anonymized. You can only contact verified premium renters who have opted-in to be visible.
         </p>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
