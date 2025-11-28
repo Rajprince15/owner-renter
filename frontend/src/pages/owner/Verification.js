@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Shield, CheckCircle, AlertCircle, CreditCard, Building } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Shield, CheckCircle, AlertCircle, CreditCard, Building, Sparkles, Award, TrendingUp } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import DocumentUpload from '../../components/verification/DocumentUpload';
 import Button from '../../components/common/Button';
@@ -30,16 +31,13 @@ const Verification = () => {
   useEffect(() => {
     fetchProperties();
     
-    // Check if propertyId was passed from another page
     if (location.state?.propertyId) {
       const propId = location.state.propertyId;
-      // Will select the property once properties are loaded
       setSelectedProperty({ property_id: propId });
     }
   }, []);
 
   useEffect(() => {
-    // Once properties are loaded, select the property if propertyId was passed
     if (location.state?.propertyId && properties.length > 0) {
       const prop = properties.find(p => p.property_id === location.state.propertyId);
       if (prop && !prop.is_verified) {
@@ -97,7 +95,6 @@ const Verification = () => {
     setLoading(true);
 
     try {
-      // Create payment order
       const orderResponse = await createPaymentOrder({
         amount: 2000,
         type: 'property_verification',
@@ -120,13 +117,11 @@ const Verification = () => {
     setLoading(true);
 
     try {
-      // Verify payment
       await verifyPayment({
         order_id: orderData.order_id,
         payment_id: paymentData.payment_id
       });
 
-      // Submit verification request
       const verificationData = {
         property_id: selectedProperty.property_id,
         documents: {
@@ -162,15 +157,72 @@ const Verification = () => {
 
   const unverifiedProperties = getUnverifiedProperties();
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5
+      }
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8" data-testid="verification-page">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-8 relative overflow-hidden" data-testid="verification-page">
+      {/* Animated Background */}
+      <motion.div
+        className="absolute top-20 left-20 w-72 h-72 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-20"
+        animate={{
+          y: [0, 50, 0],
+          x: [0, 30, 0],
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
+      <motion.div
+        className="absolute bottom-20 right-20 w-72 h-72 bg-emerald-200 rounded-full mix-blend-multiply filter blur-xl opacity-20"
+        animate={{
+          y: [0, -50, 0],
+          x: [0, -30, 0],
+        }}
+        transition={{
+          duration: 9,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
+
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+        className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10"
+      >
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl shadow-xl p-6 mb-6 border border-green-100">
           <div className="flex items-center space-x-4">
-            <div className="p-3 bg-green-100 rounded-full">
-              <Shield className="w-8 h-8 text-green-600" />
-            </div>
+            <motion.div
+              whileHover={{ rotate: 360 }}
+              transition={{ duration: 0.6 }}
+              className="p-3 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full shadow-lg"
+            >
+              <Shield className="w-8 h-8 text-white" />
+            </motion.div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Property Verification</h1>
               <p className="text-gray-600 mt-1">
@@ -178,210 +230,279 @@ const Verification = () => {
               </p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Benefits */}
         {currentStep === 1 && unverifiedProperties.length > 0 && (
-          <div className="bg-gradient-to-r from-green-500 to-teal-600 rounded-lg shadow-lg p-6 mb-6 text-white">
-            <h2 className="text-xl font-bold mb-4 flex items-center">
+          <motion.div
+            variants={itemVariants}
+            whileHover={{ scale: 1.02 }}
+            className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-600 rounded-2xl shadow-2xl p-6 mb-6 text-white relative overflow-hidden"
+          >
+            <motion.div
+              className="absolute -top-10 -right-10 w-40 h-40 bg-white rounded-full opacity-10"
+              animate={{ scale: [1, 1.3, 1] }}
+              transition={{ duration: 5, repeat: Infinity }}
+            />
+            <h2 className="text-xl font-bold mb-4 flex items-center relative z-10">
               <CheckCircle className="w-6 h-6 mr-2" />
               Benefits of Property Verification
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-start space-x-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="font-medium">5X More Views</p>
-                  <p className="text-green-100 text-sm">Verified properties get priority placement</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="font-medium">Lifestyle Data</p>
-                  <p className="text-green-100 text-sm">AQI, noise level, walkability scores</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="font-medium">Premium Renters</p>
-                  <p className="text-green-100 text-sm">Attract verified, high-quality tenants</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="font-medium">Trust Badge</p>
-                  <p className="text-green-100 text-sm">Green verified badge on your listing</p>
-                </div>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
+              {[
+                { icon: TrendingUp, title: '5X More Views', desc: 'Verified properties get priority placement' },
+                { icon: Sparkles, title: 'Lifestyle Data', desc: 'AQI, noise level, walkability scores' },
+                { icon: Award, title: 'Premium Renters', desc: 'Attract verified, high-quality tenants' },
+                { icon: Shield, title: 'Trust Badge', desc: 'Green verified badge on your listing' }
+              ].map((benefit, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ scale: 1.05, x: 5 }}
+                  className="flex items-start space-x-3 bg-white/10 rounded-lg p-3 backdrop-blur-sm"
+                >
+                  <benefit.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium">{benefit.title}</p>
+                    <p className="text-green-100 text-sm">{benefit.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
             </div>
-            <div className="mt-4 pt-4 border-t border-green-400">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="mt-4 pt-4 border-t border-green-400 relative z-10"
+            >
               <p className="text-lg font-bold">One-time fee: ₹1,500 per property</p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
 
-        {/* Step 1: Select Property */}
-        {currentStep === 1 && (
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-              <Building className="w-6 h-6 mr-2 text-green-600" />
-              Select Property to Verify
-            </h2>
+        <AnimatePresence mode="wait">
+          {/* Step 1: Select Property */}
+          {currentStep === 1 && (
+            <motion.div
+              key="step1"
+              variants={itemVariants}
+              initial="hidden"
+              animate="visible"
+              exit={{ opacity: 0, x: -100 }}
+              className="bg-white rounded-2xl shadow-xl p-6"
+            >
+              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                <Building className="w-6 h-6 mr-2 text-green-600" />
+                Select Property to Verify
+              </h2>
 
-            {unverifiedProperties.length === 0 ? (
-              <div className="text-center py-12">
-                <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 mb-4">
-                  You don't have any unverified properties.
-                </p>
-                <Button onClick={() => navigate('/owner/property/add')}>
-                  Add New Property
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {unverifiedProperties.map((property) => (
-                  <div
-                    key={property.property_id}
-                    onClick={() => handlePropertySelect(property)}
-                    className="border border-gray-200 rounded-lg p-4 hover:border-green-500 hover:bg-green-50 cursor-pointer transition-all"
-                    data-testid={`property-card-${property.property_id}`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-start space-x-4 flex-1">
-                        {property.images && property.images[0] && (
-                          <img
-                            src={property.images[0]}
-                            alt={property.title}
-                            className="w-20 h-20 object-cover rounded-lg"
-                          />
-                        )}
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900">{property.title}</h3>
-                          <p className="text-sm text-gray-600 mt-1">
-                            {property.location?.locality}, {property.location?.city}
-                          </p>
-                          <p className="text-sm font-medium text-green-600 mt-2">
-                            ₹{property.rent?.toLocaleString('en-IN')}/month
-                          </p>
+              {unverifiedProperties.length === 0 ? (
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="text-center py-12"
+                >
+                  <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600 mb-4">
+                    You don't have any unverified properties.
+                  </p>
+                  <Button onClick={() => navigate('/owner/property/add')}>
+                    Add New Property
+                  </Button>
+                </motion.div>
+              ) : (
+                <div className="space-y-4">
+                  {unverifiedProperties.map((property, index) => (
+                    <motion.div
+                      key={property.property_id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ scale: 1.02, x: 5 }}
+                      onClick={() => handlePropertySelect(property)}
+                      className="border-2 border-gray-200 rounded-xl p-4 hover:border-green-500 hover:bg-green-50 cursor-pointer transition-all shadow-md hover:shadow-lg"
+                      data-testid={`property-card-${property.property_id}`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-start space-x-4 flex-1">
+                          {property.images && property.images[0] && (
+                            <motion.img
+                              whileHover={{ scale: 1.1 }}
+                              src={property.images[0]}
+                              alt={property.title}
+                              className="w-20 h-20 object-cover rounded-lg shadow-md"
+                            />
+                          )}
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-gray-900">{property.title}</h3>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {property.location?.locality}, {property.location?.city}
+                            </p>
+                            <p className="text-sm font-medium text-green-600 mt-2">
+                              ₹{property.rent?.toLocaleString('en-IN')}/month
+                            </p>
+                          </div>
                         </div>
+                        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                          <Button size="sm">Select</Button>
+                        </motion.div>
                       </div>
-                      <Button size="sm">Select</Button>
-                    </div>
-                  </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {/* Step 2: Upload Documents */}
+          {currentStep === 2 && selectedProperty && (
+            <motion.div
+              key="step2"
+              variants={itemVariants}
+              initial="hidden"
+              animate="visible"
+              exit={{ opacity: 0, x: -100 }}
+              className="space-y-6"
+            >
+              <div className="bg-white rounded-2xl shadow-xl p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-gray-900">Upload Documents</h2>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setCurrentStep(1)}
+                    className="text-sm text-gray-600 hover:text-gray-900 px-3 py-1 rounded-lg hover:bg-gray-100"
+                  >
+                    Change Property
+                  </motion.button>
+                </div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 mb-6 border border-green-200"
+                >
+                  <p className="text-sm font-medium text-gray-900">{selectedProperty.title}</p>
+                  <p className="text-sm text-gray-600">
+                    {selectedProperty.location?.locality}, {selectedProperty.location?.city}
+                  </p>
+                </motion.div>
+
+                <div className="space-y-6">
+                  <DocumentUpload
+                    label="Owner ID Proof (Aadhaar Card)"
+                    documentType="owner_id_proof"
+                    onUpload={handleDocumentUpload}
+                    acceptedFormats=".pdf,.jpg,.jpeg,.png"
+                    required={true}
+                    existingFile={documents.owner_id_proof}
+                  />
+
+                  <DocumentUpload
+                    label="Ownership Proof (Property Tax Receipt / Sale Deed / Electricity Bill)"
+                    documentType="ownership_proof"
+                    onUpload={handleDocumentUpload}
+                    acceptedFormats=".pdf,.jpg,.jpeg,.png"
+                    required={true}
+                    existingFile={documents.ownership_proof}
+                  />
+                </div>
+
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button onClick={handleDocumentsNext} className="w-full" data-testid="documents-next-button">
+                      Continue to Payment
+                    </Button>
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 3: Payment */}
+          {currentStep === 3 && selectedProperty && (
+            <motion.div
+              key="step3"
+              variants={itemVariants}
+              initial="hidden"
+              animate="visible"
+              exit={{ opacity: 0, x: -100 }}
+              className="bg-white rounded-2xl shadow-xl p-6"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-gray-900 flex items-center">
+                  <CreditCard className="w-6 h-6 mr-2 text-green-600" />
+                  Payment
+                </h2>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setCurrentStep(2)}
+                  className="text-sm text-gray-600 hover:text-gray-900 px-3 py-1 rounded-lg hover:bg-gray-100"
+                >
+                  Back to Documents
+                </motion.button>
+              </div>
+
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 mb-6 border-2 border-green-200"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-gray-700 font-medium">Verification Fee</span>
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 200 }}
+                    className="text-2xl font-bold text-gray-900"
+                  >
+                    ₹1,500
+                  </motion.span>
+                </div>
+                <p className="text-sm text-gray-600">
+                  One-time fee for property verification. After payment, our team will review your documents within 24-48 hours.
+                </p>
+              </motion.div>
+
+              <div className="space-y-4">
+                {[
+                  'Your documents will be reviewed by our verification team',
+                  'Verified properties get 5X more views',
+                  'Lifestyle data will be automatically calculated'
+                ].map((text, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ x: 5 }}
+                    className="flex items-start space-x-3 text-sm text-gray-600 bg-gray-50 rounded-lg p-3"
+                  >
+                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                    <p>{text}</p>
+                  </motion.div>
                 ))}
               </div>
-            )}
-          </div>
-        )}
 
-        {/* Step 2: Upload Documents */}
-        {currentStep === 2 && selectedProperty && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900">Upload Documents</h2>
-                <button
-                  onClick={() => setCurrentStep(1)}
-                  className="text-sm text-gray-600 hover:text-gray-900"
-                >
-                  Change Property
-                </button>
+              <div className="mt-8">
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button
+                    onClick={handlePaymentInit}
+                    disabled={loading}
+                    className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg"
+                    data-testid="pay-now-button"
+                  >
+                    {loading ? 'Processing...' : 'Pay ₹1,500 Now'}
+                  </Button>
+                </motion.div>
               </div>
-
-              <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                <p className="text-sm font-medium text-gray-900">{selectedProperty.title}</p>
-                <p className="text-sm text-gray-600">
-                  {selectedProperty.location?.locality}, {selectedProperty.location?.city}
-                </p>
-              </div>
-
-              <div className="space-y-6">
-                <DocumentUpload
-                  label="Owner ID Proof (Aadhaar Card)"
-                  documentType="owner_id_proof"
-                  onUpload={handleDocumentUpload}
-                  acceptedFormats=".pdf,.jpg,.jpeg,.png"
-                  required={true}
-                  existingFile={documents.owner_id_proof}
-                />
-
-                <DocumentUpload
-                  label="Ownership Proof (Property Tax Receipt / Sale Deed / Electricity Bill)"
-                  documentType="ownership_proof"
-                  onUpload={handleDocumentUpload}
-                  acceptedFormats=".pdf,.jpg,.jpeg,.png"
-                  required={true}
-                  existingFile={documents.ownership_proof}
-                />
-              </div>
-
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <Button onClick={handleDocumentsNext} className="w-full" data-testid="documents-next-button">
-                  Continue to Payment
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Payment */}
-        {currentStep === 3 && selectedProperty && (
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center">
-                <CreditCard className="w-6 h-6 mr-2 text-green-600" />
-                Payment
-              </h2>
-              <button
-                onClick={() => setCurrentStep(2)}
-                className="text-sm text-gray-600 hover:text-gray-900"
-              >
-                Back to Documents
-              </button>
-            </div>
-
-            <div className="bg-gray-50 rounded-lg p-6 mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-gray-700">Verification Fee</span>
-                <span className="text-2xl font-bold text-gray-900">₹1,500</span>
-              </div>
-              <p className="text-sm text-gray-600">
-                One-time fee for property verification. After payment, our team will review your documents within 24-48 hours.
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3 text-sm text-gray-600">
-                <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                <p>Your documents will be reviewed by our verification team</p>
-              </div>
-              <div className="flex items-start space-x-3 text-sm text-gray-600">
-                <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                <p>Verified properties get 5X more views</p>
-              </div>
-              <div className="flex items-start space-x-3 text-sm text-gray-600">
-                <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                <p>Lifestyle data will be automatically calculated</p>
-              </div>
-            </div>
-
-            <div className="mt-8">
-              <Button
-                onClick={handlePaymentInit}
-                disabled={loading}
-                className="w-full"
-                data-testid="pay-now-button"
-              >
-                {loading ? 'Processing...' : 'Pay ₹1,500 Now'}
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
 
       {/* Payment Modal */}
       {showPaymentModal && orderData && (
