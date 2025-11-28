@@ -528,7 +528,7 @@ const LandingPage = () => {
                 icon: Home,
                 color: 'green',
                 title: 'For Property Owners',
-                price: '₹0 - ₹2,000',
+                price: '₹0 - ₹1,500',
                 period: 'Free listing or one-time verification',
                 features: [
                   'Free: List with "Not Verified" badge',
