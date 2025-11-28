@@ -239,7 +239,7 @@ const OwnerVerificationBanner = ({ property }) => {
                   >
                     <Shield className="w-5 h-5 mr-2" />
                   </motion.div>
-                  Verify This Property Now (₹2,000)
+                  Verify This Property Now (₹1,500)
                   <motion.div
                     animate={{ x: [0, 5, 0] }}
                     transition={{ duration: 1, repeat: Infinity }}

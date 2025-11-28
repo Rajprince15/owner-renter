@@ -177,7 +177,7 @@ const EditProperty = () => {
                       className="inline-flex items-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-semibold transition"
                     >
                       <Shield className="w-4 h-4 mr-2" />
-                      Verify Now for ₹2,000
+                      Verify Now for ₹1,500
                     </Link>
                     <a
                       href="#benefits"

@@ -139,7 +139,7 @@ const VerificationBenefitsModal = ({ isOpen, onClose, onVerifyNow }) => {
                       animate={{ scale: [1, 1.05, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
                     >
-                      ₹2,000
+                      ₹1,500
                     </motion.p>
                   </div>
                   <div className="text-right">

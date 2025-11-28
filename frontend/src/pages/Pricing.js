@@ -360,7 +360,7 @@ const Pricing = () => {
                   animate={ownerInView ? { scale: 1 } : {}}
                   transition={{ type: "spring", delay: 0.3 }}
                 >
-                  ₹2,000
+                  ₹1,500
                 </motion.div>
                 <p className="text-green-100">One-time per property • Lifetime validity</p>
               </div>
@@ -700,7 +700,7 @@ const Pricing = () => {
               >
                 <TrendingUp className="w-6 h-6 text-white" />
               </motion.div>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">For Owners: ₹2,000 Investment</h3>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">For Owners: ₹1,500 Investment</h3>
               <div className="space-y-4 text-slate-700 dark:text-slate-300">
                 {[
                   { label: 'Find tenant faster:', value: '7-10 days vs 45 days' },
@@ -760,7 +760,7 @@ const Pricing = () => {
               { q: 'Can I upgrade from free to premium later?', a: 'Yes! You can upgrade anytime. Your contact history is preserved, and premium features activate immediately.' },
               { q: 'Is verification mandatory?', a: 'No. You can use Homer without verification. However, verified users get significantly better results—verified properties get 5-10X more inquiries, and verified renters are prioritized by owners.' },
               { q: 'What if I don\'t find a property within 90 days?', a: 'While 92% of our premium users find properties within 2 weeks, if you don\'t find a match, contact support for a pro-rated refund or extension.' },
-              { q: 'Do I need to pay ₹2,000 for each property listing?', a: 'Yes, verification is per property. This ensures every listing undergoes thorough checks. However, once verified, it remains verified—no annual fees.' },
+              { q: 'Do I need to pay ₹1,500 for each property listing?', a: 'Yes, verification is per property. This ensures every listing undergoes thorough checks. However, once verified, it remains verified—no annual fees.' },
               { q: 'Are there any hidden charges?', a: 'Absolutely none. Homer\'s pricing is fully transparent. What you see is what you pay. No commissions, no finder\'s fees, no surprises.' }
             ].map((faq, idx) => (
               <motion.div

@@ -169,7 +169,7 @@ const VerificationStatusWidget = ({ properties, user }) => {
                   />
                   <span className="relative z-10 flex items-center">
                     <Shield className="w-4 h-4 mr-2" />
-                    Verify Now (₹2,000 per property)
+                    Verify Now (₹1,500 per property)
                   </span>
                 </Button>
               </motion.div>
